@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/v1.0/accounts.sql
+  - include:
+      file: db/changelog/v1.0/roles.sql
+  - include:
+      file: db/changelog/v1.0/account_roles.sql
+  - include:
+      file: db/changelog/v1.0/device_statuses.sql
+  - include:
+      file: db/changelog/v1.0/device_types.sql
+  - include:
+      file: db/changelog/v1.0/device_subtypes.sql
+  - include:
+      file: db/changelog/v1.0/devices.sql
+  - include:
+      file: db/changelog/v1.0/ops_statuses.sql
+  - include:
+      file: db/changelog/v1.0/operation_types.sql
+  - include:
+      file: db/changelog/v1.0/operations.sql
+  - include:
+      file: db/changelog/v1.0/device_relations.sql
+  - include:
+      file: db/changelog/v1.0/location_types.sql
+  - include:
+      file: db/changelog/v1.0/device_storage_locations.sql

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование профиля - LabManufacture</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .home-button {
+            position: fixed !important;
+            bottom: 30px !important;
+            right: 30px !important;
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            background-color: #1E40AF !important;
+            color: white !important;
+            border: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 24px !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            z-index: 1000 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .home-button:hover {
+            background-color: #1e3a8a !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        .home-button:active {
+            transform: scale(0.95) !important;
+        }
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .profile-header h2 {
+            color: #0d6efd;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #0d6efd;
+            margin: 0 auto 1rem;
+            display: block;
+        }
+
+        .avatar-upload {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            z-index: 1;
+        }
+
+        .avatar-edit input {
+            display: none;
+        }
+
+        .avatar-edit label {
+            display: inline-block;
+            width: 34px;
+            height: 34px;
+            margin-bottom: 0;
+            border-radius: 50%;
+            background: #0d6efd;
+            border: 1px solid transparent;
+            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            font-weight: normal;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .avatar-edit label:hover {
+            background: #0a58ca;
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-section h4 {
+            color: #495057;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section h4 i {
+            margin-right: 0.5rem;
+            color: #0d6efd;
+            width: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            margin-right: 0.5rem;
+            color: #0d6efd;
+            width: 20px;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .password-strength {
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: #dc3545; width: 25%; }
+        .strength-fair { background: #fd7e14; width: 50%; }
+        .strength-good { background: #ffc107; width: 75%; }
+        .strength-strong { background: #198754; width: 100%; }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+
+        .notification-settings .form-check {
+            margin-bottom: 1rem;
+            padding-left: 2.5rem;
+        }
+
+        .notification-settings .form-check-input {
+            margin-left: -2.5rem;
+        }
+
+        .notification-settings .form-check-label {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-settings .form-check-label i {
+            margin-right: 0.5rem;
+            width: 20px;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 1rem;
+            }
+
+            .profile-card {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<button class="home-button" onclick="window.location.href='/'">
+    <i class="fas fa-home"></i>
+</button>
+
+<!-- Основной контент -->
+<div class="main-content">
+    <div class="profile-container">
+        <div class="profile-header">
+            <h2><i class="fas fa-user-edit"></i> Редактирование профиля</h2>
+            <p>Обновите ваши личные данные и настройки</p>
+        </div>
+
+        <!-- Сообщения об ошибках/успехе -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> Профиль успешно обновлен!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Ошибка при обновлении профиля</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="profile-card">
+            <!-- Добавь th:object="${request}" и исправь метод -->
+            <form th:action="@{/profile/update}" method="post" id="profileForm" th:object="${request}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="_method" value="PATCH"/>
+
+                <!-- Основная информация -->
+                <div class="form-section">
+                    <h4><i class="fas fa-id-card"></i> Основная информация</h4>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i> Имя пользователя
+                                </label>
+                                <input type="text" class="form-control"
+                                       th:value="${user.username}" readonly>
+                                <div class="form-help">Имя пользователя нельзя изменить</div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i> Email *
+                                </label>
+                                <!-- Используй th:field вместо th:value и name -->
+                                <input type="email" class="form-control"
+                                       th:field="*{email}"
+                                       placeholder="user@company.com"
+                                       required
+                                       th:class="${#fields.hasErrors('email')} ? 'form-control is-invalid' : 'form-control'">
+                                <!-- Добавь отображение ошибок -->
+                                <div th:if="${#fields.hasErrors('email')}" class="invalid-feedback">
+                                    <span th:errors="*{email}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-id-card"></i> Имя
+                                </label>
+                                <input type="text" class="form-control"
+                                       th:value="${user.firstName}" readonly>
+                                <div class="form-help">Имя пользователя нельзя изменить</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-id-card"></i> Отчество
+                                </label>
+                                <input type="text" class="form-control"
+                                       th:value="${user.middleName}" readonly>
+                                <div class="form-help">Отчество пользователя нельзя изменить</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-id-card"></i> Фамилия
+                                </label>
+                                <input type="text" class="form-control"
+                                       th:value="${user.lastName}" readonly>
+                                <div class="form-help">Фамилию пользователя нельзя изменить</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Смена пароля -->
+                <div class="form-section">
+                    <h4><i class="fas fa-lock"></i> Смена пароля</h4>
+                    <p class="form-help">Оставьте поля пустыми, если не хотите менять пароль</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-key"></i> Текущий пароль
+                                </label>
+                                <!-- Используй th:field для currentPassword -->
+                                <input type="password" class="form-control"
+                                       th:field="*{currentPassword}"
+                                       id="currentPassword"
+                                       placeholder="Введите текущий пароль">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-lock"></i> Новый пароль
+                                </label>
+                                <!-- Используй th:field для newPassword -->
+                                <input type="password" class="form-control"
+                                       th:field="*{newPassword}"
+                                       id="newPassword"
+                                       placeholder="Введите новый пароль"
+                                       oninput="checkPasswordStrength(this.value)"
+                                       th:class="${#fields.hasErrors('newPassword')} ? 'form-control is-invalid' : 'form-control'">
+                                <div class="password-strength">
+                                    <div class="password-strength-bar" id="password-strength-bar"></div>
+                                </div>
+                                <div class="form-help">Минимум 8 символов: буквы, цифры и специальные знаки</div>
+                                <!-- Отображение ошибок валидации -->
+                                <div th:if="${#fields.hasErrors('newPassword')}" class="invalid-feedback">
+                                    <span th:errors="*{newPassword}"></span>
+                                </div>
+                                <div id="password-feedback" class="form-help"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-lock"></i> Подтверждение пароля
+                                </label>
+                                <!-- Используй th:field для confirmPassword -->
+                                <input type="password" class="form-control"
+                                       th:field="*{confirmPassword}"
+                                       id="confirmPassword"
+                                       placeholder="Повторите новый пароль"
+                                       oninput="checkPasswordMatch()"
+                                       th:class="${#fields.hasErrors('confirmPassword')} ? 'form-control is-invalid' : 'form-control'">
+                                <!-- Отображение ошибок валидации -->
+                                <div th:if="${#fields.hasErrors('confirmPassword')}" class="invalid-feedback">
+                                    <span th:errors="*{confirmPassword}"></span>
+                                </div>
+                                <div id="confirm-feedback" class="form-help"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Действия -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="window.location.href='/main'">
+                        <i class="fas fa-times"></i> Отмена
+                    </button>
+                    <button type="submit" class="btn btn-save" id="submitBtn">
+                        <i class="fas fa-save"></i> Сохранить изменения
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Проверка силы пароля
+    function checkPasswordStrength(password) {
+        const bar = document.getElementById('password-strength-bar');
+        const feedback = document.getElementById('password-feedback');
+
+        // Если поле пустое, скрываем индикатор
+        if (!password) {
+            bar.className = 'password-strength-bar';
+            feedback.textContent = '';
+            return;
+        }
+
+        let strength = 0;
+        let message = '';
+        let color = '';
+
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        switch(strength) {
+            case 0:
+            case 1:
+                message = 'Слабый пароль';
+                color = 'strength-weak';
+                break;
+            case 2:
+                message = 'Ненадежный пароль';
+                color = 'strength-fair';
+                break;
+            case 3:
+                message = 'Хороший пароль';
+                color = 'strength-good';
+                break;
+            case 4:
+            case 5:
+                message = 'Сильный пароль';
+                color = 'strength-strong';
+                break;
+        }
+
+        bar.className = 'password-strength-bar ' + color;
+        feedback.textContent = message;
+        feedback.style.color = getComputedStyle(bar).backgroundColor;
+    }
+
+    // Проверка совпадения паролей
+    function checkPasswordMatch() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        const feedback = document.getElementById('confirm-feedback');
+
+        if (!newPassword && !confirm) {
+            feedback.textContent = '';
+            return;
+        }
+
+        if (confirm === '') {
+            feedback.textContent = '';
+            return;
+        }
+
+        if (newPassword === confirm) {
+            feedback.textContent = 'Пароли совпадают';
+            feedback.style.color = '#198754';
+        } else {
+            feedback.textContent = 'Пароли не совпадают';
+            feedback.style.color = '#dc3545';
+        }
+    }
+
+    // Валидация формы (ОДНА функция!)
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const currentPassword = document.getElementById('currentPassword').value;
+
+        // Триммируем значения для проверки на пустоту
+        const newPasswordTrimmed = newPassword.trim();
+        const confirmPasswordTrimmed = confirmPassword.trim();
+        const currentPasswordTrimmed = currentPassword.trim();
+
+        // Логика:
+        // 1. Если новый пароль ПУСТОЙ -> не меняем пароль, игнорируем остальные поля
+        // 2. Если новый пароль НЕ пустой -> меняем пароль, проверяем все условия
+
+        if (newPasswordTrimmed) {
+            // Мы меняем пароль (новый пароль указан)
+
+            // Проверяем текущий пароль
+            if (!currentPasswordTrimmed) {
+                e.preventDefault();
+                alert('Для смены пароля необходимо ввести текущий пароль');
+                document.getElementById('currentPassword').focus();
+                return;
+            }
+
+            // Проверяем подтверждение пароля
+            if (!confirmPasswordTrimmed) {
+                e.preventDefault();
+                alert('Необходимо подтвердить новый пароль');
+                document.getElementById('confirmPassword').focus();
+                return;
+            }
+
+            // Проверяем совпадение паролей
+            if (newPasswordTrimmed !== confirmPasswordTrimmed) {
+                e.preventDefault();
+                alert('Новый пароль и подтверждение не совпадают');
+                document.getElementById('confirmPassword').focus();
+                return;
+            }
+        } else {
+            // НЕ меняем пароль (новый пароль пустой)
+            // Можно очистить поля текущего пароля и подтверждения
+            // Это опционально, но улучшает UX
+            if (currentPasswordTrimmed || confirmPasswordTrimmed) {
+                // Пользователь ввел что-то в эти поля, но не указал новый пароль
+                const shouldClear = confirm('Вы ввели данные в поля паролей, но не указали новый пароль. Очистить эти поля?');
+                if (shouldClear) {
+                    // Не отменяем отправку формы, но очищаем поля перед отправкой
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                    // Форма отправится с пустыми значениями
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

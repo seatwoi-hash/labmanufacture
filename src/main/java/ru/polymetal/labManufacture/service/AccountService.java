@@ -1,0 +1,27 @@
+package ru.polymetal.labManufacture.service;
+
+import jakarta.transaction.Transactional;
+import ru.polymetal.labManufacture.data.models.Account;
+import java.util.List;
+import java.util.UUID;
+
+public interface AccountService {
+
+    @Transactional
+    void save(Account account);
+
+    Account findByUsername(String name);
+
+    List<Account> findAllUsers();
+
+    @Transactional
+    void updateUserStatus(UUID accountId, Boolean status);
+
+    Account findById(UUID accountId);
+
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
+
+    void delete(UUID id);
+
+}

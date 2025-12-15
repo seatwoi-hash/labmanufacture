@@ -1,0 +1,395 @@
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #1d7acc;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #1d7acc;
+    }
+
+    .form-section h5 {
+        color: #1d7acc;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #1d7acc, #1669b8);
+        border: none;
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(29, 122, 204, 0.3);
+    }
+
+    .form-control:focus {
+        border-color: #1d7acc;
+        box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+    }
+
+    .form-select:focus {
+        border-color: #1d7acc;
+        box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+    }
+</style>
+
+
+<div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<!-- Блок для отображения ошибок полей -->
+<div th:if="${#fields.hasErrors('*')}" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <div th:each="err : ${#fields.errors('*')}" th:text="${err}"></div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Готовые платы</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <style>
+        .device-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .table-header {
+            background: linear-gradient(135deg, #1d7acc, #1d7acc);
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+            padding: 1rem;
+        }
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-ready {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .device-sn {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .search-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-input {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #1d7acc;
+            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+        }
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            display: none;
+        }
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+        .table-row {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+<!-- Подключаем фрагменты -->
+<div th:replace="~{fragments :: sidebar}"></div>
+<div th:replace="~{fragments :: user-menu}"></div>
+
+<div class="main-content">
+    <!-- Шапка -->
+    <header class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-check-circle me-2"></i>Готовые платы</h1>
+            <div class="header-actions">
+                <span class="badge bg-success fs-6 mb-3">
+                    Плат: <span id="deviceCount" th:text="${devices != null ? devices.size() : 0}">0</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="page-content">
+        <div class="container-fluid">
+            <!-- Поиск -->
+            <div class="search-container">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="position-relative">
+                            <input type="text"
+                                   class="form-control search-input"
+                                   id="searchInput"
+                                   placeholder="Поиск по серийному номеру...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка с таблицей -->
+            <div class="device-table" th:if="${devices != null and not devices.empty}">
+                <div class="table-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">Список готовых плат</h4>
+                            <p class="mb-0">Все платы со статусом "Готов"</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-light text-dark fs-6">
+                                <i class="fas fa-list me-1"></i>
+                                <span id="visibleCount" th:text="${devices.size()}">0</span> из <span th:text="${devices.size()}">0</span> устройств
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Серийный номер</th>
+                            <th>Тип устройства</th>
+                            <th>Описание</th>
+                            <th>Статус</th>
+                            <th>Дата создания</th>
+                            <th>Действия</th>
+                        </tr>
+                        </thead>
+                        <tbody id="devicesTableBody">
+                        <tr th:each="device : ${devices}" class="table-row">
+                            <td>
+                                <span class="device-sn" th:text="${device.serialNumber}"></span>
+                            </td>
+                            <td th:text="${device.type?.description} ?: 'Не указан'">Тип</td>
+                            <td>
+                                <span th:if="${device.description}"
+                                      th:text="${#strings.abbreviate(device.description, 50)}"
+                                      data-bs-toggle="tooltip"
+                                      th:attr="data-bs-title=${device.description}">
+                                </span>
+                                <span th:unless="${device.description}" class="text-muted">—</span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-ready">Готов</span>
+                            </td>
+                            <td>
+                                <span th:text="${#temporals.format(device.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm action-btn"
+                                        th:onclick="|viewDeviceDetails('${device.id}')|">
+                                    <i class="fas fa-eye me-1"></i>Просмотр
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Сообщение при отсутствии результатов -->
+                <div id="noResults" class="no-results">
+                    <i class="fas fa-search fa-2x mb-3"></i>
+                    <h5>Ничего не найдено</h5>
+                    <p class="text-muted">Попробуйте изменить параметры поиска</p>
+                </div>
+            </div>
+
+            <!-- Состояние пустого списка -->
+            <div th:if="${devices == null or devices.empty}" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h4>Нет готовых плат</h4>
+                <p class="text-muted">Все устройства находятся на других этапах производства</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Общие скрипты -->
+<div th:replace="~{fragments :: scripts}"></div>
+
+<!-- Специфичные скрипты для этой страницы -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Страница загружена, инициализация поиска...');
+
+        // Инициализация tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Элементы для работы
+        const searchInput = document.getElementById('searchInput');
+        const devicesTableBody = document.getElementById('devicesTableBody');
+        const deviceCount = document.getElementById('deviceCount');
+        const visibleCount = document.getElementById('visibleCount');
+        const noResults = document.getElementById('noResults');
+
+        // Переменные для хранения состояния
+        let currentSearch = '';
+
+        // Функция фильтрации устройств
+        function filterDevices() {
+            console.log('Фильтрация устройств...', 'Поиск:', currentSearch);
+
+            const rows = devicesTableBody.querySelectorAll('tr');
+            let visibleCountValue = 0;
+
+            rows.forEach(row => {
+                const serialNumberElement = row.querySelector('.device-sn');
+                if (!serialNumberElement) {
+                    console.log('Элемент с серийным номером не найден в строке:', row);
+                    return;
+                }
+
+                const serialNumber = serialNumberElement.textContent.toLowerCase();
+                console.log('Проверка серийного номера:', serialNumber);
+
+                // Проверяем соответствие поисковому запросу
+                const matchesSearch = currentSearch === '' ||
+                    serialNumber.includes(currentSearch.toLowerCase());
+
+                // Показываем или скрываем строку
+                if (matchesSearch) {
+                    row.style.display = '';
+                    visibleCountValue++;
+                    console.log('Строка отображается:', serialNumber);
+                } else {
+                    row.style.display = 'none';
+                    console.log('Строка скрыта:', serialNumber);
+                }
+            });
+
+            // Обновляем счетчик видимых устройств
+            visibleCount.textContent = visibleCountValue;
+            console.log('Видимых устройств:', visibleCountValue);
+
+            // Показываем или скрываем сообщение об отсутствии результатов
+            if (visibleCountValue === 0) {
+                noResults.style.display = 'block';
+                console.log('Показываем сообщение "Ничего не найдено"');
+            } else {
+                noResults.style.display = 'none';
+                console.log('Скрываем сообщение "Ничего не найдено"');
+            }
+        }
+
+        // Обработчик поиска
+        searchInput.addEventListener('input', function() {
+            currentSearch = this.value.trim();
+            console.log('Ввод в поиске:', currentSearch);
+            filterDevices();
+        });
+
+        // Обработчик очистки поиска
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                currentSearch = '';
+                filterDevices();
+            }
+        });
+
+        // Функция для просмотра деталей устройства
+        window.viewDeviceDetails = function(deviceId) {
+            console.log('Просмотр устройства с ID:', deviceId);
+            // Здесь можно реализовать переход к детальной информации об устройстве
+            // или открыть модальное окно с подробностями
+            // Пример: window.location.href = '/device/details/' + deviceId;
+        };
+
+        // Инициализация фильтрации при загрузке
+        console.log('Начальная инициализация фильтрации...');
+        filterDevices();
+
+        // Добавляем отладочную информацию
+        console.log('Всего строк в таблице:', devicesTableBody.querySelectorAll('tr').length);
+        console.log('Элемент поиска:', searchInput);
+        console.log('Элемент таблицы:', devicesTableBody);
+    });
+</script>
+</body>
+</html>

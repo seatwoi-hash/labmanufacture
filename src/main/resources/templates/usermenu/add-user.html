@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить пользователя</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .home-button {
+            position: fixed !important;
+            bottom: 30px !important;
+            right: 30px !important;
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            background-color: #1E40AF !important;
+            color: white !important;
+            border: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 24px !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            z-index: 1000 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .home-button:hover {
+            background-color: #1e3a8a !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        .home-button:active {
+            transform: scale(0.95) !important;
+        }
+
+        .add-user-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        /* Стили для выбора ролей */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .user-form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-header h2 {
+            color: #0d6efd;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            margin-right: 0.5rem;
+            color: #0d6efd;
+            width: 20px;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .password-strength {
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: #dc3545; width: 25%; }
+        .strength-fair { background: #fd7e14; width: 50%; }
+        .strength-good { background: #ffc107; width: 75%; }
+        .strength-strong { background: #198754; width: 100%; }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .role-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .role-badge {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+
+        .role-badge:hover {
+            border-color: #0d6efd;
+            background: #f8f9ff;
+        }
+
+        .role-badge.active {
+            background: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .add-user-container {
+                padding: 1rem;
+            }
+
+            .user-form-card {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .error-message {
+                color: #dc3545;
+                font-size: 0.875rem;
+                margin-top: 0.25rem;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .error-message i {
+                font-size: 0.75rem;
+            }
+
+            .form-control.is-invalid {
+                border-color: #dc3545;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            .form-control.is-invalid:focus {
+                border-color: #dc3545;
+                box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+            }
+        }
+    </style>
+</head>
+<body>
+<button class="home-button" onclick="window.location.href='/'">
+    <i class="fas fa-home"></i>
+</button>
+<!-- Основной контент -->
+<div class="main-content">
+    <div class="add-user-container">
+        <div class="form-header">
+            <h2><i class="fas fa-user-plus"></i> Добавить пользователя</h2>
+            <p>Создайте новую учетную запись для сотрудника</p>
+        </div>
+
+        <!-- Сообщения об ошибках/успехе -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> Пользователь успешно добавлен!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Ошибка при добавлении пользователя</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="user-form-card">
+            <form th:action="@{/admin/users/add}" method="post" id="userForm">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <!-- Основная информация -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i> Имя пользователя *
+                            </label>
+                            <input type="text" class="form-control" name="username"
+                                   th:value="${user?.username}"
+                                   placeholder="Введите логин" required
+                                   oninput="checkUsernameAvailability(this.value)">
+                            <div class="form-help">Только латинские буквы и цифры</div>
+                            <div id="username-feedback" class="form-help"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-envelope"></i> Email *
+                            </label>
+                            <input type="email" class="form-control" name="email"
+                                   th:value="${user?.email}"
+                                   placeholder="user@company.com"
+                                   oninput="checkEmailAvailability(this.value)">
+                            <div id="email-feedback" class="form-help"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Полное имя -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-id-card"></i> Имя *
+                            </label>
+                            <input type="text" class="form-control" name="firstName"
+                                   th:value="${user?.firstName}"
+                                   placeholder="Введите имя">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-id-card"></i> Отчество *
+                                </label>
+                                <input type="text" class="form-control" name="middleName"
+                                       th:value="${user?.middleName}"
+                                       placeholder="Введите Отчество">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-id-card"></i> Фамилия *
+                                </label>
+                                <input type="text" class="form-control" name="lastName"
+                                       th:value="${user?.lastName}"
+                                       placeholder="Введите фамилию">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Пароль -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i> Пароль *
+                        </label>
+                        <input type="password" class="form-control" name="password"
+                               id="password" placeholder="Введите пароль" required
+                               oninput="checkPasswordStrength(this.value)">
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="password-strength-bar"></div>
+                        </div>
+                        <div class="form-help">Минимум 8 символов: буквы, цифры и специальные знаки</div>
+                        <div id="password-feedback" class="form-help"></div>
+                    </div>
+
+                    <!-- Подтверждение пароля -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i> Подтверждение пароля *
+                        </label>
+                        <input type="password" class="form-control" name="confirmPassword"
+                               id="confirmPassword" placeholder="Повторите пароль" required
+                               oninput="checkPasswordMatch()">
+                        <div id="confirm-feedback" class="form-help"></div>
+                    </div>
+
+                    <!-- Роли пользователя (множественный выбор) -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user-tag"></i> Роли пользователя
+                        </label>
+                        <div class="form-help">Выберите одну или несколько ролей</div>
+
+                        <div class="roles-grid">
+                            <!-- Административные роли -->
+                            <input type="checkbox" id="role_admin" name="roles" value="admin" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'admin'].size() > 0}">
+                            <label for="role_admin" class="role-label">
+                                <i class="fas fa-shield-alt role-icon"></i> Администратор процесса
+                            </label>
+
+                            <input type="checkbox" id="role_quality" name="roles" value="quality" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'quality'].size() > 0}">
+                            <label for="role_quality" class="role-label">
+                                <i class="fas fa-search role-icon"></i> Контроль качества
+                            </label>
+
+                            <!-- Тестировщики -->
+                            <input type="checkbox" id="role_testerB" name="roles" value="testerB" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'testerB'].size() > 0}">
+                            <label for="role_testerB" class="role-label">
+                                <i class="fas fa-microchip role-icon"></i> Тестировщик плат
+                            </label>
+
+                            <input type="checkbox" id="role_testerA" name="roles" value="testerA" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'testerA'].size() > 0}">
+
+                            <label for="role_testerA" class="role-label">
+                                <i class="fas fa-cogs role-icon"></i> Тестировщик сборок
+                            </label>
+
+                            <!-- Производственные роли -->
+                            <input type="checkbox" id="role_operator" name="roles" value="operator" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'operator'].size() > 0}">
+
+                            <label for="role_operator" class="role-label">
+                                <i class="fas fa-industry role-icon"></i> Оператор линии SMD
+                            </label>
+
+                            <input type="checkbox" id="role_output" name="roles" value="output" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'output'].size() > 0}">
+                            <label for="role_output" class="role-label">
+                                <i class="fas fa-plug role-icon"></i> Выводной монтаж
+                            </label>
+
+                            <input type="checkbox" id="role_varnisher" name="roles" value="varnisher" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'varnisher'].size() > 0}">
+                            <label for="role_varnisher" class="role-label">
+                                <i class="fas fa-paint-roller role-icon"></i> Лакировщик
+                            </label>
+
+                            <input type="checkbox" id="role_assembler" name="roles" value="assembler" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'assembler'].size() > 0}">
+                            <label for="role_assembler" class="role-label">
+                                <i class="fas fa-tools role-icon"></i> Сборщик
+                            </label>
+
+                            <!-- Сервисные роли -->
+                            <input type="checkbox" id="role_repairman" name="roles" value="repairman" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'repairman'].size() > 0}">
+
+                            <label for="role_repairman" class="role-label">
+                                <i class="fas fa-wrench role-icon"></i> Ремонтник
+                            </label>
+
+                            <input type="checkbox" id="role_washer" name="roles" value="washer" class="role-checkbox"
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'washer'].size() > 0}">
+                            <label for="role_washer" class="role-label">
+                                <i class="fas fa-soap role-icon"></i> Мойщик
+                            </label>
+
+                            <input type="checkbox" id="role_user" name="roles" value="user" class="role-checkbox" checked
+                                   th:checked="${user?.roles != null and user.roles.?[name == 'user'].size() > 0}">
+                            <label for="role_user" class="role-label">
+                                <i class="fas fa-user role-icon"></i> Без задач
+                            </label>
+                        </div>
+
+                        <!-- Область выбранных ролей -->
+                        <div class="selected-roles" id="selectedRolesContainer" style="display: none;">
+                            <h6>Выбранные роли:</h6>
+                            <div id="selectedRolesList"></div>
+                        </div>
+                    </div>
+                    <!-- Действия -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" onclick="window.location.href='/main'">
+                            <i class="fas fa-times"></i> Отмена
+                        </button>
+                        <button type="submit" class="btn btn-save" id="submitBtn">
+                            <i class="fas fa-save"></i> Сохранить пользователя
+                        </button>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // // Выбор роли
+    // let canSubmit = false;
+    //
+    // // Проверка силы пароля
+    // function checkPasswordStrength(password) {
+    //     const bar = document.getElementById('password-strength-bar');
+    //     const feedback = document.getElementById('password-feedback');
+    //
+    //     let strength = 0;
+    //     let message = '';
+    //     let color = '';
+    //
+    //     if (password.length >= 8) strength++;
+    //     if (/[a-z]/.test(password)) strength++;
+    //     if (/[A-Z]/.test(password)) strength++;
+    //     if (/[0-9]/.test(password)) strength++;
+    //     if (/[^A-Za-z0-9]/.test(password)) strength++;
+    //
+    //     switch(strength) {
+    //         case 0:
+    //         case 1:
+    //             message = 'Слабый пароль';
+    //             color = 'strength-weak';
+    //             break;
+    //         case 2:
+    //             message = 'Ненадежный пароль';
+    //             color = 'strength-fair';
+    //             break;
+    //         case 3:
+    //             message = 'Хороший пароль';
+    //             color = 'strength-good';
+    //             break;
+    //         case 4:
+    //         case 5:
+    //             message = 'Сильный пароль';
+    //             color = 'strength-strong';
+    //             break;
+    //     }
+    //
+    //     bar.className = 'password-strength-bar ' + color;
+    //     feedback.textContent = message;
+    //     feedback.style.color = getComputedStyle(bar).backgroundColor;
+    //
+    //     // Проверяем совпадение паролей заново
+    //     checkPasswordMatch();
+    // }
+    //
+    // // Проверка совпадения паролей
+    // function checkPasswordMatch() {
+    //     const password = document.getElementById('password').value;
+    //     const confirm = document.getElementById('confirmPassword').value;
+    //     const feedback = document.getElementById('confirm-feedback');
+    //
+    //     if (confirm === '') {
+    //         feedback.textContent = '';
+    //         return;
+    //     }
+    //
+    //     if (password === confirm) {
+    //         feedback.textContent = '✓ Пароли совпадают';
+    //         feedback.style.color = '#198754';
+    //     } else {
+    //         feedback.textContent = '✗ Пароли не совпадают';
+    //         feedback.style.color = '#dc3545';
+    //     }
+    // }
+    //
+    // async function checkUsernameGET(username) {
+    //     try {
+    //         const response = await fetch(`/adduser/check-username?username=${encodeURIComponent(username)}`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             credentials: 'same-origin'
+    //         });
+    //
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+    //
+    //         const data = await response.json();
+    //         return data;
+    //
+    //     } catch (error) {
+    //         console.error('Ошибка:', error);
+    //         return { available: false, error: true };
+    //     }
+    // }
+    //
+    // async function checkEmailGET(email) {
+    //     try {
+    //         const response = await fetch(`/adduser/check-email?email=${encodeURIComponent(email)}`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             credentials: 'same-origin'
+    //         });
+    //
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+    //
+    //         const data = await response.json();
+    //         return data;
+    //
+    //     } catch (error) {
+    //         console.error('Ошибка:', error);
+    //         return { available: false, error: true };
+    //     }
+    // }
+    //
+    // // Проверка доступности имени пользователя
+    // async function checkUsernameAvailability(username) {
+    //     const feedback = document.getElementById('username-feedback');
+    //     const submitBtn = document.getElementById('submitBtn');
+    //
+    //     feedback.textContent = '';
+    //     feedback.style.color = '';
+    //
+    //     if (username.length < 3) {
+    //         feedback.textContent = 'Минимум 3 символа';
+    //         feedback.style.color = '#fd7e14';
+    //         disableSubmitButton(submitBtn);
+    //         return;
+    //     }
+    //
+    //     if (!/^[a-zA-Z0-9]+$/.test(username)) {
+    //         feedback.textContent = 'Только латинские буквы и цифры';
+    //         feedback.style.color = '#dc3545';
+    //         disableSubmitButton(submitBtn);
+    //         return;
+    //     }
+    //
+    //     feedback.textContent = 'Проверяем...';
+    //     feedback.style.color = '#0d6efd';
+    //
+    //     // Блокируем кнопку на время проверки
+    //     disableSubmitButton(submitBtn, 'Проверка...');
+    //
+    //     try {
+    //         const result = await checkUsernameGET(username);
+    //
+    //         if (result.available === false) {
+    //             feedback.textContent = '✗ Имя пользователя занято';
+    //             feedback.style.color = '#dc3545';
+    //             disableSubmitButton(submitBtn, 'Имя занято!');
+    //         } else if (result.available === true) {
+    //             feedback.textContent = '✓ Имя доступно';
+    //             feedback.style.color = '#198754';
+    //             enableSubmitButton(submitBtn);
+    //         } else {
+    //             feedback.textContent = 'Ошибка проверки';
+    //             feedback.style.color = '#dc3545';
+    //             disableSubmitButton(submitBtn);
+    //         }
+    //
+    //     } catch (error) {
+    //         feedback.textContent = 'Ошибка соединения с сервером';
+    //         feedback.style.color = '#dc3545';
+    //         disableSubmitButton(submitBtn);
+    //     }
+    // }
+    //
+    // async function checkEmailAvailability(email) {
+    //     const feedback = document.getElementById('email-feedback');
+    //     const submitBtn = document.getElementById('submitBtn');
+    //
+    //     feedback.textContent = '';
+    //     feedback.style.color = '';
+    //
+    //     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //     if (!emailRegex.test(email)) {
+    //         feedback.textContent = 'Некорректный формат email';
+    //         feedback.style.color = '#dc3545';
+    //         emailAvailable = false;
+    //         updateSubmitButton();
+    //         return;
+    //     }
+    //
+    //     feedback.textContent = 'Проверяем...';
+    //     feedback.style.color = '#0d6efd';
+    //
+    //     // Блокируем кнопку на время проверки
+    //     disableSubmitButton(submitBtn, 'Проверка...');
+    //
+    //     try {
+    //         const result = await checkEmailGET(email);
+    //
+    //         if (result.available === false) {
+    //             feedback.textContent = '✗ Email пользователя занят';
+    //             feedback.style.color = '#dc3545';
+    //             disableSubmitButton(submitBtn, 'Email занят!');
+    //         } else if (result.available === true) {
+    //             feedback.textContent = '✓ Email доступен';
+    //             feedback.style.color = '#198754';
+    //             enableSubmitButton(submitBtn);
+    //         } else {
+    //             feedback.textContent = 'Ошибка проверки';
+    //             feedback.style.color = '#dc3545';
+    //             disableSubmitButton(submitBtn);
+    //         }
+    //
+    //     } catch (error) {
+    //         feedback.textContent = 'Ошибка соединения с сервером';
+    //         feedback.style.color = '#dc3545';
+    //         disableSubmitButton(submitBtn);
+    //     }
+    // }
+    //
+    // // Включить кнопку отправки
+    // function enableSubmitButton(button) {
+    //     if (!button) return;
+    //     button.disabled = false;
+    //     button.innerHTML = '<i class="fas fa-save"></i> Сохранить пользователя';
+    //     button.classList.remove('disabled');
+    //     canSubmit = true;
+    // }
+    //
+    // // Отключить кнопку отправки
+    // function disableSubmitButton(button, message = null) {
+    //     if (!button) return;
+    //     button.disabled = true;
+    //     if (message) {
+    //         button.innerHTML = `<i class="fas fa-ban"></i> ${message}`;
+    //     } else {
+    //         button.innerHTML = '<i class="fas fa-save"></i> Заполните форму';
+    //     }
+    //     button.classList.add('disabled');
+    //     canSubmit = false;
+    // }
+    //
+    // // Проверить все поля перед отправкой
+    // function validateBeforeSubmit() {
+    //     const username = document.getElementById('username').value.trim();
+    //     const password = document.getElementById('password').value;
+    //     const confirmPassword = document.getElementById('confirmPassword').value;
+    //     const submitBtn = document.getElementById('submitBtn');
+    //
+    //     // Минимальные проверки
+    //     if (username.length < 3) {
+    //         alert('Имя пользователя должно быть минимум 3 символа');
+    //         disableSubmitButton(submitBtn);
+    //     }
+    //
+    //     if (password.length < 8) {
+    //         alert('Пароль должен быть минимум 8 символов');
+    //         disableSubmitButton(submitBtn);
+    //     }
+    //
+    //     if (password !== confirmPassword) {
+    //         alert('Пароли не совпадают');
+    //         disableSubmitButton(submitBtn);
+    //     }
+    //
+    //     // Проверка ролей
+    //     const checkboxes = document.querySelectorAll('input[name="roles"]:checked');
+    //     if (checkboxes.length === 0) {
+    //         alert('Выберите хотя бы одну роль');
+    //         disableSubmitButton(submitBtn);
+    //     }
+    //
+    //     // Проверка через глобальную переменную
+    //     if (!canSubmit) {
+    //         alert('Имя пользователя недоступно. Пожалуйста, выберите другое имя.');
+    //         disableSubmitButton(submitBtn);
+    //     }
+    //
+    //     return true;
+    // }
+    //
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     const usernameInput = document.getElementById('username');
+    //     const passwordInput = document.getElementById('password');
+    //     const confirmPasswordInput = document.getElementById('confirmPassword');
+    //     const form = document.getElementById('userForm');
+    //     const submitBtn = document.getElementById('submitBtn');
+    //     const emailInput = document.getElementById('email');
+    //
+    //     disableSubmitButton(submitBtn);
+    //
+    //     if (emailInput) {
+    //         let emailTimeoutId;
+    //         emailInput.addEventListener('input', function() {
+    //             clearTimeout(emailTimeoutId);
+    //             const email = this.value.trim();
+    //
+    //             if (email.length === 0) {
+    //                 const feedback = document.getElementById('email-feedback');
+    //                 feedback.textContent = '';
+    //                 emailAvailable = false;
+    //                 updateSubmitButton();
+    //                 return;
+    //             }
+    //
+    //             emailTimeoutId = setTimeout(() => {
+    //                 checkEmailAvailability(email);
+    //             }, 500);
+    //         });
+    //
+    //         emailInput.addEventListener('blur', function() {
+    //             checkEmailAvailability(this.value.trim());
+    //         });
+    //     }
+    //
+    //
+    //     if (usernameInput) {
+    //         // Проверка при потере фокуса
+    //         usernameInput.addEventListener('blur', function() {
+    //             checkUsernameAvailability(this.value.trim());
+    //         });
+    //
+    //         // Проверка при вводе (с задержкой)
+    //         let timeoutId;
+    //         usernameInput.addEventListener('input', function() {
+    //             clearTimeout(timeoutId);
+    //             const username = this.value.trim();
+    //
+    //             if (username.length === 0) {
+    //                 const feedback = document.getElementById('username-feedback');
+    //                 feedback.textContent = '';
+    //                 disableSubmitButton(submitBtn);
+    //                 return;
+    //             }
+    //
+    //             if (username.length >= 3) {
+    //                 timeoutId = setTimeout(() => {
+    //                     checkUsernameAvailability(username);
+    //                     checkEmailAvailability(username);
+    //                 }, 500);
+    //             } else {
+    //                 const feedback = document.getElementById('username-feedback');
+    //                 feedback.textContent = 'Минимум 3 символа';
+    //                 feedback.style.color = '#fd7e14';
+    //                 disableSubmitButton(submitBtn);
+    //             }
+    //         });
+    //     }
+    //
+    //     if (passwordInput) {
+    //         passwordInput.addEventListener('input', function() {
+    //             checkPasswordStrength(this.value);
+    //         });
+    //     }
+    //
+    //     if (confirmPasswordInput) {
+    //         confirmPasswordInput.addEventListener('input', function() {
+    //             checkPasswordMatch();
+    //         });
+    //     }
+    //
+    //     // Обработчик отправки формы
+    //     if (form) {
+    //         form.addEventListener('submit', function(event) {
+    //             if (!validateBeforeSubmit()) {
+    //                 event.preventDefault(); // Отменяем отправку
+    //             }
+    //         });
+    //     }
+    //
+    // });
+    let formState = {
+        username: {
+            value: '',
+            valid: false,
+            checking: false,
+            message: ''
+        },
+        email: {
+            value: '',
+            valid: false,
+            checking: false,
+            message: ''
+        },
+        password: {
+            value: '',
+            strength: 0,
+            valid: false
+        },
+        confirmPassword: {
+            value: '',
+            match: false
+        },
+        roles: {
+            selected: false
+        }
+    };
+
+    // Проверка силы пароля
+    function checkPasswordStrength(password) {
+        const bar = document.getElementById('password-strength-bar');
+        const feedback = document.getElementById('password-feedback');
+
+        let strength = 0;
+        let message = '';
+        let color = '';
+        let valid = false;
+
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        switch(strength) {
+            case 0:
+            case 1:
+                message = 'Слабый пароль';
+                color = 'strength-weak';
+                valid = false;
+                break;
+            case 2:
+                message = 'Ненадежный пароль';
+                color = 'strength-fair';
+                valid = false;
+                break;
+            case 3:
+                message = 'Хороший пароль';
+                color = 'strength-good';
+                valid = true;
+                break;
+            case 4:
+            case 5:
+                message = 'Сильный пароль';
+                color = 'strength-strong';
+                valid = true;
+                break;
+        }
+
+        bar.className = 'password-strength-bar ' + color;
+        feedback.textContent = message;
+        feedback.style.color = getComputedStyle(bar).backgroundColor;
+
+        // Обновляем состояние
+        formState.password.value = password;
+        formState.password.strength = strength;
+        formState.password.valid = valid;
+
+        // Проверяем совпадение паролей заново
+        checkPasswordMatch();
+
+        // Обновляем кнопку
+        updateSubmitButton();
+    }
+
+    // Проверка совпадения паролей
+    function checkPasswordMatch() {
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        const feedback = document.getElementById('confirm-feedback');
+
+        if (confirm === '') {
+            feedback.textContent = '';
+            formState.confirmPassword.match = false;
+        } else if (password === confirm) {
+            feedback.textContent = '✓ Пароли совпадают';
+            feedback.style.color = '#198754';
+            formState.confirmPassword.match = true;
+        } else {
+            feedback.textContent = '✗ Пароли не совпадают';
+            feedback.style.color = '#dc3545';
+            formState.confirmPassword.match = false;
+        }
+
+        // Обновляем кнопку
+        updateSubmitButton();
+    }
+
+    async function checkUsernameGET(username) {
+        try {
+            const response = await fetch(`/adduser/check-username?username=${encodeURIComponent(username)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data;
+
+        } catch (error) {
+            console.error('Ошибка:', error);
+            return { available: false, error: true };
+        }
+    }
+
+    async function checkEmailGET(email) {
+        try {
+            const response = await fetch(`/adduser/check-email?email=${encodeURIComponent(email)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data;
+
+        } catch (error) {
+            console.error('Ошибка:', error);
+            return { available: false, error: true };
+        }
+    }
+
+    // Проверка доступности имени пользователя
+    async function checkUsernameAvailability(username) {
+        const feedback = document.getElementById('username-feedback');
+
+        // Сбрасываем состояние
+        formState.username.checking = true;
+        formState.username.valid = false;
+        updateSubmitButton();
+
+        feedback.textContent = '';
+        feedback.style.color = '';
+
+        // Базовая валидация
+        if (username.length < 3) {
+            feedback.textContent = 'Минимум 3 символа';
+            feedback.style.color = '#fd7e14';
+            formState.username.checking = false;
+            formState.username.valid = false;
+            formState.username.message = 'Минимум 3 символа';
+            updateSubmitButton();
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9]+$/.test(username)) {
+            feedback.textContent = 'Только латинские буквы и цифры';
+            feedback.style.color = '#dc3545';
+            formState.username.checking = false;
+            formState.username.valid = false;
+            formState.username.message = 'Только латинские буквы и цифры';
+            updateSubmitButton();
+            return;
+        }
+
+        feedback.textContent = 'Проверяем...';
+        feedback.style.color = '#0d6efd';
+
+        try {
+            const result = await checkUsernameGET(username);
+
+            if (result.available === false) {
+                feedback.textContent = '✗ Имя пользователя занято';
+                feedback.style.color = '#dc3545';
+                formState.username.valid = false;
+                formState.username.message = 'Имя пользователя занято';
+            } else if (result.available === true) {
+                feedback.textContent = '✓ Имя доступно';
+                feedback.style.color = '#198754';
+                formState.username.valid = true;
+                formState.username.message = '';
+            } else {
+                feedback.textContent = 'Ошибка проверки';
+                feedback.style.color = '#dc3545';
+                formState.username.valid = false;
+                formState.username.message = 'Ошибка проверки';
+            }
+
+        } catch (error) {
+            feedback.textContent = 'Ошибка соединения с сервером';
+            feedback.style.color = '#dc3545';
+            formState.username.valid = false;
+            formState.username.message = 'Ошибка соединения с сервером';
+        } finally {
+            formState.username.checking = false;
+            formState.username.value = username;
+            updateSubmitButton();
+        }
+    }
+
+    async function checkEmailAvailability(email) {
+        const feedback = document.getElementById('email-feedback');
+
+        // Сбрасываем состояние
+        formState.email.checking = true;
+        formState.email.valid = false;
+        updateSubmitButton();
+
+        feedback.textContent = '';
+        feedback.style.color = '';
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            feedback.textContent = 'Некорректный формат email';
+            feedback.style.color = '#dc3545';
+            formState.email.checking = false;
+            formState.email.valid = false;
+            formState.email.message = 'Некорректный формат email';
+            updateSubmitButton();
+            return;
+        }
+
+        feedback.textContent = 'Проверяем...';
+        feedback.style.color = '#0d6efd';
+
+        try {
+            const result = await checkEmailGET(email);
+
+            if (result.available === false) {
+                feedback.textContent = '✗ Email пользователя занят';
+                feedback.style.color = '#dc3545';
+                formState.email.valid = false;
+                formState.email.message = 'Email пользователя занят';
+            } else if (result.available === true) {
+                feedback.textContent = '✓ Email доступен';
+                feedback.style.color = '#198754';
+                formState.email.valid = true;
+                formState.email.message = '';
+            } else {
+                feedback.textContent = 'Ошибка проверки';
+                feedback.style.color = '#dc3545';
+                formState.email.valid = false;
+                formState.email.message = 'Ошибка проверки';
+            }
+
+        } catch (error) {
+            feedback.textContent = 'Ошибка соединения с сервером';
+            feedback.style.color = '#dc3545';
+            formState.email.valid = false;
+            formState.email.message = 'Ошибка соединения с сервером';
+        } finally {
+            formState.email.checking = false;
+            formState.email.value = email;
+            updateSubmitButton();
+        }
+    }
+
+    // Проверка выбранных ролей
+    function checkRoles() {
+        const checkboxes = document.querySelectorAll('input[name="roles"]:checked');
+        formState.roles.selected = checkboxes.length > 0;
+        updateSubmitButton();
+    }
+
+    // Обновление состояния кнопки отправки
+    function updateSubmitButton() {
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (!submitBtn) return;
+
+        // Проверяем, идет ли какая-либо проверка
+        if (formState.username.checking || formState.email.checking) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
+            submitBtn.classList.add('disabled');
+            return;
+        }
+
+        // Проверяем ВСЕ условия
+        const isFormValid =
+            formState.username.valid &&
+            formState.email.valid &&
+            formState.password.valid &&
+            formState.confirmPassword.match &&
+            formState.roles.selected;
+
+        if (isFormValid) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Сохранить пользователя';
+            submitBtn.classList.remove('disabled');
+        } else {
+            submitBtn.disabled = true;
+
+            // Определяем причину блокировки для пользователя
+            let reason = 'Заполните форму';
+
+            if (!formState.username.valid && formState.username.message) {
+                reason = formState.username.message;
+            } else if (!formState.email.valid && formState.email.message) {
+                reason = formState.email.message;
+            } else if (!formState.password.valid) {
+                reason = 'Пароль слишком слабый (минимум 8 символов, буквы разных регистров, цифры)';
+            } else if (!formState.confirmPassword.match) {
+                reason = 'Пароли не совпадают';
+            } else if (!formState.roles.selected) {
+                reason = 'Выберите хотя бы одну роль';
+            }
+
+            submitBtn.innerHTML = `<i class="fas fa-ban"></i> ${reason}`;
+            submitBtn.classList.add('disabled');
+        }
+    }
+
+    // Проверить все поля перед отправкой
+    function validateBeforeSubmit(event) {
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Финальная проверка перед отправкой
+        if (formState.username.checking || formState.email.checking) {
+            alert('Пожалуйста, дождитесь завершения проверки данных');
+            event.preventDefault();
+            return false;
+        }
+
+        if (!formState.username.valid) {
+            alert('Имя пользователя не прошло проверку. ' + formState.username.message);
+            event.preventDefault();
+            return false;
+        }
+
+        if (!formState.email.valid) {
+            alert('Email не прошел проверку. ' + formState.email.message);
+            event.preventDefault();
+            return false;
+        }
+
+        if (!formState.password.valid) {
+            alert('Пароль слишком слабый. Используйте минимум 8 символов, буквы разных регистров и цифры');
+            event.preventDefault();
+            return false;
+        }
+
+        if (!formState.confirmPassword.match) {
+            alert('Пароли не совпадают');
+            event.preventDefault();
+            return false;
+        }
+
+        if (!formState.roles.selected) {
+            alert('Выберите хотя бы одну роль');
+            event.preventDefault();
+            return false;
+        }
+
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const form = document.getElementById('userForm');
+        const emailInput = document.getElementById('email');
+        const roleCheckboxes = document.querySelectorAll('input[name="roles"]');
+
+        // Инициализация состояния
+        updateSubmitButton();
+
+        // Обработчики для email
+        if (emailInput) {
+            let emailTimeoutId;
+            emailInput.addEventListener('input', function() {
+                clearTimeout(emailTimeoutId);
+                const email = this.value.trim();
+                formState.email.value = email;
+
+                if (email.length === 0) {
+                    const feedback = document.getElementById('email-feedback');
+                    feedback.textContent = '';
+                    formState.email.valid = false;
+                    formState.email.checking = false;
+                    updateSubmitButton();
+                    return;
+                }
+
+                emailTimeoutId = setTimeout(() => {
+                    checkEmailAvailability(email);
+                }, 500);
+            });
+
+            emailInput.addEventListener('blur', function() {
+                const email = this.value.trim();
+                if (email) {
+                    checkEmailAvailability(email);
+                }
+            });
+        }
+
+        // Обработчики для имени пользователя
+        if (usernameInput) {
+            let usernameTimeoutId;
+
+            usernameInput.addEventListener('input', function() {
+                clearTimeout(usernameTimeoutId);
+                const username = this.value.trim();
+                formState.username.value = username;
+
+                if (username.length === 0) {
+                    const feedback = document.getElementById('username-feedback');
+                    feedback.textContent = '';
+                    formState.username.valid = false;
+                    formState.username.checking = false;
+                    updateSubmitButton();
+                    return;
+                }
+
+                if (username.length >= 3) {
+                    usernameTimeoutId = setTimeout(() => {
+                        checkUsernameAvailability(username);
+                    }, 500);
+                } else {
+                    const feedback = document.getElementById('username-feedback');
+                    feedback.textContent = 'Минимум 3 символа';
+                    feedback.style.color = '#fd7e14';
+                    formState.username.valid = false;
+                    formState.username.checking = false;
+                    formState.username.message = 'Минимум 3 символа';
+                    updateSubmitButton();
+                }
+            });
+
+            usernameInput.addEventListener('blur', function() {
+                const username = this.value.trim();
+                if (username) {
+                    checkUsernameAvailability(username);
+                }
+            });
+        }
+
+        // Обработчики для пароля
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                checkPasswordStrength(this.value);
+            });
+        }
+
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', function() {
+                checkPasswordMatch();
+            });
+        }
+
+        // Обработчики для ролей
+        if (roleCheckboxes.length > 0) {
+            roleCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    checkRoles();
+                });
+            });
+        }
+
+        // Проверяем начальное состояние ролей
+        checkRoles();
+
+        // Обработчик отправки формы
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                return validateBeforeSubmit(event);
+            });
+        }
+    });
+</script>
+</body>
+</html>

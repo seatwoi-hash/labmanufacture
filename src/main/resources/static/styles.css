@@ -1,0 +1,396 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    padding-top: 80px;
+    text-align: center;
+}
+
+.user-menu {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.user-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.user-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+.home-button {
+    position: fixed !important;
+    bottom: 30px !important;
+    right: 30px !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    background-color: #1E40AF !important;
+    color: white !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 24px !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    z-index: 1000 !important;
+    transition: all 0.3s ease !important;
+}
+
+.home-button:hover {
+    background-color: #1e3a8a !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.home-button:active {
+    transform: scale(0.95) !important;
+}
+
+.dropdown-menu-user {
+    width: 300px;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: none;
+    font-size: 1.05rem;
+}
+
+.user-dropdown-header {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.user-dropdown-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+    border: 2px solid #0d6efd;
+}
+
+.user-dropdown-info h6 {
+    margin-bottom: 0.2rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.user-dropdown-info p {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.dropdown-item-user {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    color: #495057;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.dropdown-item-user:hover {
+    background-color: #e9ecef;
+    color: #0d6efd;
+}
+
+.dropdown-item-user i {
+    margin-right: 0.8rem;
+    width: 22px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 100px);
+    padding: 2rem;
+    text-align: center;
+    margin-left: 250px; /* Увеличили отступ для более широкого бокового меню */
+    transition: margin-left 0.3s ease;
+}
+
+.welcome-section {
+    max-width: 600px;
+    margin-bottom: 3rem;
+}
+
+.btn-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    max-width: 800px;
+}
+
+.action-btn {
+    min-width: 200px;
+    padding: 1.2rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn i {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+}
+
+.dropdown-divider {
+    margin: 0.8rem 0;
+}
+
+.company-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0d6efd;
+    margin: 1rem 0 2rem 0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для бокового меню */
+.side-buttons {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 240px; /* Увеличили ширину */
+    background: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    padding: 80px 0 20px 0;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+/* Стили для разделов */
+.side-section {
+    margin-bottom: 5px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background: linear-gradient(135deg, #1d7acc, #1d7acc);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.section-header:hover {
+    background: linear-gradient(135deg, #1669b8, #1669b8);
+}
+
+.section-header i:first-child {
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+.section-header span {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.section-arrow {
+    transition: transform 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.section-arrow.rotated {
+    transform: rotate(180deg);
+}
+
+.section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: #f8f9fa;
+}
+
+.section-content.active {
+    max-height: 1500px; /* Достаточно для отображения всех кнопок */
+}
+
+/* Боковые кнопки внутри разделов */
+.side-btn {
+    width: 90%;
+    margin: 6px auto;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    background: white;
+    color: #495057;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-size: 0.9rem;
+}
+
+.side-btn:hover {
+    transform: translateX(3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: #e3f2fd;
+    color: #1d7acc;
+}
+
+.side-btn.active {
+    background: linear-gradient(135deg, #1d7acc, #1d7acc);
+    color: white;
+    box-shadow: 0 4px 8px rgba(29, 122, 204, 0.3);
+}
+
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 25px;
+    left: 20px;
+    z-index: 1000;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    border: none;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 992px) {
+    .side-buttons {
+        transform: translateX(-100%);
+        width: 260px;
+    }
+
+    .side-buttons.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+
+    .company-title {
+        margin-top: 3rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn-container {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .action-btn {
+        width: 100%;
+    }
+
+    .dropdown-menu-user {
+        width: 90%;
+        right: 5% !important;
+        left: 5% !important;
+        transform: none !important;
+        top: 80px !important;
+    }
+
+    .company-title {
+        font-size: 2rem;
+        margin-top: 2rem;
+    }
+
+    .side-buttons {
+        width: 240px;
+    }
+
+    .side-btn {
+        width: 85%;
+    }
+
+    .home-button {
+     position: fixed !important;  /* ДОБАВЬТЕ ЭТО */
+     bottom: 20px !important;     /* ДОБАВЬТЕ ЭТО */
+     right: 20px !important;
+     width: 50px !important;
+     height: 50px !important;
+     border-radius: 50% !important;
+     background: linear-gradient(135deg, #0d6efd, #0a58ca) !important;
+     border: none !important;
+     color: white !important;
+     display: flex !important;
+     align-items: center !important;
+     justify-content: center !important;
+     cursor: pointer !important;
+     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+     transition: all 0.3s ease !important;
+     font-size: 20px !important;  /* ДОБАВЬТЕ ЭТО */
+     z-index: 1000 !important;    /* ДОБАВЬТЕ ЭТО */
+ }
+
+
+.home-button:hover {
+    background-color: #1e3a8a !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.home-button:active {
+    transform: scale(0.95) !important;
+}
+}
+
+@media (max-width: 768px) {
+    .home-button {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 20px !important;
+        bottom: 20px !important;
+        right: 20px !important;
+    }
+}
