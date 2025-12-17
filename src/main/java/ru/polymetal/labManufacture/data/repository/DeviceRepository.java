@@ -15,7 +15,8 @@ import java.util.UUID;
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, UUID> {
 
-    Optional<Device> findBySerialNumber(String serialNumber);
+    List<Device> findBySerialNumber(String serialNumber);
+
 
     List<Device> findBySerialNumberContainingIgnoreCase(String serialNumber);
 

@@ -1,6 +1,6 @@
 package ru.polymetal.labManufacture.service.Impl;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,6 @@ public class DeviceServiceImpl implements DeviceService {
     private final DeviceSubTypeService deviceSubTypeService;
     private final DeviceStatusRepository deviceStatusRepository;
 
-    // Маппинг ролей на статусы
     private static final Map<String, List<String>> ROLE_STATUS_MAPPING = Map.of(
             "operator", Arrays.asList(CREATE, SIDE1),
             "quality", Arrays.asList(SIDE2, REPAIR1, REPAIR2, REPAIR3, INSTALLATION, WASHING1, VARNISH),
@@ -44,7 +43,6 @@ public class DeviceServiceImpl implements DeviceService {
             "user", Arrays.asList(CREATE)
     );
 
-    // Маппинг следующих статусов
     private static final Map<String, String> NEXT_STATUS_MAPPING = Map.ofEntries(
             Map.entry(CREATE, "Монтаж \"Сторона 1\""),
             Map.entry(SIDE1, "Монтаж \"Сторона 2\""),
@@ -113,6 +111,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Device> findDevicesForRole(Account account) {
         Set<String> statusNames = collectStatusNamesForRoles(account.getRoles());
 
@@ -150,6 +149,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> getAllStatusNames() {
         return deviceStatusRepository.findAll().stream()
                 .map(DeviceStatus::getName)
@@ -158,13 +158,13 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UUID> getStatusIdsByNames(Collection<String> statusNames) {
         return deviceStatusService.findByListName(new ArrayList<>(statusNames)).stream()
                 .map(DeviceStatus::getId)
                 .toList();
     }
 
-    // Группированные методы операций (с описанием)
     @Override
     @Transactional
     public void completeOperationWithDescription(UUID deviceId, Account account,
@@ -179,33 +179,8 @@ public class DeviceServiceImpl implements DeviceService {
         performOperation(deviceId, account, targetStatus, "");
     }
 
-    // Специализированные методы (остаются для обратной совместимости)
     @Override
     @Transactional
-    public void completeMOne(UUID deviceId, Account account) {
-        completeOperationWithoutDescription(deviceId, account, SIDE1);
-    }
-
-    @Override
-    @Transactional
-    public void completeMTwo(UUID deviceId, Account account) {
-        completeOperationWithoutDescription(deviceId, account, SIDE2);
-    }
-
-    @Override
-    @Transactional
-    public void completeOTKOne(UUID deviceId, Account account, String description) {
-        completeOperationWithDescription(deviceId, account, QUALITY_CHECK_1, description);
-    }
-
-    @Override
-    @Transactional
-    public void failOTKOne(UUID deviceId, Account account, String description) {
-        completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_1, description);
-    }
-
-
-    @Override
     public void performOperation(UUID deviceId, Account account,
                                  String targetStatus, String description) {
         Device device = deviceRepository.findById(deviceId)
@@ -233,6 +208,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
+    @Transactional
     public void markDeviceAsDeleted(Device device) {
         device.setDeletedAt(LocalDateTime.now());
         device.setIsDeleted(true);
@@ -240,6 +216,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public int getBoardsProducedToday() {
         LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
         LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
@@ -253,54 +230,29 @@ public class DeviceServiceImpl implements DeviceService {
         return NEXT_STATUS_MAPPING.getOrDefault(status.getName(), "Неизвестный следующий статус");
     }
 
-    @Override
-    public Device createDevice(Device device, Account account) {
-        throw new UnsupportedOperationException("Метод не реализован");
-    }
 
     @Override
-    public void validateDevice(Device device) {
-        throw new UnsupportedOperationException("Метод не реализован");
-    }
-
-    @Override
-    public List<Device> findByAccount(Account account) {
-        throw new UnsupportedOperationException("Метод не реализован");
-    }
-
-    @Override
-    public Optional<Device> findById(UUID id) {
-        return deviceRepository.findById(id);
-    }
-
-    @Override
-    public List<Device> findByStatusId(UUID statusId) {
-        return deviceRepository.findByStatusId(statusId);
-    }
-
-    @Override
+    @Transactional
     public List<Device> findByStatusIdAndIsDelete(UUID statusId) {
         return deviceRepository.findByStatusIdAndDeletedWithFetch(statusId);
     }
 
     @Override
-    public List<Device> findByStatusIdAndIsDelete(List<UUID> statusIds) {
-        return deviceRepository.findByStatusIdInAndIsDeleted(statusIds, false);
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public List<Device> findAll() {
         return deviceRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsSerialNumber(String sn) {
-       return deviceRepository.existsBySerialNumber(sn);
+        return deviceRepository.existsBySerialNumber(sn);
     }
 
     @Override
-    public List<Device> findBySerialNumberContainingIgnoreCase(String sn) {
-        return deviceRepository.findBySerialNumberContainingIgnoreCase(sn);
+    @Transactional(readOnly = true)
+    public List<Device> findBySerialNumber(String sn) {
+        return deviceRepository.findBySerialNumber(sn);
     }
 
 }

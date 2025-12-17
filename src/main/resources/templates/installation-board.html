@@ -129,7 +129,7 @@
                             <td>
                                 <span class="device-sn" th:text="${device.serialNumber}"></span>
                             </td>
-                            <td th:text="${device.subType?.description} ?: 'Не указан'">Тип</td>
+                            <td th:text="${device.subType?.name} ?: 'Не указан'">Тип</td>
                             <td>
                                         <span th:if="${device.description}"
                                               th:text="${#strings.abbreviate(device.description, 50)}"

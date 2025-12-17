@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.READY;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
@@ -43,7 +45,17 @@ public class HomeController {
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
 
-        List<Device> devices = deviceService.findDevicesForRole(account);
+        List<Device> devices = deviceService.findDevicesForRole(account).stream()
+                .filter(a -> !a.getIsDeleted())
+                .filter(a -> a.getType().getName().equals("BOARD"))
+                .collect(Collectors.groupingBy(Device::getSerialNumber))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue().stream()
+                        .noneMatch(device -> device.getStatus().getName().equals(QUALITY_CHECK_5)
+                                || device.getStatus().getName().equals(READY)))
+                .flatMap(entry -> entry.getValue().stream())
+                .sorted(Comparator.comparing(Device::getCreatedTime).reversed())
+                .toList();
 
         List<DeviceDto> deviceDtos= devices.stream()
                 .map(device -> {
@@ -53,7 +65,6 @@ public class HomeController {
                     dto.setStatus(deviceService.getNextStatus(device.getStatus()));
                     dto.setCreatedTime(device.getCreatedTime());
                     dto.setDescription(device.getDescription());
-                    // маппинг других полей
                     return dto;
                 })
                 .sorted(Comparator.comparing(DeviceDto::getCreatedTime).reversed())

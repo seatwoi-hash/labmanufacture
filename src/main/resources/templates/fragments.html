@@ -61,136 +61,134 @@
     </div>
 </div>
 
-<!-- Фрагмент бокового меню -->
 <div th:fragment="sidebar">
-    <!-- Кнопка для мобильного меню -->
     <button class="menu-toggle" id="menuToggle">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Боковые кнопки -->
     <div class="side-buttons" id="sideButtons">
-        <!-- Раздел Платы -->
+
+
         <div class="side-section">
             <div class="section-header" data-section="platy">
                 <i class="fas fa-microchip"></i>
                 <span>Платы</span>
-                <i class="fas fa-chevron-down section-arrow"></i>
+               <i class="fas fa-chevron-down section-arrow rotated"></i>
             </div>
-            <div class="section-content platy-section">
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/create-board'">
-                    Создать новую плату
-                </button>
+            <div class="section-content platy-section active">
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/mone-board'">
+            <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/create-board'">
+                     Создать новую плату
+                 </button>
 
-                    Монтаж "Сторона 1"
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/mone-board'">
 
-                </button>
+                     Монтаж "Сторона 1"
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/mtwo-board'">
+                 </button>
 
-                    Монтаж "Сторона 2"
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/mtwo-board'">
 
-                </button>
+                     Монтаж "Сторона 2"
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/otk1-board'">
-                    ОТК №1
-                </button>
+                 </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/repair1-board'">
-                    Ремонт №1
-                </button>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/otk1-board'">
+                     ОТК №1
+                 </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_OUTPUT', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/installation-board'">
-                    Выводной монтаж
-                </button>
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/otk2-board'">
-                    ОТК №2
-                </button>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/repair1-board'">
+                     Ремонт №1
+                 </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/repair2-board'">
-                    Ремонт №2
-                </button>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_OUTPUT', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/installation-board'">
+                     Выводной монтаж
+                 </button>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/otk2-board'">
+                     ОТК №2
+                 </button>
 
-
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_WASHER', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/washing1-board'">
-                    Мойка №1
-                </button>
-
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/otk3-board'">
-                    ОТК №3
-                </button>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/repair2-board'">
+                     Ремонт №2
+                 </button>
 
 
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_WASHER', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/washing1-board'">
+                     Мойка №1
+                 </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_TESTERB', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/test-board'">
-                    Тестировка
-                </button>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/otk3-board'">
+                     ОТК №3
+                 </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/repair3-board'">
-                    Ремонт №3
-                </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/otk4-board'">
-                    ОТК №4
-                </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_WASHER', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/washing2-board'">
-                    Мойка №2
-                </button>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_TESTERB', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/test-board'">
+                     Тестировка
+                 </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_VARNISHER', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/varnish-board'">
-                    Нанесение компаунда
-                </button>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/repair3-board'">
+                     Ремонт №3
+                 </button>
 
-                <button class="side-btn"
-                        sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
-                        onclick="window.location.href='/device/otk5-board'">
-                    ОТК №5
-                </button>
-                <button class="side-btn"
-                        onclick="window.location.href='/device/ready-board'">
-                    Готовые платы
-                </button>
-                <button class="side-btn"
-                        onclick="window.location.href='/device/noready-board'">
-                    Платы в производстве
-                </button>
-            </div>
-        </div>
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/otk4-board'">
+                     ОТК №4
+                 </button>
 
-        <!-- Раздел Устройства -->
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_WASHER', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/washing2-board'">
+                     Мойка №2
+                 </button>
+
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_VARNISHER', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/varnish-board'">
+                     Нанесение компаунда
+                 </button>
+
+                 <button class="side-btn"
+                         sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
+                         onclick="window.location.href='/device/otk5-board'">
+                     ОТК №5
+                 </button>
+                 <button class="side-btn"
+                         onclick="window.location.href='/device/ready-board'">
+                     Готовые платы
+                 </button>
+                 <button class="side-btn"
+                         onclick="window.location.href='/device/noready-board'">
+                     Платы в производстве
+                 </button>
+             </div>
+         </div>
+
         <div class="side-section"
              sec:authorize="hasRole('ADMIN')">
             <div class="section-header" data-section="ustroistva">
@@ -208,7 +206,6 @@
             </div>
         </div>
 
-        <!-- Раздел Кабели -->
         <div class="side-section"
              sec:authorize="hasRole('ADMIN')">
             <div class="section-header" data-section="kabeli">
@@ -226,7 +223,6 @@
             </div>
         </div>
 
-        <!-- Раздел Склад -->
         <div class="side-section"
              sec:authorize="hasRole('ADMIN')">
             <div class="section-header" data-section="stock">
@@ -243,21 +239,16 @@
     </div>
 </div>
 
-<!-- Фрагмент общих скриптов -->
 <div th:fragment="scripts">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script th:inline="javascript">
-        /*<![CDATA[*/
-        // Общие функции для всех страниц
         function initializeCommonFeatures() {
-            // Инициализация всплывающих подсказок
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
 
-            // Закрытие dropdown при клике outside
             document.addEventListener('click', function(event) {
                 const userButton = document.getElementById('userDropdownButton');
                 const dropdownMenu = document.querySelector('.dropdown-menu-user');
@@ -270,17 +261,15 @@
                 }
             });
 
-            // Управление боковым меню для мобильных устройств
             const menuToggle = document.getElementById('menuToggle');
             const sideButtons = document.getElementById('sideButtons');
 
             if (menuToggle && sideButtons) {
-                menuToggle.addEventListener('click', function() {
+                menuToggle.addEventListener('click', function () {
                     sideButtons.classList.toggle('active');
                 });
 
-                // Закрытие бокового меню при клике вне его области
-                document.addEventListener('click', function(event) {
+                document.addEventListener('click', function (event) {
                     if (window.innerWidth <= 992) {
                         if (!sideButtons.contains(event.target) && !menuToggle.contains(event.target) && sideButtons.classList.contains('active')) {
                             sideButtons.classList.remove('active');
@@ -288,25 +277,67 @@
                     }
                 });
 
-                // Управление раскрытием/сворачиванием разделов
-                const sectionHeaders = document.querySelectorAll('.section-header');
-                sectionHeaders.forEach(header => {
-                    header.addEventListener('click', function() {
-                        const sectionContent = this.nextElementSibling;
-                        const arrow = this.querySelector('.section-arrow');
 
-                        sectionContent.classList.toggle('active');
-                        arrow.classList.toggle('rotated');
+                const sectionHeaders = document.querySelectorAll('.section-header');
+
+                function shouldExpandSection(sectionName, hasSavedState) {
+                    if (hasSavedState) {
+                        const savedState = localStorage.getItem('sidebar-section-' + sectionName);
+                        return savedState === 'true';
+                    }
+                    const header = document.querySelector(`[data-section="${sectionName}"]`);
+                    if (!header) return false;
+
+                    const sectionContent = header.nextElementSibling;
+                    const arrow = header.querySelector('.section-arrow');
+
+                    return sectionContent.classList.contains('active') || arrow.classList.contains('rotated');
+                }
+
+                sectionHeaders.forEach(header => {
+                    const sectionContent = header.nextElementSibling;
+                    const arrow = header.querySelector('.section-arrow');
+                    const sectionName = header.getAttribute('data-section') || 'section-' + Array.from(sectionHeaders).indexOf(header);
+
+                    const hasSavedState = localStorage.getItem('sidebar-section-' + sectionName) !== null;
+
+                    const shouldExpand = shouldExpandSection(sectionName, hasSavedState);
+
+                    if (shouldExpand) {
+                        sectionContent.classList.add('active');
+                        arrow.classList.add('rotated');
+                    } else {
+                        sectionContent.classList.remove('active');
+                        arrow.classList.remove('rotated');
+                    }
+
+                    if (!hasSavedState) {
+                        const isCurrentlyExpanded = sectionContent.classList.contains('active');
+                        localStorage.setItem('sidebar-section-' + sectionName, isCurrentlyExpanded);
+                    }
+
+                    header.addEventListener('click', function () {
+                        const currentSectionContent = this.nextElementSibling;
+                        const currentArrow = this.querySelector('.section-arrow');
+                        const currentSectionName = this.getAttribute('data-section') || 'section-' + Array.from(sectionHeaders).indexOf(this);
+
+                        currentSectionContent.classList.toggle('active');
+                        currentArrow.classList.toggle('rotated');
+
+                        const isCurrentlyExpanded = currentSectionContent.classList.contains('active');
+                        localStorage.setItem('sidebar-section-' + currentSectionName, isCurrentlyExpanded);
                     });
                 });
-            }
-        }
 
-        // Запуск при загрузке страницы
+            }}
+
+
+
+
         document.addEventListener('DOMContentLoaded', function() {
             initializeCommonFeatures();
         });
-        /*]]>*/
+
     </script>
 </div>
 </body>

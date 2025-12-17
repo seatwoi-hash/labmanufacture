@@ -165,7 +165,7 @@ public class DeviceController {
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
 
-        deviceService.completeMOne(deviceId, account);
+        deviceService.completeOperationWithoutDescription(deviceId, account, SIDE1);
 
         return ResponseEntity.ok().build();
     }
@@ -196,7 +196,7 @@ public class DeviceController {
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
 
-        deviceService.completeMTwo(deviceId, account);
+        deviceService.completeOperationWithoutDescription(deviceId, account, SIDE2);
 
         return ResponseEntity.ok().build();
     }
@@ -235,9 +235,10 @@ public class DeviceController {
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
         if ("passed".equals(action)) {
-            deviceService.completeOTKOne(deviceId, account, device.getDescription());
+            deviceService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_1, device.getDescription());
         } else if ("failed".equals(action)) {
-            deviceService.failOTKOne(deviceId, account, device.getDescription());
+            deviceService.completeOperationWithDescription(deviceId, account,FAIL_QUALITY_CHECK_1,
+                    device.getDescription());
         }
 
         return ResponseEntity.ok().build();
@@ -705,21 +706,15 @@ public class DeviceController {
     @GetMapping("/ready-board")
     public String showReadyBoard(Model model, Authentication authentication) {
 
-        // Находим устройства со статусом "Готовые"
         List<Device> devices = deviceService.findByStatusIdAndIsDelete(
                 deviceStatusService.findByName(READY).getId()
         );
 
-        // Объединяем списки
-        List<Device> sortDevices = new ArrayList<>();
-
-        // Сортируем по дате завершения (если есть) или дате создания
-        sortDevices =
+        List<Device> sortDevices =
                 devices.stream().sorted(Comparator.comparing(Device::getCreatedTime).reversed()).collect(Collectors.toList());
 
         model.addAttribute("devices", sortDevices);
 
-        // Информация о текущем пользователе
         Account account = accountRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
@@ -731,15 +726,18 @@ public class DeviceController {
     @GetMapping("/noready-board")
     public String showNoReadyBoard(Model model, Authentication authentication) {
 
-        List<Device> devices = deviceService.findAll().stream().filter(a -> !a.getIsDeleted())
-                .filter(a -> !a.getStatus().getName().equals(READY))
-                .filter(a->a.getType().getName().equals("BOARD"))
-                .sorted(Comparator.comparing(Device::getCreatedTime).reversed()).toList();
-
+        List<Device> devices = deviceService.findAll().stream()
+                .filter(a -> !a.getIsDeleted())
+                .filter(a -> a.getType().getName().equals("BOARD"))
+                .collect(Collectors.groupingBy(Device::getSerialNumber))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue().stream()
+                        .noneMatch(device -> device.getStatus().getName().equals(READY)))
+                .flatMap(entry -> entry.getValue().stream())
+                .sorted(Comparator.comparing(Device::getCreatedTime).reversed())
+                .toList();
 
         model.addAttribute("devices", devices);
-
-        // Информация о текущем пользователе
         Account account = accountRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
@@ -751,9 +749,8 @@ public class DeviceController {
     @GetMapping("/operation-board/{sn}")
     public String showOperationBoard(Model model, Authentication authentication, @PathVariable String sn) {
 
-        // Находим устройства со статусом "Готовые"
-        List<Device> operations = deviceService.findBySerialNumberContainingIgnoreCase(sn);
-
+        List<Device> operations =
+                deviceService.findBySerialNumber(sn).stream().sorted(Comparator.comparing(a -> a.getCreatedTime())).collect(Collectors.toList());
 
         model.addAttribute("operations", operations);
 

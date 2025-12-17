@@ -1,9 +1,8 @@
 package ru.polymetal.labManufacture.service.account;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import ru.polymetal.labManufacture.data.models.Account;
-import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.service.AccountService;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.UUID;
 
 @Service
 public class AccountServiceImpl implements AccountService {
+
     private final AccountRepository accountRepository;
 
     public AccountServiceImpl(AccountRepository accountRepository) {
@@ -29,6 +29,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Account> findAllUsers() {
         return accountRepository.findAll().stream().filter(Account::getActive).toList();
     }
@@ -44,7 +45,9 @@ public class AccountServiceImpl implements AccountService {
 
 
     }
+
     @Override
+    @Transactional(readOnly = true)
     public Account findById(UUID accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException(  // создать исключение именное
@@ -53,6 +56,7 @@ public class AccountServiceImpl implements AccountService {
         return account;
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return accountRepository.existsByEmail(email);
     }
@@ -66,6 +70,7 @@ public class AccountServiceImpl implements AccountService {
         account.setActive(false);
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByUsername(String username) {
         return accountRepository.existsByUsername(username);
     }

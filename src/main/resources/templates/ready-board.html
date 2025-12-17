@@ -165,7 +165,10 @@
                         <tbody>
                         <tr th:each="device : ${devices}">
                             <td>
-                                <span class="device-sn" th:text="${device.serialNumber}"></span>
+                                <a th:href="@{/device/operation-board/{sn}(sn=${device.serialNumber})}"
+                                   style="text-decoration: none; color: inherit;">
+                                    <span class="device-sn" th:text="${device.serialNumber}"></span>
+                                </a>
                             </td>
                             <td th:text="${device.subType?.name} ?: 'Не указан'">Тип</td>
                             <td th:text="${device.getAccount()?.lastName} ?: 'Не указан'">Фамилия</td>
