@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-labManufactureDB}
-      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-Macwork}
+      POSTGRES_DB: ${POSTGRES_DB:-labDB}  # ← Используем POSTGRES_DB из .env
+      POSTGRES_USER: ${DB_USER:-postgres}  # ← Используем DB_USER из .env
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123!@}  # ← Используем DB_PASSWORD из .env
     ports:
-      - "30001:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -20,18 +20,28 @@ services:
   app:
     build: .
     environment:
-      # Используем переменные из .env
-      SPRING_APPLICATION_NAME: ${SPRING_APPLICATION_NAME}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-labManufactureDB}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      # Настройки приложения
+      SPRING_APPLICATION_NAME: ${SPRING_APPLICATION_NAME:-labManufacture}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE_DOCKER:-docker}
+
+      # Подключение к БД (внутри Docker сети используем имя сервиса 'postgres')
+      # В .env у вас: SPRING_DATASOURCE_DOCKER_URL=jdbc:postgresql://postgres:30001/labDB
+      # Но внутри Docker сети порт 5432, а не 30001
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-labDB}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres123!@}
+
+      # Настройки JPA
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL: "true"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+
+      # Liquibase
       SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db/changelog/db.changelog-master.yaml
-      SPRING_MVC_HIDDENMETHOD_FILTER_ENABLED: "true"
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_LIQUIBASE_ENABLED: "true"
     ports:
-      - "30000:8080"
+      - "80:8080"
     depends_on:
       postgres:
         condition: service_healthy
