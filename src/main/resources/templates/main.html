@@ -12,15 +12,17 @@
         .device-table {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             margin-bottom: 2rem;
         }
+
         .table-header {
             background: linear-gradient(135deg, #1d7acc, #1d7acc);
             color: white;
             padding: 1.5rem 2rem;
         }
+
         .table th {
             background-color: #f8f9fa;
             border-top: none;
@@ -28,10 +30,12 @@
             color: #495057;
             padding: 1rem;
         }
+
         .table td {
             padding: 1rem;
             vertical-align: middle;
         }
+
         body {
             background-color: #f5f7fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -81,7 +85,6 @@
         }
 
 
-
         .action-card {
             background: white;
             border-radius: 10px;
@@ -94,13 +97,10 @@
         }
 
 
-
         .action-card:hover .action-icon {
             background: rgba(255, 255, 255, 0.2);
             color: white;
         }
-
-
 
 
         .progress-container {
@@ -117,7 +117,6 @@
             background-color: #e9ecef;
             overflow: hidden;
         }
-
 
 
         .status-indicator {
@@ -189,6 +188,20 @@
     <!-- Основной контент -->
     <main class="page-content">
         <div class="container-fluid">
+            <!-- Поиск -->
+            <div class="search-container">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="position-relative">
+                            <input type="text"
+                                   class="form-control search-input"
+                                   id="searchInput"
+                                   placeholder="Поиск по серийному номеру...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Карточка с таблицей -->
             <div class="device-table" th:if="${not devices.empty}">
                 <div class="table-header">
@@ -255,5 +268,40 @@
 
 <!-- Общие скрипты -->
 <div th:replace="fragments :: scripts"></div>
+<script>
+    //поиск....
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const tableRows = document.querySelectorAll('tbody tr');
+        const visibleCount = document.getElementById('visibleCount');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase().trim();
+            let visibleRows = 0;
+
+            tableRows.forEach(row => {
+                const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+
+                if (serialNumber.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleRows++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+// Обновляем счетчик видимых строк
+            visibleCount.textContent = visibleRows;
+
+// Показываем/скрываем сообщение "Ничего не найдено"
+            if (visibleRows === 0 && searchTerm !== '') {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        });
+    });
+</script>
 </body>
 </html>
