@@ -1,5 +1,7 @@
 package ru.polymetal.labManufacture.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.DeviceStatus;
@@ -53,5 +55,12 @@ public interface DeviceService {
     boolean existsSerialNumber(String sn);
 
     List<Device> findBySerialNumber(String sn);
+
+    // Новый метод для пагинации без поиска
+    Page<Device> findByStatusId(UUID statusId, Pageable pageable);
+
+    // Новый метод для пагинации с поиском
+    Page<Device> findByStatusIdAndSerialNumberContainingIgnoreCase(
+            UUID statusId, String search, Pageable pageable);
 
 }

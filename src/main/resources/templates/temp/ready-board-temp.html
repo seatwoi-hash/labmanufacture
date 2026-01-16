@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платы готовые</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <style>
+        /* Существующие стили остаются */
+        .pagination-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .page-item.active .page-link {
+            background-color: #1d7acc;
+            border-color: #1d7acc;
+        }
+        .page-link {
+            color: #1d7acc;
+            border: 1px solid #dee2e6;
+            padding: 0.5rem 1rem;
+        }
+        .page-link:hover {
+            color: #0d5aa7;
+            background-color: #e9ecef;
+        }
+        .pagination-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .search-form {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<!-- Подключаем фрагменты -->
+<div th:replace="fragments :: home-button"></div>
+<div th:replace="~{fragments :: sidebar}"></div>
+<div th:replace="~{fragments :: user-menu}"></div>
+
+<div class="main-content">
+    <!-- Шапка -->
+    <header class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-check-circle me-2"></i>Готовые платы</h1>
+            <div class="header-actions">
+                <span class="badge bg-success fs-6 mb-3">
+                    Плат: <span id="deviceCount" th:text="${totalElements} ?: 0">0</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="page-content">
+        <div class="container-fluid">
+            <!-- Поиск с формой -->
+            <div class="search-container">
+                <form th:action="@{/ready-boards}" method="get" class="search-form">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="position-relative">
+                                <input type="text"
+                                       class="form-control search-input"
+                                       id="searchInput"
+                                       name="search"
+                                       th:value="${searchTerm}"
+                                       placeholder="Поиск по серийному номеру...">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-control search-input" name="size" onchange="this.form.submit()">
+                                <option value="20" th:selected="${param.size == 20}">20 на странице</option>
+                                <option value="50" th:selected="${param.size == 50 or param.size == null}">50 на странице</option>
+                                <option value="100" th:selected="${param.size == 100}">100 на странице</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-2"></i>Найти
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Скрытые поля для пагинации -->
+                    <input type="hidden" name="page" th:value="${currentPage}">
+
+                    <!-- Кнопка сброса поиска -->
+                    <div class="mt-2" th:if="${searchTerm != null and not searchTerm.isEmpty()}">
+                        <a th:href="@{/ready-boards}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Сбросить поиск
+                        </a>
+                        <small class="text-muted ms-2">
+                            Найдено: <span th:text="${totalElements}">0</span> устройств по запросу:
+                            <strong>"<span th:text="${searchTerm}"></span>"</strong>
+                        </small>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Карточка с таблицей -->
+            <div class="device-table" th:if="${not devices.empty}">
+                <div class="table-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">Список готовых плат</h4>
+                            <p class="mb-0">Все платы со статусом "Готов"</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-light text-dark fs-6">
+                                <i class="fas fa-list me-1"></i>
+                                <span th:text="${devices.size()}">0</span> из <span th:text="${totalElements}">0</span> устройств
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Серийный номер</th>
+                            <th>Тип платы</th>
+                            <th>Завершающее ОТК</th>
+                            <th>Дата создания</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="device : ${devices}">
+                            <td>
+                                <a th:href="@{/device/operation-board/{sn}(sn=${device.serialNumber})}"
+                                   style="text-decoration: none; color: inherit;">
+                                    <span class="device-sn" th:text="${device.serialNumber}"></span>
+                                </a>
+                            </td>
+                            <td th:text="${device.subType?.name} ?: 'Не указан'">Тип</td>
+                            <td th:text="${device.getAccount()?.lastName} ?: 'Не указан'">Фамилия</td>
+                            <td>
+                                <span th:text="${#temporals.format(device.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Сообщение при отсутствии результатов -->
+                <div th:if="${devices.empty}" class="no-results" style="display: block;">
+                    <i class="fas fa-search fa-2x mb-3"></i>
+                    <h5>Ничего не найдено</h5>
+                    <p class="text-muted">Попробуйте изменить параметры поиска</p>
+                    <a th:href="@{/ready-boards}" class="btn btn-outline-primary mt-2">
+                        <i class="fas fa-undo me-1"></i>Показать все устройства
+                    </a>
+                </div>
+            </div>
+
+            <!-- Пагинация -->
+            <div th:if="${not devices.empty and totalPages > 1}" class="pagination-container">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="pagination-info">
+                            Показано <strong th:text="${devices.size()}">0</strong> из
+                            <strong th:text="${totalElements}">0</strong> устройств
+                            <span th:if="${searchTerm != null}">
+                                по запросу "<span th:text="${searchTerm}"></span>"
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <nav aria-label="Навигация по страницам">
+                            <ul class="pagination justify-content-end mb-0">
+                                <!-- Первая страница -->
+                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                                    <a class="page-link"
+                                       th:href="@{/ready-boards(page=0,size=${param.size},search=${searchTerm})}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Предыдущая страница -->
+                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                                    <a class="page-link"
+                                       th:href="@{/ready-boards(page=${currentPage-1},size=${param.size},search=${searchTerm})}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Номера страниц -->
+                                <li th:each="pageNum : ${#numbers.sequence(0, totalPages-1)}"
+                                    th:if="${pageNum >= currentPage-2 and pageNum <= currentPage+2}"
+                                    class="page-item"
+                                    th:classappend="${pageNum == currentPage} ? 'active' : ''">
+                                    <a class="page-link"
+                                       th:href="@{/ready-boards(page=${pageNum},size=${param.size},search=${searchTerm})}"
+                                       th:text="${pageNum+1}">1</a>
+                                </li>
+
+                                <!-- Следующая страница -->
+                                <li class="page-item" th:classappend="${currentPage == totalPages-1} ? 'disabled' : ''">
+                                    <a class="page-link"
+                                       th:href="@{/ready-boards(page=${currentPage+1},size=${param.size},search=${searchTerm})}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Последняя страница -->
+                                <li class="page-item" th:classappend="${currentPage == totalPages-1} ? 'disabled' : ''">
+                                    <a class="page-link"
+                                       th:href="@{/ready-boards(page=${totalPages-1},size=${param.size},search=${searchTerm})}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Состояние пустого списка (когда вообще нет устройств) -->
+            <div th:if="${devices == null or (devices.empty and (searchTerm == null or searchTerm.isEmpty()))}"
+                 class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h4>Нет готовых плат</h4>
+                <p class="text-muted">Все устройства находятся на других этапах производства</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Общие скрипты -->
+<div th:replace="~{fragments :: scripts}"></div>
+
+<!-- Специфичные скрипты для этой страницы -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+
+        // Автоматический поиск при вводе (опционально)
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+
+            // Ждем 1 секунду после последнего ввода
+            searchTimeout = setTimeout(() => {
+                if (this.value.trim().length >= 3 || this.value.trim().length === 0) {
+                    this.form.submit();
+                }
+            }, 1000);
+        });
+
+        // Клавиша Enter для мгновенного поиска
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.form.submit();
+            }
+        });
+
+        // Сохраняем позицию скролла при переходе между страницами
+        const links = document.querySelectorAll('.page-link');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                sessionStorage.setItem('scrollPosition', window.pageYOffset);
+            });
+        });
+
+        // Восстанавливаем позицию скролла после загрузки
+        const scrollPosition = sessionStorage.getItem('scrollPosition');
+        if (scrollPosition) {
+            window.scrollTo(0, parseInt(scrollPosition));
+            sessionStorage.removeItem('scrollPosition');
+        }
+    });
+</script>
+</body>
+</html>

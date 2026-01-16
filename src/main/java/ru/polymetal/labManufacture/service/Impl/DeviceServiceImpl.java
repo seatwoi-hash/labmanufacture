@@ -1,5 +1,7 @@
 package ru.polymetal.labManufacture.service.Impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -253,6 +255,16 @@ public class DeviceServiceImpl implements DeviceService {
     @Transactional(readOnly = true)
     public List<Device> findBySerialNumber(String sn) {
         return deviceRepository.findBySerialNumber(sn);
+    }
+
+    @Override
+    public Page<Device> findByStatusId(UUID statusId, Pageable pageable) {
+        return deviceRepository.findByStatusIdAndIsDeleted(statusId, false, pageable);    }
+
+    @Override
+    public Page<Device> findByStatusIdAndSerialNumberContainingIgnoreCase(UUID statusId, String search, Pageable pageable) {
+        return deviceRepository.findByStatusIdAndSerialNumberContainingIgnoreCase(
+                statusId, search, false, pageable);
     }
 
 }

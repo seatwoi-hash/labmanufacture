@@ -1,7 +1,6 @@
 package ru.polymetal.labManufacture.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,15 +18,18 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
+
     private final AccountRepository accountRepository;
     private final AccountService accountService;
     private final DeviceService deviceService;
 
-    public HomeController(AccountRepository accountRepository, AccountService accountService, DeviceService deviceService) {
+    public HomeController(AccountRepository accountRepository, AccountService accountService,
+                          DeviceService deviceService) {
         this.accountRepository = accountRepository;
         this.accountService = accountService;
         this.deviceService = deviceService;
@@ -38,12 +40,17 @@ public class HomeController {
         if (authentication != null && authentication.isAuthenticated()) {
             model.addAttribute("username", authentication.getName());
         }
+
         int boardsProducedToday = deviceService.getBoardsProducedToday();
         model.addAttribute("boardsProducedToday", boardsProducedToday);
 
-        Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+        Optional<Account> accountOpt = accountRepository.findByUsername(authentication.getName());
+        if (accountOpt.isEmpty()) {
+            // Перенаправляем на логин или показываем ошибку
+            return "redirect:/login";
+        }
+
+        Account account = accountOpt.get();
 
         List<Device> devices = deviceService.findDevicesForRole(account).stream()
                 .filter(a -> !a.getIsDeleted())
@@ -57,7 +64,7 @@ public class HomeController {
                 .sorted(Comparator.comparing(Device::getCreatedTime).reversed())
                 .toList();
 
-        List<DeviceDto> deviceDtos= devices.stream()
+        List<DeviceDto> deviceDtos = devices.stream()
                 .map(device -> {
                     DeviceDto dto = new DeviceDto();
                     dto.setSerialNumber(device.getSerialNumber());
@@ -71,9 +78,8 @@ public class HomeController {
                 .toList();
 
 
-        if (account != null) {
-            model.addAttribute("currentUser", account);
-        }
+        model.addAttribute("currentUser", account);
+
 
         model.addAttribute("devices", deviceDtos);
 

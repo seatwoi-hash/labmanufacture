@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платы в работе</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <style>
+        .table-responsive {
+            max-height: 600px; /* Ограничиваем высоту таблицы */
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .load-more-row {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1d7acc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .row-counter {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+
+        .table-row {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .table-row.hidden {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            border: none;
+            overflow: hidden;
+        }
+        .device-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .table-header {
+            background: linear-gradient(135deg, #1d7acc, #1d7acc);
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+            padding: 1rem;
+        }
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-ready {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .device-sn {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .search-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-input {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #1d7acc;
+            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+        }
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            display: none;
+        }
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+        .table-row {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+<!-- Подключаем фрагменты -->
+<div th:replace="fragments :: home-button"></div>
+<div th:replace="~{fragments :: sidebar}"></div>
+<div th:replace="~{fragments :: user-menu}"></div>
+
+<div class="main-content">
+    <!-- Шапка -->
+    <header class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-circle-o me-2"></i>Платы в работе</h1>
+            <div class="header-actions">
+                <span class="badge bg-success fs-6 mb-3">
+                    Плат: <span id="deviceCount" th:text="${devices != null ? devices.size() : 0}">0</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="page-content">
+        <div class="container-fluid">
+            <!-- Поиск -->
+            <div class="search-container">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="position-relative">
+                            <input type="text"
+                                   class="form-control search-input"
+                                   id="searchInput"
+                                   placeholder="Поиск по серийному номеру...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка с таблицей -->
+            <div class="device-table" th:if="${devices != null and not devices.empty}">
+                <div class="table-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">Список плат</h4>
+                            <p class="mb-0">Все платы в работе</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-light text-dark fs-6">
+                                <i class="fas fa-list me-1"></i>
+                                <span id="visibleCount" th:text="${devices.size()}">0</span> из <span th:text="${devices.size()}">0</span> устройств
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Серийный номер</th>
+                            <th>Тип платы</th>
+                            <th>Текущий законченный этапе производства</th>
+                            <th>Дата создания</th>
+                        </tr>
+                        </thead>
+                        <tbody id="devicesTableBody">
+                        <tr th:each="device : ${devices}">
+                            <td>
+                                <a th:href="@{/device/operation-board/{sn}(sn=${device.serialNumber})}"
+                                   style="text-decoration: none; color: inherit;">
+                                    <span class="device-sn" th:text="${device.serialNumber}"></span>
+                                </a>
+                            </td>
+                            <td th:text="${device.subType?.name} ?: 'Не указан'">Тип</td>
+                            <td>
+                                <span class="device-op" th:text="${device.getStatus().description}"></span>
+                            </td>
+                            <td>
+                                        <span th:text="${#temporals.format(device.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                        </span>
+                            </td>
+                        </tr>
+                        </tbody>
+
+                        <tr id="loadMoreRow" class="load-more-row">
+                            <td colspan="4">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div class="loader"></div>
+                                    <span>Загрузка...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Сообщение при отсутствии результатов -->
+                <div id="noResults" class="no-results">
+                    <i class="fas fa-search fa-2x mb-3"></i>
+                    <h5>Ничего не найдено</h5>
+                    <p class="text-muted">Попробуйте изменить параметры поиска</p>
+                </div>
+            </div>
+
+            <!-- Состояние пустого списка -->
+            <div th:if="${devices == null or devices.empty}" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h4>Нет плат в работе</h4>
+                <p class="text-muted">Нет плат в работе</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Общие скрипты -->
+<div th:replace="~{fragments :: scripts}"></div>
+
+<!-- Специфичные скрипты для этой страницы -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const BATCH_SIZE = 30; // Сколько строк подгружать за раз
+        const DEBOUNCE_DELAY = 150; // Задержка поиска в мс
+        const SCROLL_THRESHOLD = 200; // За сколько пикселей до конца начинать подгрузку
+
+        // Элементы DOM
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.getElementById('devicesTableBody');
+        const loadMoreRow = document.getElementById('loadMoreRow');
+        const shownCountEl = document.getElementById('shownCount');
+        const totalCountEl = document.getElementById('totalCount');
+        const visibleCount = document.getElementById('visibleCount');
+        const noResults = document.getElementById('noResults');
+
+        // Состояние
+        let allDevices = []; // Все устройства
+        let filteredDevices = []; // Отфильтрованные устройства
+        let displayedCount = 0; // Сколько уже показано
+        let isLoading = false;
+        let debounceTimer;
+
+        // Инициализация: собираем данные из Thymeleaf
+        function initializeDevices() {
+            const rows = document.querySelectorAll('tbody tr.table-row');
+            allDevices = Array.from(rows).map(row => {
+                return {
+                    id: row.dataset.id || Math.random().toString(36).substr(2, 9),
+                    element: row.cloneNode(true), // Клонируем строку
+                    serialNumber: row.querySelector('.device-sn')?.textContent || '',
+                    type: row.cells[1]?.textContent || '',
+                    status: row.cells[2]?.textContent || '',
+                    date: row.cells[3]?.textContent || '',
+                    isVisible: true
+                };
+            });
+
+            // Очищаем оригинальный tbody
+            tableBody.innerHTML = '';
+
+            // Устанавливаем общее количество
+            totalCountEl.textContent = allDevices.length;
+            visibleCount.textContent = allDevices.length;
+
+            // Копируем все устройства в отфильтрованные
+            filteredDevices = [...allDevices];
+
+            // Показываем первую порцию
+            loadMoreDevices();
+        }
+
+        // Загрузка следующей порции устройств
+        function loadMoreDevices() {
+            if (isLoading) return;
+
+            const nextBatch = filteredDevices.slice(displayedCount, displayedCount + BATCH_SIZE);
+
+            if (nextBatch.length === 0) {
+                loadMoreRow.style.display = 'none';
+                return;
+            }
+
+            isLoading = true;
+            loadMoreRow.style.display = 'table-row';
+
+            // Используем requestAnimationFrame для плавного добавления
+            requestAnimationFrame(() => {
+                nextBatch.forEach(device => {
+                    const row = device.element;
+                    row.classList.add('table-row');
+                    row.style.display = ''; // Убедимся что строка видима
+                    tableBody.appendChild(row);
+                });
+
+                displayedCount += nextBatch.length;
+                shownCountEl.textContent = displayedCount;
+                visibleCount.textContent = filteredDevices.length;
+
+                isLoading = false;
+
+                // Скрываем loader если все загружено
+                if (displayedCount >= filteredDevices.length) {
+                    loadMoreRow.style.display = 'none';
+                }
+
+                updateNoResultsMessage();
+            });
+        }
+
+        // Фильтрация устройств
+        function filterDevices(searchTerm) {
+            searchTerm = searchTerm.toLowerCase().trim();
+
+            if (!searchTerm) {
+                // Показываем все устройства
+                filteredDevices = [...allDevices];
+            } else {
+                // Фильтруем по серийному номеру
+                filteredDevices = allDevices.filter(device =>
+                    device.serialNumber.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Сбрасываем отображение
+            tableBody.innerHTML = '';
+            displayedCount = 0;
+            loadMoreRow.style.display = 'none';
+
+            // Если есть результаты - начинаем загрузку
+            if (filteredDevices.length > 0) {
+                loadMoreDevices();
+            } else {
+                updateNoResultsMessage();
+            }
+        }
+
+        // Обновление сообщения "Ничего не найдено"
+        function updateNoResultsMessage() {
+            if (filteredDevices.length === 0 && searchInput.value.trim() !== '') {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        }
+
+        // Дебаунсинг для поиска
+        function debouncedSearch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                filterDevices(searchInput.value);
+            }, DEBOUNCE_DELAY);
+        }
+
+        // Обработчик прокрутки
+        function handleScroll() {
+            const tableContainer = document.querySelector('.table-responsive');
+            if (!tableContainer) return;
+
+            const scrollTop = tableContainer.scrollTop;
+            const scrollHeight = tableContainer.scrollHeight;
+            const clientHeight = tableContainer.clientHeight;
+
+            // Проверяем, достигли ли мы порога для загрузки
+            if (scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD) {
+                if (!isLoading && displayedCount < filteredDevices.length) {
+                    loadMoreDevices();
+                }
+            }
+        }
+
+        // Обработчик ввода
+        searchInput.addEventListener('input', function() {
+            // Если поиск очищен, показываем все сразу
+            if (this.value.trim() === '') {
+                filterDevices('');
+            } else {
+                debouncedSearch();
+            }
+        });
+
+        // Обработчик клавиш
+        searchInput.addEventListener('keydown', function(e) {
+            // Enter - сразу фильтруем
+            if (e.key === 'Enter') {
+                clearTimeout(debounceTimer);
+                filterDevices(this.value);
+            }
+            // Escape - очищаем
+            if (e.key === 'Escape') {
+                this.value = '';
+                filterDevices('');
+            }
+        });
+
+        // Инициализация при загрузке
+        initializeDevices();
+
+        // Вешаем обработчик прокрутки на таблицу
+        const tableContainer = document.querySelector('.table-responsive');
+        if (tableContainer) {
+            tableContainer.addEventListener('scroll', handleScroll);
+        }
+
+        // Для очень больших списков: предзагрузка при наведении на loader
+        loadMoreRow.addEventListener('mouseenter', function() {
+            if (!isLoading && displayedCount < filteredDevices.length) {
+                loadMoreDevices();
+            }
+        });
+
+        // Оптимизация: предварительный рендеринг следующей порции
+        let preloadedBatch = [];
+
+        function preloadNextBatch() {
+            if (isLoading || displayedCount >= filteredDevices.length) return;
+
+            const nextBatch = filteredDevices.slice(displayedCount, displayedCount + BATCH_SIZE);
+
+            // Создаем DocumentFragment для пакетного добавления
+            const fragment = document.createDocumentFragment();
+            nextBatch.forEach(device => {
+                fragment.appendChild(device.element.cloneNode(true));
+            });
+
+            preloadedBatch = {
+                fragment: fragment,
+                count: nextBatch.length
+            };
+        }
+
+        // Модифицированная функция loadMoreDevices с предзагрузкой
+        function loadMoreDevicesOptimized() {
+            if (isLoading) return;
+
+            isLoading = true;
+            loadMoreRow.style.display = 'table-row';
+
+            requestAnimationFrame(() => {
+                // Используем предзагруженный батч если есть
+                if (preloadedBatch.fragment) {
+                    tableBody.appendChild(preloadedBatch.fragment);
+                    displayedCount += preloadedBatch.count;
+                    preloadedBatch = [];
+                } else {
+                    // Или грузим обычным способом
+                    const nextBatch = filteredDevices.slice(displayedCount, displayedCount + BATCH_SIZE);
+                    nextBatch.forEach(device => {
+                        tableBody.appendChild(device.element.cloneNode(true));
+                    });
+                    displayedCount += nextBatch.length;
+                }
+
+                shownCountEl.textContent = displayedCount;
+                isLoading = false;
+
+                if (displayedCount >= filteredDevices.length) {
+                    loadMoreRow.style.display = 'none';
+                } else {
+                    // Предзагружаем следующий батч в фоне
+                    setTimeout(preloadNextBatch, 100);
+                }
+
+                updateNoResultsMessage();
+            });
+        }
+    });
+</script>
+</body>
+</html>

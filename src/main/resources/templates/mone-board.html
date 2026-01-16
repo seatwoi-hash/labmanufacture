@@ -12,15 +12,17 @@
         .device-table {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             margin-bottom: 2rem;
         }
+
         .table-header {
             background: linear-gradient(135deg, #1d7acc, #1d7acc);
             color: white;
             padding: 1.5rem 2rem;
         }
+
         .table th {
             background-color: #f8f9fa;
             border-top: none;
@@ -28,10 +30,12 @@
             color: #495057;
             padding: 1rem;
         }
+
         .table td {
             padding: 1rem;
             vertical-align: middle;
         }
+
         .btn-complete {
             background: linear-gradient(135deg, #0b499b, #b7cce1);
             border: none;
@@ -40,34 +44,41 @@
             border-radius: 6px;
             transition: all 0.3s ease;
         }
+
         .btn-complete:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
         }
+
         .status-badge {
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
+
         .status-created {
             background-color: #e3f2fd;
             color: #1976d2;
         }
+
         .empty-state {
             text-align: center;
             padding: 3rem 2rem;
             color: #6c757d;
         }
+
         .empty-state i {
             font-size: 4rem;
             margin-bottom: 1rem;
             color: #dee2e6;
         }
+
         .confirm-modal .modal-header {
             background: linear-gradient(135deg, #1d7acc, #1d7acc);
             color: white;
         }
+
         .device-sn {
             font-family: 'Courier New', monospace;
             font-weight: 600;
@@ -97,6 +108,22 @@
     <!-- Основной контент -->
     <main class="page-content">
         <div class="container-fluid">
+
+            <!-- Поиск -->
+            <div class="search-container">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="position-relative">
+                            <input type="text"
+                                   class="form-control search-input"
+                                   id="searchInput"
+                                   placeholder="Поиск по серийному номеру...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Карточка с таблицей -->
             <div class="device-table" th:if="${not devices.empty}">
                 <div class="table-header">
@@ -148,7 +175,7 @@
                                         th:attr="data-device-id=${device.id}"
                                         data-bs-toggle="modal"
                                         data-bs-target="#confirmModal">
-                                        Сделано
+                                    Сделано
                                 </button>
                             </td>
                         </tr>
@@ -175,13 +202,15 @@
                 <h5 class="modal-title">
                     <i class="fas fa-check-circle me-2"></i>Подтверждение выполнения
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
                 <div class="mb-4">
                     <i class="fas fa-question-circle fa-3x text-warning mb-3"></i>
                     <h5>Вы уверены, что завершили монтаж стороны 1?</h5>
-                    <p class="text-muted">Устройство будет перемещено на следующий этап: <strong>Монтаж "Сторона 2"</strong></p>
+                    <p class="text-muted">Устройство будет перемещено на следующий этап: <strong>Монтаж "Сторона
+                        2"</strong></p>
                 </div>
                 <div class="device-info alert alert-info">
                     <strong>Серийный номер:</strong>
@@ -205,7 +234,7 @@
 
 <!-- Специфичные скрипты для этой страницы -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         let currentDeviceId = null;
         let currentDeviceSn = null;
 
@@ -217,7 +246,7 @@
 
         // Обработчик клика по кнопке "Сделано"
         document.querySelectorAll('.btn-complete').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 currentDeviceId = this.getAttribute('data-device-id');
                 currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
 
@@ -226,7 +255,7 @@
         });
 
         // Обработчик подтверждения
-        document.getElementById('confirmComplete').addEventListener('click', function() {
+        document.getElementById('confirmComplete').addEventListener('click', function () {
             if (!currentDeviceId) return;
 
             const button = this;
@@ -259,7 +288,9 @@
                             window.location.reload();
                         }, 1000);
                     } else {
-                        return response.text().then(text => { throw new Error(text) });
+                        return response.text().then(text => {
+                            throw new Error(text)
+                        });
                     }
                 })
                 .catch(error => {
@@ -300,6 +331,42 @@
             const confirmButton = document.getElementById('confirmComplete');
             confirmButton.innerHTML = '<i class="fas fa-check me-2"></i>Да, завершить';
             confirmButton.disabled = false;
+        });
+    });
+
+
+
+//поиск....
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const tableRows = document.querySelectorAll('tbody tr');
+        const visibleCount = document.getElementById('visibleCount');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            let visibleRows = 0;
+
+            tableRows.forEach(row => {
+                const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+
+                if (serialNumber.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleRows++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Обновляем счетчик видимых строк
+            visibleCount.textContent = visibleRows;
+
+            // Показываем/скрываем сообщение "Ничего не найдено"
+            if (visibleRows === 0 && searchTerm !== '') {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
         });
     });
 </script>

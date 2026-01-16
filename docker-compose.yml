@@ -24,24 +24,19 @@ services:
       SPRING_APPLICATION_NAME: ${SPRING_APPLICATION_NAME:-labManufacture}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE_DOCKER:-docker}
 
-      # Подключение к БД (внутри Docker сети используем имя сервиса 'postgres')
-      # В .env у вас: SPRING_DATASOURCE_DOCKER_URL=jdbc:postgresql://postgres:30001/labDB
-      # Но внутри Docker сети порт 5432, а не 30001
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-labDB}
       SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres123!@}
 
-      # Настройки JPA
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL: "true"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
 
-      # Liquibase
       SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db/changelog/db.changelog-master.yaml
       SPRING_LIQUIBASE_ENABLED: "true"
     ports:
-      - "80:8080"
+      - "80:80"
     depends_on:
       postgres:
         condition: service_healthy

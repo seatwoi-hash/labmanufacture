@@ -112,6 +112,20 @@
             </div>
         </div>
     </header>
+    <!-- Поиск -->
+    <div class="search-container">
+        <div class="row align-items-center">
+            <div class="col-md-12">
+                <div class="position-relative">
+                    <input type="text"
+                           class="form-control search-input"
+                           id="searchInput"
+                           placeholder="Поиск по серийному номеру...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Основной контент -->
     <main class="page-content">
@@ -473,6 +487,44 @@
             });
         });
     }
+
+
+
+
+
+    //поиск....
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const tableRows = document.querySelectorAll('tbody tr');
+        const visibleCount = document.getElementById('visibleCount');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            let visibleRows = 0;
+
+            tableRows.forEach(row => {
+                const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+
+                if (serialNumber.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleRows++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Обновляем счетчик видимых строк
+            visibleCount.textContent = visibleRows;
+
+            // Показываем/скрываем сообщение "Ничего не найдено"
+            if (visibleRows === 0 && searchTerm !== '') {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        });
+    });
 </script>
 </body>
 </html>

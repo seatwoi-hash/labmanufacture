@@ -1,5 +1,7 @@
 package ru.polymetal.labManufacture.data.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -63,4 +65,16 @@ public interface DeviceRepository extends JpaRepository<Device, UUID> {
             "LEFT JOIN FETCH d.account " +
             "WHERE d.id = :id")
     Optional<Device> findByIdWithFetch(@Param("id") UUID id);
+
+    Page<Device> findByStatusIdAndIsDeleted(UUID statusId, Boolean isDelete, Pageable pageable);
+
+    // 2. Пагинация с поиском
+    @Query("SELECT d FROM Device d WHERE d.status.id = :statusId " +
+            "AND d.isDeleted = :isDelete " +
+            "AND LOWER(d.serialNumber) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<Device> findByStatusIdAndSerialNumberContainingIgnoreCase(
+            @Param("statusId") UUID statusId,
+            @Param("search") String search,
+            @Param("isDelete") Boolean isDelete,
+            Pageable pageable);
 }

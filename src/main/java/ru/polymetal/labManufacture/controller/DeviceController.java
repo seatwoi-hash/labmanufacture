@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import ru.polymetal.labManufacture.constant.DeviceStatusCodes;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_2;
@@ -761,6 +765,45 @@ public class DeviceController {
         model.addAttribute("currentUser", account);
 
         return "all-operation-board";
+    }
+
+    @GetMapping("/ready-board-temp")
+    public String showReadyBoardTemp(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "50") int size,
+            @RequestParam(value = "search", required = false) String search,
+            Model model,
+            Authentication authentication) {
+
+        UUID readyStatusId = deviceStatusService.findByName(READY).getId();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdTime").descending());
+
+        Page<Device> devicePage;
+
+
+        if (search != null && !search.trim().isEmpty()) {
+            devicePage = deviceService.findByStatusIdAndSerialNumberContainingIgnoreCase(
+                    readyStatusId, search.trim(), pageable);
+        } else {
+            devicePage = deviceService.findByStatusId(readyStatusId, pageable);
+        }
+
+        List<Device> sortDevices = devicePage.getContent();
+
+        model.addAttribute("devices", sortDevices);
+        model.addAttribute("devicePage", devicePage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", devicePage.getTotalPages());
+        model.addAttribute("totalElements", devicePage.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("searchTerm", search);
+
+        Account account = accountRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        model.addAttribute("currentUser", account);
+
+        return "ready-board-temp";
     }
 
 }
