@@ -135,7 +135,8 @@
                                th:field="*{serialNumber}"
                                required
                                maxlength="100"
-                               placeholder="Введите серийный номер">
+                               placeholder="Введите серийный номер"
+                                onkeydown="return event.key !== 'Enter';">
                         <div class="form-text">Уникальный идентификатор устройства</div>
                     </div>
 
