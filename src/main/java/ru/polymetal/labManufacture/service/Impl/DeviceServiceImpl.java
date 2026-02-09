@@ -81,8 +81,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public void delete(UUID id) {
         Device device = deviceRepository.findById(id).orElseThrow(() -> new RuntimeException("Устройство не найдено"));
-        device.setIsDeleted(true);
-        deviceRepository.save(device);
+        deviceRepository.delete(device);
     }
 
     public Device buildDevice(DeviceDto deviceDto, DeviceSubType subtype) {
