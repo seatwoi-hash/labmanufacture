@@ -36,4 +36,10 @@ public class DeviceSubType {
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
+    @Column(name = "is_installation_one")
+    private Boolean isInstallationOne = true;
+
+    @Column(name = "is_test_two")
+    private Boolean isTestTwo = true;
+
 }

@@ -48,7 +48,7 @@
                 <a class="dropdown-item-user" href="/employee"><i class="fas fa-circle-user"></i> Редактирование сотрудников</a>
             </li>
             <li sec:authorize="hasAuthority('ROLE_ADMIN')">
-                <a class="dropdown-item-user" href="/devicetype/edite"><i class="fa-solid fa-bacon"></i> Добавить тип платы</a>
+                <a class="dropdown-item-user" href="/devicetype/add"><i class="fa-solid fa-bacon"></i> Тип платы</a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
@@ -116,59 +116,78 @@
                  <button class="side-btn"
                          sec:authorize="hasAnyAuthority('ROLE_OUTPUT', 'ROLE_ADMIN')"
                          onclick="window.location.href='/device/installation-board'">
-                     Выводной монтаж
+                     Выводной монтаж №1
                  </button>
                  <button class="side-btn"
                          sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
                          onclick="window.location.href='/device/otk2-board'">
                      ОТК №2
                  </button>
-
                  <button class="side-btn"
                          sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
                          onclick="window.location.href='/device/repair2-board'">
                      Ремонт №2
                  </button>
-
-
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_TESTERB', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/test-board'">
+                    Тестировка
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/repair3-board'">
+                    Ремонт №3
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/otk3-board'">
+                    ОТК №3
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_OUTPUT', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/installation-board-two'">
+                    Выводной монтаж №2
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/otk4-board'">
+                    ОТК №4
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/repair4-board'">
+                    Ремонт №4
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_TESTERB', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/test-board-two'">
+                    Тестировка №2
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/repair5-board'">
+                    Ремонт №5
+                </button>
                  <button class="side-btn"
                          sec:authorize="hasAnyAuthority('ROLE_WASHER', 'ROLE_ADMIN')"
                          onclick="window.location.href='/device/washing1-board'">
-                     Мойка №1
+                     Отмывка №1
                  </button>
-
                  <button class="side-btn"
                          sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
-                         onclick="window.location.href='/device/otk3-board'">
-                     ОТК №3
+                         onclick="window.location.href='/device/otk5-board'">
+                     ОТК №5
                  </button>
-
-
-
-                 <button class="side-btn"
-                         sec:authorize="hasAnyAuthority('ROLE_TESTERB', 'ROLE_ADMIN')"
-                         onclick="window.location.href='/device/test-board'">
-                     Тестировка
-                 </button>
-
-                 <button class="side-btn"
-                         sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
-                         onclick="window.location.href='/device/repair3-board'">
-                     Ремонт №3
-                 </button>
-
-                 <button class="side-btn"
-                         sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
-                         onclick="window.location.href='/device/otk4-board'">
-                     ОТК №4
-                 </button>
-
-                 <button class="side-btn"
-                         sec:authorize="hasAnyAuthority('ROLE_WASHER', 'ROLE_ADMIN')"
-                         onclick="window.location.href='/device/washing2-board'">
-                     Мойка №2
-                 </button>
-
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/repair6-board'">
+                    Ремонт №6
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_WASHER', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/washing2-board'">
+                    Отмывка №2
+                </button>
                  <button class="side-btn"
                          sec:authorize="hasAnyAuthority('ROLE_VARNISHER', 'ROLE_ADMIN')"
                          onclick="window.location.href='/device/varnish-board'">
@@ -177,8 +196,8 @@
 
                  <button class="side-btn"
                          sec:authorize="hasAnyAuthority('ROLE_QUALITY', 'ROLE_ADMIN')"
-                         onclick="window.location.href='/device/otk5-board'">
-                     ОТК №5
+                         onclick="window.location.href='/device/otk6-board'">
+                     ОТК №6
                  </button>
                  <button class="side-btn"
                          onclick="window.location.href='/device/ready-board'">

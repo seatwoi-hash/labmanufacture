@@ -12,15 +12,42 @@
         .device-table {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             margin-bottom: 2rem;
+        }
+
+        .search-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-input {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #1d7acc;
+            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+        }
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
         }
         .table-header {
             background: linear-gradient(135deg, #1d7acc, #1d7acc);
             color: white;
             padding: 1.5rem 2rem;
         }
+
         .table th {
             background-color: #f8f9fa;
             border-top: none;
@@ -28,10 +55,12 @@
             color: #495057;
             padding: 1rem;
         }
+
         .table td {
             padding: 1rem;
             vertical-align: middle;
         }
+
         .btn-passed {
             background: linear-gradient(135deg, #28a745, #20c997);
             border: none;
@@ -40,6 +69,7 @@
             border-radius: 6px;
             transition: all 0.3s ease;
         }
+
         .btn-failed {
             background: linear-gradient(135deg, #dc3545, #e83e8c);
             border: none;
@@ -48,50 +78,61 @@
             border-radius: 6px;
             transition: all 0.3s ease;
         }
+
         .btn-passed:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
         }
+
         .btn-failed:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
         }
+
         .status-badge {
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
+
         .status-created {
             background-color: #e3f2fd;
             color: #1976d2;
         }
+
         .empty-state {
             text-align: center;
             padding: 3rem 2rem;
             color: #6c757d;
         }
+
         .empty-state i {
             font-size: 4rem;
             margin-bottom: 1rem;
             color: #dee2e6;
         }
+
         .confirm-modal .modal-header {
             background: linear-gradient(135deg, #1d7acc, #1d7acc);
             color: white;
         }
+
         .device-sn {
             font-family: 'Courier New', monospace;
             font-weight: 600;
             color: #2c3e50;
         }
+
         .action-buttons {
             display: flex;
             gap: 0.5rem;
         }
+
         .modal-passed .modal-header {
             background: linear-gradient(135deg, #28a745, #20c997);
         }
+
         .modal-failed .modal-header {
             background: linear-gradient(135deg, #dc3545, #e83e8c);
         }
@@ -154,46 +195,61 @@
                     <table class="table table-hover mb-0">
                         <thead>
                         <tr>
-                            <th>Серийный номер</th>
-                            <th>Тип платы</th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
+                                Серийный номер
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
+                                Тип платы
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
                             <th>Описание Ремонт №1</th>
-                            <th>Дата создания</th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
+                                Дата создания
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
                             <th>Действия</th>
+                            <th>Примечание</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="device : ${devices}">
+                        <tr th:each="operation : ${devices}">
                             <td>
-                                <span class="device-sn" th:text="${device.serialNumber}"></span>
+                                <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
                             </td>
-                            <td th:text="${device.subType?.name} ?: 'Не указан'">Тип</td>
+                            <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
                             <td>
-                                        <span th:if="${device.description}"
-                                              th:text="${#strings.abbreviate(device.description, 50)}"
+                                        <span th:if="${operation.description}"
+                                              th:text="${#strings.abbreviate(operation.description, 50)}"
                                               data-bs-toggle="tooltip"
-                                              th:attr="data-bs-title=${device.description}">
+                                              th:attr="data-bs-title=${operation.description}">
                                         </span>
-                                <span th:unless="${device.description}" class="text-muted">—</span>
+                                <span th:unless="${operation.description}" class="text-muted">—</span>
                             </td>
                             <td>
-                                        <span th:text="${#temporals.format(device.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                        <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
                                         </span>
                             </td>
                             <td>
                                 <div class="action-buttons">
                                     <button class="btn btn-passed"
-                                            th:attr="data-device-id=${device.id}"
+                                            th:attr="data-device-id=${operation.id}"
                                             data-bs-toggle="modal"
                                             data-bs-target="#confirmPassedModal">
                                         Пройдено
                                     </button>
                                     <button class="btn btn-failed"
-                                            th:attr="data-device-id=${device.id}"
+                                            th:attr="data-device-id=${operation.id}"
                                             data-bs-toggle="modal"
                                             data-bs-target="#confirmFailedModal">
                                         Не пройдено
                                     </button>
                                 </div>
+                            </td>
+                            <td>
+                                <span class="device-sn"
+                                    th:text="${nextStatus?.get(operation?.status?.name)} ?: '—'">
+                                </span>
                             </td>
                         </tr>
                         </tbody>
@@ -219,13 +275,14 @@
                 <h5 class="modal-title">
                     <i class="fas fa-check-circle me-2"></i>Подтверждение успешного прохождения контроля
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="text-center mb-4">
                     <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
                     <h5>Подтвердите успешное ОТК №1</h5>
-                    <p class="text-muted">Устройство будет перемещено на следующий этап: <strong>Выводной монтаж</strong></p>
+                    <p class="text-muted">Устройство будет перемещено на следующий этап</p>
                 </div>
                 <div class="device-info alert alert-success mb-3">
                     <strong>Серийный номер:</strong>
@@ -242,7 +299,7 @@
                     <i class="fas fa-times me-2"></i>Отмена
                 </button>
                 <button type="button" class="btn btn-success" id="confirmPassed">
-                    <i class="fas fa-check me-2"></i>Да, монтаж успешен
+                    <i class="fas fa-check me-2"></i>Да, ОТК пройден
                 </button>
             </div>
         </div>
@@ -257,7 +314,8 @@
                 <h5 class="modal-title">
                     <i class="fas fa-exclamation-circle me-2"></i>Подтверждение проблем с ОТК №1
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="text-center mb-4">
@@ -272,7 +330,8 @@
                 <div class="mb-3">
                     <label for="failedDescription" class="form-label">Причина отказа <span class="text-danger">*</span>:</label>
                     <textarea class="form-control" id="failedDescription" rows="3"
-                              placeholder="Опишите причину, из за которой плата не прошла проверку..." required></textarea>
+                              placeholder="Опишите причину, из за которой плата не прошла проверку..."
+                              required></textarea>
                     <div class="invalid-feedback">Пожалуйста, укажите причину отказа.</div>
                 </div>
             </div>
@@ -293,7 +352,7 @@
 
 <!-- Специфичные скрипты для этой страницы -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         let currentDeviceId = null;
         let currentDeviceSn = null;
         let currentAction = null; // 'passed' или 'failed'
@@ -306,7 +365,7 @@
 
         // Обработчик клика по кнопке "Пройдено"
         document.querySelectorAll('.btn-passed').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 currentDeviceId = this.getAttribute('data-device-id');
                 currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
                 currentAction = 'passed';
@@ -318,7 +377,7 @@
 
         // Обработчик клика по кнопке "Не пройдено"
         document.querySelectorAll('.btn-failed').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 currentDeviceId = this.getAttribute('data-device-id');
                 currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
                 currentAction = 'failed';
@@ -332,7 +391,7 @@
         });
 
         // Обработчик подтверждения для "Пройдено"
-        document.getElementById('confirmPassed').addEventListener('click', function() {
+        document.getElementById('confirmPassed').addEventListener('click', function () {
             if (!currentDeviceId || currentAction !== 'passed') return;
 
             const button = this;
@@ -348,7 +407,7 @@
         });
 
         // Обработчик подтверждения для "Не пройдено"
-        document.getElementById('confirmFailed').addEventListener('click', function() {
+        document.getElementById('confirmFailed').addEventListener('click', function () {
             if (!currentDeviceId || currentAction !== 'failed') return;
 
             const descriptionField = document.getElementById('failedDescription');
@@ -404,7 +463,9 @@
                             window.location.reload();
                         }, 1000);
                     } else {
-                        return response.text().then(text => { throw new Error(text) });
+                        return response.text().then(text => {
+                            throw new Error(text)
+                        });
                     }
                 })
                 .catch(error => {
@@ -464,17 +525,14 @@
     });
 
 
-
-
-
     //поиск....
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('searchInput');
         const tableRows = document.querySelectorAll('tbody tr');
         const visibleCount = document.getElementById('visibleCount');
         const noResults = document.getElementById('noResults');
 
-        searchInput.addEventListener('input', function() {
+        searchInput.addEventListener('input', function () {
             const searchTerm = this.value.toLowerCase().trim();
             let visibleRows = 0;
 
@@ -499,6 +557,136 @@
                 noResults.style.display = 'none';
             }
         });
+    });
+
+
+
+
+    //сортировка...
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.querySelector('.table');
+        const tbody = table.querySelector('tbody');
+        const headers = table.querySelectorAll('thead th');
+
+        // Инициализируем состояние сортировки
+        let currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
+        let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
+
+        // Устанавливаем иконку для столбца по умолчанию
+        updateSortIcons();
+
+        // Добавляем обработчики кликов на заголовки
+        headers.forEach((header, index) => {
+            if (header.hasAttribute('onclick')) {
+                // Удаляем inline onclick и добавляем обработчик
+                header.removeAttribute('onclick');
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', () => sortTable(index));
+            }
+        });
+
+        function sortTable(columnIndex) {
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Если кликаем по той же колонке, меняем направление
+            if (columnIndex === currentSortColumn) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
+                currentSortColumn = columnIndex;
+                sortDirection = 'asc';
+            }
+
+            // Сортируем строки
+            rows.sort((a, b) => {
+                const aCell = a.cells[columnIndex];
+                const bCell = b.cells[columnIndex];
+
+                // Получаем текстовое содержимое ячеек
+                let aValue = aCell.textContent.trim();
+                let bValue = bCell.textContent.trim();
+
+                // Для столбца с датой (индекс 4)
+                if (columnIndex === 4) {
+                    aValue = parseDateString(aValue);
+                    bValue = parseDateString(bValue);
+                    return sortDirection === 'asc'
+                        ? aValue - bValue
+                        : bValue - aValue;
+                }
+
+                // Для остальных столбцов - текстовое сравнение
+                return sortDirection === 'asc'
+                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
+                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
+            });
+
+            // Удаляем все строки из tbody
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+
+            // Добавляем отсортированные строки обратно
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Обновляем иконки сортировки
+            updateSortIcons();
+        }
+
+        function parseDateString(dateString) {
+            try {
+                // Парсим дату в формате "dd.MM.yyyy HH:mm"
+                const [datePart, timePart] = dateString.split(' ');
+                const [day, month, year] = datePart.split('.');
+                const [hours, minutes] = timePart.split(':');
+
+                return new Date(year, month - 1, day, hours, minutes).getTime();
+            } catch (e) {
+                return 0; // В случае ошибки возвращаем 0
+            }
+        }
+
+        function updateSortIcons() {
+            headers.forEach((header, index) => {
+                const icon = header.querySelector('i');
+                if (icon) {
+                    if (index === currentSortColumn) {
+                        icon.className = sortDirection === 'asc'
+                            ? 'fas fa-sort-up float-end mt-1'
+                            : 'fas fa-sort-down float-end mt-1';
+                    } else {
+                        icon.className = 'fas fa-sort float-end mt-1';
+                    }
+                }
+            });
+        }
+
+        // // Функция для поиска (если нужно сохранить)
+        // const searchInput = document.getElementById('searchInput');
+        // if (searchInput) {
+        //     searchInput.addEventListener('input', function() {
+        //         const searchTerm = this.value.toLowerCase().trim();
+        //         const rows = table.querySelectorAll('tbody tr');
+        //         let visibleRows = 0;
+        //
+        //         rows.forEach(row => {
+        //             const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+        //
+        //             if (serialNumber.includes(searchTerm)) {
+        //                 row.style.display = '';
+        //                 visibleRows++;
+        //             } else {
+        //                 row.style.display = 'none';
+        //             }
+        //         });
+        //
+        //         // Можно добавить обновление счетчика видимых строк
+        //         const counter = document.querySelector('.badge.bg-light .me-1');
+        //         if (counter) {
+        //             counter.textContent = visibleRows;
+        //         }
+        //     });
+        // }
     });
 </script>
 </body>

@@ -133,17 +133,17 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="device : ${devices}">
+                        <tr th:each="operation : ${devices}">
                             <td>
-                                <a th:href="@{/device/operation-board/{sn}(sn=${device.serialNumber})}"
+                                <a th:href="@{/device/operation-board/{sn}(sn=${operation.device.getSerialNumber()})}"
                                    style="text-decoration: none; color: inherit;">
-                                    <span class="device-sn" th:text="${device.serialNumber}"></span>
+                                    <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
                                 </a>
                             </td>
-                            <td th:text="${device.subType?.name} ?: 'Не указан'">Тип</td>
-                            <td th:text="${device.getAccount()?.lastName} ?: 'Не указан'">Фамилия</td>
+                            <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
+                            <td th:text="${operation.getAccount()?.lastName} ?: 'Не указан'">Фамилия</td>
                             <td>
-                                <span th:text="${#temporals.format(device.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
                                 </span>
                             </td>
                         </tr>

@@ -1,9 +1,9 @@
 package ru.polymetal.labManufacture.service;
 
-import ru.polymetal.labManufacture.data.models.DeviceStatus;
+import ru.polymetal.labManufacture.data.models.OperationStatus;
 import java.util.List;
 
 public interface DeviceStatusService {
-    DeviceStatus findByName(String name);
-    public List<DeviceStatus> findByListName(List<String> name);
+    OperationStatus findByName(String name);
+    public List<OperationStatus> findByListName(List<String> name);
 }

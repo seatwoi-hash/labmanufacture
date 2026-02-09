@@ -1,6 +1,8 @@
 package ru.polymetal.labManufacture.data.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.models.DeviceType;
@@ -19,5 +21,10 @@ public interface DeviceSubTypeRepository extends JpaRepository<DeviceSubType, UU
 
     boolean existsByName(String name);
 
+    @Query("SELECT d.isInstallationOne FROM DeviceSubType d WHERE d.id = :id AND d.isDeleted = false")
+    Boolean findIsInstallationOneByIdAndNotDeleted(@Param("id") UUID id);
+
+    @Query("SELECT d.isTestTwo FROM DeviceSubType d WHERE d.id = :id AND d.isDeleted = false")
+    Boolean findIsTestTwoByIdAndNotDeleted(@Param("id") UUID id);
 }
 

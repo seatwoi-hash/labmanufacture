@@ -1,7 +1,7 @@
 package ru.polymetal.labManufacture.dto;
 
-import jakarta.persistence.Column;
+import java.util.UUID;
 
-public record DeviceSubTypeDto(String name, String description) {
+public record DeviceSubTypeDto(String name, String description, Boolean isInstallationOne, Boolean isTestTwo) {
 
 }

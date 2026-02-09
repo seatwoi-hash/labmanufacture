@@ -1,6 +1,13 @@
 package ru.polymetal.labManufacture.data.models;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,10 +18,10 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "device_statuses")
+@Table(name = "operation_statuses")
 @Data
 @NoArgsConstructor
-public class DeviceStatus {
+public class OperationStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,6 +39,6 @@ public class DeviceStatus {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "status", fetch = FetchType.LAZY)
-    private Set<Device> devices = new HashSet<>();
+    private Set<Operation> devices = new HashSet<>();
 
 }

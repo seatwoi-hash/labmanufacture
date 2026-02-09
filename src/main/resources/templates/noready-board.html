@@ -155,27 +155,43 @@
                     <table class="table table-hover mb-0">
                         <thead>
                         <tr>
-                            <th>Серийный номер</th>
-                            <th>Тип платы</th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
+                                Серийный номер
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
+                                Тип платы
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
                             <th>Текущий законченный этапе производства</th>
-                            <th>Дата создания</th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
+                                Дата создания
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
+                            <th>Действие</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="device : ${devices}">
+                        <tr th:each="operation : ${devices}">
                             <td>
-                                <a th:href="@{/device/operation-board/{sn}(sn=${device.serialNumber})}"
+                                <a th:href="@{/device/operation-board/{sn}(sn=${operation.device.getSerialNumber()})}"
                                    style="text-decoration: none; color: inherit;">
-                                    <span class="device-sn" th:text="${device.serialNumber}"></span>
+                                    <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
                                 </a>
                             </td>
-                            <td th:text="${device.subType?.name} ?: 'Не указан'">Тип</td>
+                            <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
                             <td>
-                                <span class="device-op" th:text="${device.getStatus().description}"></span>
+                                <span class="device-op" th:text="${operation.getStatus().description}"></span>
                             </td>
                             <td>
-                                        <span th:text="${#temporals.format(device.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                        <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
                                         </span>
+                            </td>
+                            <td class="action-buttons">
+                                <button class="btn btn-sm btn-outline-danger delete-btn"
+                                        th:data-device-id="${operation.getDevice().getId()}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                         </tbody>
@@ -237,6 +253,168 @@
             }
         });
     });
+
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const deviceId = this.getAttribute('data-device-id');
+            deleteType(deviceId);
+        });
+    });
+
+    function deleteType(deviceId) {
+        if (confirm('Вы уверены, что хотите удалить это устройство?')) {
+
+            fetch('/device/delete-board/' + deviceId, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                }
+            })
+                .then(response => {
+                    console.log('Status:', response.status);
+                    console.log('OK:', response.ok);
+                    console.log('Headers:', response.headers);
+
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка при удалении устройства');
+                });
+        }
+    }
+
+
+
+    //сортировка...
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.querySelector('.table');
+        const tbody = table.querySelector('tbody');
+        const headers = table.querySelectorAll('thead th');
+
+        // Инициализируем состояние сортировки
+        let currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
+        let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
+
+        // Устанавливаем иконку для столбца по умолчанию
+        updateSortIcons();
+
+        // Добавляем обработчики кликов на заголовки
+        headers.forEach((header, index) => {
+            if (header.hasAttribute('onclick')) {
+                // Удаляем inline onclick и добавляем обработчик
+                header.removeAttribute('onclick');
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', () => sortTable(index));
+            }
+        });
+
+        function sortTable(columnIndex) {
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Если кликаем по той же колонке, меняем направление
+            if (columnIndex === currentSortColumn) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
+                currentSortColumn = columnIndex;
+                sortDirection = 'asc';
+            }
+
+            // Сортируем строки
+            rows.sort((a, b) => {
+                const aCell = a.cells[columnIndex];
+                const bCell = b.cells[columnIndex];
+
+                // Получаем текстовое содержимое ячеек
+                let aValue = aCell.textContent.trim();
+                let bValue = bCell.textContent.trim();
+
+                // Для столбца с датой (индекс 4)
+                if (columnIndex === 4) {
+                    aValue = parseDateString(aValue);
+                    bValue = parseDateString(bValue);
+                    return sortDirection === 'asc'
+                        ? aValue - bValue
+                        : bValue - aValue;
+                }
+
+                // Для остальных столбцов - текстовое сравнение
+                return sortDirection === 'asc'
+                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
+                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
+            });
+
+            // Удаляем все строки из tbody
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+
+            // Добавляем отсортированные строки обратно
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Обновляем иконки сортировки
+            updateSortIcons();
+        }
+
+        function parseDateString(dateString) {
+            try {
+                // Парсим дату в формате "dd.MM.yyyy HH:mm"
+                const [datePart, timePart] = dateString.split(' ');
+                const [day, month, year] = datePart.split('.');
+                const [hours, minutes] = timePart.split(':');
+
+                return new Date(year, month - 1, day, hours, minutes).getTime();
+            } catch (e) {
+                return 0; // В случае ошибки возвращаем 0
+            }
+        }
+
+        function updateSortIcons() {
+            headers.forEach((header, index) => {
+                const icon = header.querySelector('i');
+                if (icon) {
+                    if (index === currentSortColumn) {
+                        icon.className = sortDirection === 'asc'
+                            ? 'fas fa-sort-up float-end mt-1'
+                            : 'fas fa-sort-down float-end mt-1';
+                    } else {
+                        icon.className = 'fas fa-sort float-end mt-1';
+                    }
+                }
+            });
+        }
+
+        // // Функция для поиска (если нужно сохранить)
+        // const searchInput = document.getElementById('searchInput');
+        // if (searchInput) {
+        //     searchInput.addEventListener('input', function() {
+        //         const searchTerm = this.value.toLowerCase().trim();
+        //         const rows = table.querySelectorAll('tbody tr');
+        //         let visibleRows = 0;
+        //
+        //         rows.forEach(row => {
+        //             const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+        //
+        //             if (serialNumber.includes(searchTerm)) {
+        //                 row.style.display = '';
+        //                 visibleRows++;
+        //             } else {
+        //                 row.style.display = 'none';
+        //             }
+        //         });
+        //
+        //         // Можно добавить обновление счетчика видимых строк
+        //         const counter = document.querySelector('.badge.bg-light .me-1');
+        //         if (counter) {
+        //             counter.textContent = visibleRows;
+        //         }
+        //     });
+        // }
+    });
+
 </script>
 </body>
 </html>

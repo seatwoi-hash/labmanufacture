@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.polymetal</groupId>
 	<artifactId>labManufacture</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<!-- <packaging>war</packaging> -->
 	<packaging>jar</packaging>
 	<name>labManufacture</name>
@@ -71,11 +71,6 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-tomcat</artifactId>-->
-<!--			<scope>provided</scope>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>me.paulschwarz</groupId>
 			<artifactId>spring-dotenv</artifactId>

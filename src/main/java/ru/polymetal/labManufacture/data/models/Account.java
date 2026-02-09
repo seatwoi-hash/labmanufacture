@@ -3,7 +3,6 @@ package ru.polymetal.labManufacture.data.models;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,7 +66,7 @@ public class Account {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    @ManyToMany(fetch = FetchType.EAGER,  cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
             name = "account_roles",
             joinColumns = @JoinColumn(name = "account_id"),
@@ -79,14 +78,6 @@ public class Account {
 
     public void setActive(Boolean active) {
         isActive = active;
-    }
-
-    public Boolean getVerified() {
-        return isVerified;
-    }
-
-    public void setVerified(Boolean verified) {
-        isVerified = verified;
     }
 
     public boolean getActive() {

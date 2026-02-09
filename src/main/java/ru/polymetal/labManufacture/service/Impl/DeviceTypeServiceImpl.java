@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.polymetal.labManufacture.data.models.DeviceType;
-import ru.polymetal.labManufacture.data.repository.DeviceStatusRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceTypeRepository;
 import ru.polymetal.labManufacture.service.DeviceTypeService;
 

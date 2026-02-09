@@ -131,7 +131,7 @@ body {
     min-height: calc(100vh - 100px);
     padding: 2rem;
     text-align: center;
-    margin-left: 250px; /* Увеличили отступ для более широкого бокового меню */
+    margin-left: 250px;
     transition: margin-left 0.3s ease;
 }
 

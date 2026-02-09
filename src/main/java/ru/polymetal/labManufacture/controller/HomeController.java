@@ -6,14 +6,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_6;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.READY;
 import ru.polymetal.labManufacture.data.models.Account;
-import ru.polymetal.labManufacture.data.models.Device;
+import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.dto.DeviceDto;
 import ru.polymetal.labManufacture.service.AccountService;
-import ru.polymetal.labManufacture.service.DeviceService;
+import ru.polymetal.labManufacture.service.OperationService;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +26,13 @@ public class HomeController {
 
     private final AccountRepository accountRepository;
     private final AccountService accountService;
-    private final DeviceService deviceService;
+    private final OperationService operationService;
 
     public HomeController(AccountRepository accountRepository, AccountService accountService,
-                          DeviceService deviceService) {
+                          OperationService operationService) {
         this.accountRepository = accountRepository;
         this.accountService = accountService;
-        this.deviceService = deviceService;
+        this.operationService = operationService;
     }
 
     @GetMapping("/main")
@@ -41,38 +41,39 @@ public class HomeController {
             model.addAttribute("username", authentication.getName());
         }
 
-        int boardsProducedToday = deviceService.getBoardsProducedToday();
+        int boardsProducedToday = operationService.getBoardsProducedToday();
         model.addAttribute("boardsProducedToday", boardsProducedToday);
 
         Optional<Account> accountOpt = accountRepository.findByUsername(authentication.getName());
         if (accountOpt.isEmpty()) {
-            // Перенаправляем на логин или показываем ошибку
             return "redirect:/login";
         }
 
         Account account = accountOpt.get();
 
-        List<Device> devices = deviceService.findDevicesForRole(account).stream()
+        List<Operation> operations = operationService.findDevicesForRole(account).stream()
                 .filter(a -> !a.getIsDeleted())
-                .filter(a -> a.getType().getName().equals("BOARD"))
-                .collect(Collectors.groupingBy(Device::getSerialNumber))
+                .filter(operation -> operation.getDevice() != null
+                        && "BOARD".equals(operation.getDevice().getType().getName()))
+                .collect(Collectors.groupingBy(operation -> operation.getDevice().getSerialNumber()))
                 .entrySet().stream()
                 .filter(entry -> entry.getValue().stream()
-                        .noneMatch(device -> device.getStatus().getName().equals(QUALITY_CHECK_5)
+                        .noneMatch(device -> device.getStatus().getName().equals(QUALITY_CHECK_6)
                                 || device.getStatus().getName().equals(READY)))
                 .flatMap(entry -> entry.getValue().stream())
-                .sorted(Comparator.comparing(Device::getCreatedTime).reversed())
+                .sorted(Comparator.comparing(Operation::getCreatedTime).reversed())
                 .toList();
 
-        List<DeviceDto> deviceDtos = devices.stream()
-                .map(device -> {
+        List<DeviceDto> deviceDtos = operations.stream()
+                .map(operation -> {
                     DeviceDto dto = new DeviceDto();
-                    dto.setSerialNumber(device.getSerialNumber());
-                    dto.setSubType(device.getSubType());
-                    dto.setStatus(deviceService.getNextStatus(device.getStatus()));
-                    dto.setCreatedTime(device.getCreatedTime());
-                    dto.setDescription(device.getDescription());
+                    dto.setSerialNumber(operation.getDevice().getSerialNumber());
+                    dto.setSubType(operation.getDevice().getSubtype());
+                    dto.setStatus(operationService.getNextStatus(operation.getStatus()));
+                    dto.setCreatedTime(operation.getDevice().getCreatedTime());
+                    dto.setDescription(operation.getDescription());
                     return dto;
+
                 })
                 .sorted(Comparator.comparing(DeviceDto::getCreatedTime).reversed())
                 .toList();

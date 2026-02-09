@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать тип платы</title>
+    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <style>
+        .home-button {
+            position: fixed !important;
+            bottom: 30px !important;
+            right: 30px !important;
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            background-color: #1E40AF !important;
+            color: white !important;
+            border: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 24px !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            z-index: 1000 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .home-button:hover {
+            background-color: #1e3a8a !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .home-button:active {
+            transform: scale(0.95) !important;
+        }
+
+        .edit-type-container {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h2 {
+            color: #0d6efd;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .edit-form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .form-body {
+            padding: 1.5rem 2rem;
+            background: white;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+
+        .option-checkbox {
+            margin: 0;
+        }
+
+        .option-label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .edit-type-container {
+                padding: 1rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<button class="home-button" onclick="window.location.href='/'">
+    <i class="fas fa-home"></i>
+</button>
+
+<!-- Основной контент -->
+<div class="main-content">
+    <div class="edit-type-container">
+        <div class="page-header">
+            <h2><i class="fa-solid fa-microchip"></i> Редактирование типа платы</h2>
+        </div>
+
+        <!-- Сообщения -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> Тип платы успешно обновлен!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Ошибка при обновлении типа платы</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="edit-form-card">
+            <div class="form-header">
+                <h4 class="mb-0"><i class="fas fa-edit"></i> Форма редактирования</h4>
+            </div>
+
+            <div class="form-body">
+                <form id="editTypeForm" method="POST" th:action="@{'/devicetype/edite/' + ${subtype.id}}" th:object="${subtype}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" th:field="*{id}" />
+                    <input type="hidden" name="_method" value="PATCH" />
+
+                    <!-- Название типа -->
+                    <div class="form-group">
+                        <label for="typeName" class="form-label" style="font-weight: 600; color: #495057;">
+                            <i class="fas fa-microchip me-1"></i>Тип платы *
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="typeName"
+                               th:field="*{name}"
+                               placeholder="Введите тип платы"
+                               style="border: 1px solid #dee2e6; border-radius: 6px;"
+                               required>
+                        <div class="form-text" style="color: #6b7280;">
+                            Уникальное название типа платы
+                        </div>
+                    </div>
+
+                    <!-- Описание -->
+                    <div class="form-group">
+                        <label for="typeDescription" class="form-label" style="font-weight: 600; color: #495057;">
+                            Описание типа платы *
+                        </label>
+                        <textarea class="form-control"
+                                  id="typeDescription"
+                                  th:field="*{description}"
+                                  placeholder="Введите описание типа платы"
+                                  style="border: 1px solid #dee2e6; border-radius: 6px; min-height: 100px; resize: vertical;"
+                                  required></textarea>
+                        <div class="form-text" style="color: #6b7280;">
+                            Подробное описание характеристик и особенностей типа
+                        </div>
+                    </div>
+
+                    <!-- Опции платы -->
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 600; color: #495057;">
+                            <i class="fas fa-cogs me-1"></i>Опции платы
+                        </label>
+
+                        <div class="form-help">Выберите доступные опции:</div>
+
+                        <div class="option-grid">
+                            <!-- Выводной монтаж №1 -->
+                            <div class="option-item">
+                                <input type="checkbox"
+                                       id="isInstallationOne"
+                                       th:field="*{isInstallationOne}"
+                                       class="option-checkbox">
+                                <input type="hidden" th:name="_isInstallationOne" value="on"/>
+                                <label for="isInstallationOne" class="option-label">
+                                    Выводной монтаж №1
+                                </label>
+                            </div>
+
+                            <!-- Тестировка №2 -->
+                            <div class="option-item">
+                                <input type="checkbox"
+                                       id="isTestTwo"
+                                       th:field="*{isTestTwo}"
+                                       class="option-checkbox">
+                                <input type="hidden" th:name="_isTestTwo" value="on"/>
+                                <label for="isTestTwo" class="option-label">
+                                    Тестировка №2
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки действий -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" onclick="window.location.href='/devicetype/add'">
+                            <i class="fas fa-times"></i> Отмена
+                        </button>
+                        <button type="submit" class="btn btn-save">
+                            <i class="fas fa-save"></i> Сохранить изменения
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+
+<script>
+    // Автоматически скрываем сообщения через 5 секунд
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+</body>
+</html>

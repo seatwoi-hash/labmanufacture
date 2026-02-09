@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавить новый тип</title>
+    <title>Тип платы</title>
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <style>
@@ -31,6 +31,10 @@
             background-color: #1e3a8a !important;
             transform: scale(1.1) !important;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
         .home-button:active {
@@ -64,6 +68,18 @@
             background: linear-gradient(135deg, #0d6efd, #0a58ca);
             color: white;
             padding: 1.5rem 2rem;
+        }
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
         }
 
         .table-actions {
@@ -151,7 +167,7 @@
 <div class="main-content">
     <div class="accounts-container">
         <div class="page-header">
-            <h2><i class="fa-solid fa-bacon"></i>Добавление нового типа платы</h2>
+            <h2><i class="fa-solid fa-bacon"></i>Типы плат</h2>
         </div>
 
         <div class="accounts-table">
@@ -179,10 +195,10 @@
                         </td>
                         <td th:text="${#temporals.format(subtype.createdAt, 'dd.MM.yyyy')}"></td>
                         <td class="action-buttons">
-<!--                            <button class="btn btn-sm btn-outline-primary edit-btn"-->
-<!--                                    th:data-subtype-id="${subtype.id}">-->
-<!--                                <i class="fas fa-edit"></i>-->
-<!--                            </button>-->
+                            <button class="btn btn-sm btn-outline-primary edit-btn"
+                                    th:data-subtype-id="${subtype.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
                             <button class="btn btn-sm btn-outline-danger delete-btn"
                                     th:data-subtype-id="${subtype.id}">
                                 <i class="fas fa-trash"></i>
@@ -197,7 +213,7 @@
                     <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Добавить новый тип платы</h5>
                 </div>
                 <div class="form-body" style="padding: 1.5rem 2rem; background: white;">
-                    <form id="addTypeForm" method="POST" th:action="@{/devicetype/edite/add}" class="row g-3 align-items-end">
+                    <form id="addTypeForm" method="POST" th:action="@{/devicetype/add}" class="row g-3 align-items-end">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                         <div class="col-md-6">
@@ -229,11 +245,48 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label class="form-label" style="font-weight: 600; color: #495057;">
+                                <i class="fas fa-microchip me-1"></i>Опции платы
+                            </label>
+
+                            <div class="form-help">Выберите одну или несколько опций:</div>
+
+                            <div class="option-grid">
+                                <div class="option-item">
+                                    <input type="checkbox"
+                                           id="isInstallationOne"
+                                           name="isInstallationOne"
+                                           value="true"
+                                           class="option-checkbox"
+                                           th:checked="${subtype?.isInstallationOne == null ? true : subtype.isInstallationOne}">
+                                    <input type="hidden" name="_isInstallationOne" value="on"/>
+                                    <label for="isInstallationOne" class="option-label">
+                                        Выводной монтаж №1
+                                    </label>
+                                </div>
+
+                                <div class="option-item">
+                                    <input type="checkbox"
+                                           id="isTestTwo"
+                                           name="isTestTwo"
+                                           value="true"
+                                           class="option-checkbox"
+                                           th:checked="${subtype?.isTestTwo == null ? true : subtype.isTestTwo}">
+                                    <input type="hidden" name="_isTestTwo" value="on"/>
+                                    <label for="isTestTwo" class="option-label">
+                                        Тестировка №2
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="col-md-4">
                             <button type="submit" class="btn w-100" style="background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white; border: none; padding: 0.75rem; border-radius: 6px; font-weight: 600;">
                                 <i class="fas fa-plus me-1"></i> Добавить тип
                             </button>
                         </div>
+
                     </form>
                 </div>
             </div>
@@ -245,22 +298,22 @@
 <script>
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const accountId = this.getAttribute('data-subtype-id');
-            editAccount(accountId);
+            const typeId = this.getAttribute('data-subtype-id');
+            editType(typeId);
         });
     });
 
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const accountId = this.getAttribute('data-subtype-id');
-            deleteAccount(accountId);
+            const typeId = this.getAttribute('data-subtype-id');
+            deleteType(typeId);
         });
     });
 
-    function deleteAccount(accountId) {
+    function deleteType(typeId) {
         if (confirm('Вы уверены, что хотите удалить этот тип?')) {
 
-            fetch('/devicetype/edite/delete/' + accountId, {
+            fetch('/devicetype/delete/' + typeId, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -280,6 +333,11 @@
                 });
         }
     }
+
+    function editType(typeId) {
+        window.location.href = '/devicetype/edite/' + typeId;
+    }
+
 </script>
 </body>
 </html>

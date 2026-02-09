@@ -6,10 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import ru.polymetal.labManufacture.data.models.DeviceStatus;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 public class DeviceDto {

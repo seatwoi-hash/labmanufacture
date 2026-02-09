@@ -13,12 +13,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
     Optional<Account> findByUsername(String username);
 
-    Optional<Account> findByEmail(String email);
-
-    List<Account> findByIsActive(Boolean isActive);
-
-    List<Account> findByIsVerified(Boolean isVerified);
-
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);

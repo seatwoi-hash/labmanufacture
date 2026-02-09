@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon"/>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
@@ -30,6 +31,18 @@
             color: #495057;
             padding: 1rem;
         }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
 
         .table td {
             padding: 1rem;
@@ -117,6 +130,31 @@
             background-color: #e9ecef;
             overflow: hidden;
         }
+        .search-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-input {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #1d7acc;
+            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+        }
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
 
 
         .status-indicator {
@@ -148,8 +186,8 @@
 
 <!-- Включаем фрагменты -->
 <div th:replace="fragments :: home-button"></div>
-<div th:replace="fragments :: user-menu"></div>
-<div th:replace="fragments :: sidebar"></div>
+<div th:replace="~{fragments :: sidebar}"></div>
+<div th:replace="~{fragments :: user-menu}"></div>
 
 <!-- Заголовок -->
 
@@ -222,11 +260,20 @@
                     <table class="table table-hover mb-0">
                         <thead>
                         <tr>
-                            <th>Серийный номер</th>
-                            <th>Тип платы</th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
+                                Серийный номер
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
+                                Тип платы
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
                             <th>Описание</th>
                             <th>Находиться в</th>
-                            <th>Дата создания</th>
+                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(4)">
+                                Дата создания
+                                <i class="fas fa-sort float-end mt-1"></i>
+                            </th>
                         </tr>
                         </thead>
                         <tbody>
@@ -301,6 +348,137 @@
                 noResults.style.display = 'none';
             }
         });
+    });
+
+
+
+
+
+    //сортировка...
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.querySelector('.table');
+        const tbody = table.querySelector('tbody');
+        const headers = table.querySelectorAll('thead th');
+
+        // Инициализируем состояние сортировки
+        let currentSortColumn = 4; // Индекс столбца с датой (по умолчанию)
+        let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
+
+        // Устанавливаем иконку для столбца по умолчанию
+        updateSortIcons();
+
+        // Добавляем обработчики кликов на заголовки
+        headers.forEach((header, index) => {
+            if (header.hasAttribute('onclick')) {
+                // Удаляем inline onclick и добавляем обработчик
+                header.removeAttribute('onclick');
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', () => sortTable(index));
+            }
+        });
+
+        function sortTable(columnIndex) {
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Если кликаем по той же колонке, меняем направление
+            if (columnIndex === currentSortColumn) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
+                currentSortColumn = columnIndex;
+                sortDirection = 'asc';
+            }
+
+            // Сортируем строки
+            rows.sort((a, b) => {
+                const aCell = a.cells[columnIndex];
+                const bCell = b.cells[columnIndex];
+
+                // Получаем текстовое содержимое ячеек
+                let aValue = aCell.textContent.trim();
+                let bValue = bCell.textContent.trim();
+
+                // Для столбца с датой (индекс 4)
+                if (columnIndex === 4) {
+                    aValue = parseDateString(aValue);
+                    bValue = parseDateString(bValue);
+                    return sortDirection === 'asc'
+                        ? aValue - bValue
+                        : bValue - aValue;
+                }
+
+                // Для остальных столбцов - текстовое сравнение
+                return sortDirection === 'asc'
+                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
+                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
+            });
+
+            // Удаляем все строки из tbody
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+
+            // Добавляем отсортированные строки обратно
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Обновляем иконки сортировки
+            updateSortIcons();
+        }
+
+        function parseDateString(dateString) {
+            try {
+                // Парсим дату в формате "dd.MM.yyyy HH:mm"
+                const [datePart, timePart] = dateString.split(' ');
+                const [day, month, year] = datePart.split('.');
+                const [hours, minutes] = timePart.split(':');
+
+                return new Date(year, month - 1, day, hours, minutes).getTime();
+            } catch (e) {
+                return 0; // В случае ошибки возвращаем 0
+            }
+        }
+
+        function updateSortIcons() {
+            headers.forEach((header, index) => {
+                const icon = header.querySelector('i');
+                if (icon) {
+                    if (index === currentSortColumn) {
+                        icon.className = sortDirection === 'asc'
+                            ? 'fas fa-sort-up float-end mt-1'
+                            : 'fas fa-sort-down float-end mt-1';
+                    } else {
+                        icon.className = 'fas fa-sort float-end mt-1';
+                    }
+                }
+            });
+        }
+
+        // // Функция для поиска (если нужно сохранить)
+        // const searchInput = document.getElementById('searchInput');
+        // if (searchInput) {
+        //     searchInput.addEventListener('input', function() {
+        //         const searchTerm = this.value.toLowerCase().trim();
+        //         const rows = table.querySelectorAll('tbody tr');
+        //         let visibleRows = 0;
+        //
+        //         rows.forEach(row => {
+        //             const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+        //
+        //             if (serialNumber.includes(searchTerm)) {
+        //                 row.style.display = '';
+        //                 visibleRows++;
+        //             } else {
+        //                 row.style.display = 'none';
+        //             }
+        //         });
+        //
+        //         // Можно добавить обновление счетчика видимых строк
+        //         const counter = document.querySelector('.badge.bg-light .me-1');
+        //         if (counter) {
+        //             counter.textContent = visibleRows;
+        //         }
+        //     });
+        // }
     });
 </script>
 </body>

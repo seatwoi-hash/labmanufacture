@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/v1.1/delete_old_operations_table.sql
+  - include:
+      file: db/changelog/v1.1/rename_devices.sql
+  - include:
+      file: db/changelog/v1.1/devices.sql
+  - include:
+      file: db/changelog/v1.1/copy_date_in_devices.sql
+  - include:
+      file: db/changelog/v1.1/add_new_column_operations.sql
+  - include:
+      file: db/changelog/v1.1/delete_column_operations.sql
+  - include:
+      file: db/changelog/v1.1/rename_inx_operations.sql
+  - include:
+      file: db/changelog/v1.1/rename_device_statuses.sql
+  - include:
+      file: db/changelog/v1.1/add_new_values_operation_statuses.sql
+  - include:
+      file: db/changelog/v1.1/change_values_in_operation_statuses.sql
+  - include:
+      file: db/changelog/v1.1/delete_constraint_in_devices.sql
+  - include:
+      file: db/changelog/v1.1/add_new_column_device_subtypes.sql

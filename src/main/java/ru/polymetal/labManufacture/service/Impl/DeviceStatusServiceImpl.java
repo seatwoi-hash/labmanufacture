@@ -3,23 +3,23 @@ package ru.polymetal.labManufacture.service.Impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.polymetal.labManufacture.data.models.DeviceStatus;
-import ru.polymetal.labManufacture.data.repository.DeviceStatusRepository;
+import ru.polymetal.labManufacture.data.models.OperationStatus;
+import ru.polymetal.labManufacture.data.repository.OperationStatusRepository;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import java.util.List;
 
 @Service
 @Slf4j
 public class DeviceStatusServiceImpl implements DeviceStatusService {
-    private final DeviceStatusRepository deviceStatusRepository;
+    private final OperationStatusRepository deviceStatusRepository;
 
-    public DeviceStatusServiceImpl(DeviceStatusRepository deviceStatusRepository) {
+    public DeviceStatusServiceImpl(OperationStatusRepository deviceStatusRepository) {
         this.deviceStatusRepository = deviceStatusRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public DeviceStatus findByName(String name) {
+    public OperationStatus findByName(String name) {
 
         //log.debug("Поиск статуса по названию: {}", name);
 
@@ -28,7 +28,7 @@ public class DeviceStatusServiceImpl implements DeviceStatusService {
     }
 
     @Transactional(readOnly = true)
-    public List<DeviceStatus> findByListName(List<String> name) {
+    public List<OperationStatus> findByListName(List<String> name) {
 
         //log.debug("Поиск статуса по названию: {}", name);
 
