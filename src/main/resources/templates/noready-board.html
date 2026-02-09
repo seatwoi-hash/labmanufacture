@@ -168,7 +168,11 @@
                                 Дата создания
                                 <i class="fas fa-sort float-end mt-1"></i>
                             </th>
-                            <th>Действие</th>
+                            <th>
+                                <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+                                    Действие
+                                </th:block>
+                            </th>
                         </tr>
                         </thead>
                         <tbody>
@@ -188,10 +192,12 @@
                                         </span>
                             </td>
                             <td class="action-buttons">
-                                <button class="btn btn-sm btn-outline-danger delete-btn"
+                                <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+                                    <button class="btn btn-sm btn-outline-danger delete-btn"
                                         th:data-device-id="${operation.getDevice().getId()}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </th:block>
                             </td>
                         </tr>
                         </tbody>

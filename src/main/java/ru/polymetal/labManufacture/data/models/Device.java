@@ -24,7 +24,7 @@ public class Device {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "sn", nullable = false, unique = true, length = 100)
+    @Column(name = "sn", nullable = false, length = 100)
     private String serialNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
