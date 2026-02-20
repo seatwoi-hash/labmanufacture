@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_TEST;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_TEST_2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_2;
@@ -27,8 +28,11 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
+import ru.polymetal.labManufacture.dto.FileUploadRequestDto;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
+import ru.polymetal.labManufacture.service.FileService;
 import ru.polymetal.labManufacture.service.OperationService;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,15 +42,19 @@ import java.util.stream.Stream;
 @Controller
 @RequestMapping("/device")
 public class TestController {
+
     private final AccountRepository accountRepository;
     private final OperationService operationService;
     private final DeviceStatusService deviceStatusService;
+    public final FileService fileService;
+
 
     public TestController(AccountRepository accountRepository, OperationService operationService,
-                             DeviceStatusService deviceStatusService) {
+                          DeviceStatusService deviceStatusService, FileService fileService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
         this.deviceStatusService = deviceStatusService;
+        this.fileService = fileService;
     }
 
     @GetMapping("/test-board")
@@ -79,7 +87,6 @@ public class TestController {
         model.addAttribute("currentUser", account);
 
 
-
         return "test-board";
     }
 
@@ -88,15 +95,29 @@ public class TestController {
     public ResponseEntity<?> completeTest(@RequestParam UUID deviceId,
                                           @RequestParam String action,
                                           @ModelAttribute("device") Operation device,
-                                          Authentication authentication) {
-
+                                          MultipartFile file,
+                                          Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
         if ("passed".equals(action)) {
-            operationService.completeOperationWithDescription(deviceId, account, TEST, device.getDescription());
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, TEST,
+                    device.getDescription());
         } else if ("failed".equals(action)) {
-            operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST, device.getDescription());
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST,
+                    device.getDescription());
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException(
+                "Операция не" +
+                " найдена"));
+
+        if (file != null) {
+            FileUploadRequestDto request = new FileUploadRequestDto();
+            request.setAccount(account);
+            request.setOperation(operationNew);
+            fileService.uploadFile(file, request);
         }
 
         return ResponseEntity.ok().build();
@@ -133,20 +154,35 @@ public class TestController {
     @PostMapping("/test-board-two/complete")
     @ResponseBody
     public ResponseEntity<?> completeTestTwo(@RequestParam UUID deviceId,
-                                          @RequestParam String action,
-                                          @ModelAttribute("device") Operation device,
-                                          Authentication authentication) {
-
+                                             @RequestParam String action,
+                                             @ModelAttribute("device") Operation device,
+                                             MultipartFile file,
+                                             Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
         if ("passed".equals(action)) {
-            operationService.completeOperationWithDescription(deviceId, account, TEST_2, device.getDescription());
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, TEST_2,
+                    device.getDescription());
         } else if ("failed".equals(action)) {
-            operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST_2, device.getDescription());
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST_2,
+                    device.getDescription());
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException(
+                "Операция не" +
+                " найдена"));
+
+        if (file != null) {
+            FileUploadRequestDto request = new FileUploadRequestDto();
+            request.setAccount(account);
+            request.setOperation(operationNew);
+            fileService.uploadFile(file, request);
         }
 
         return ResponseEntity.ok().build();
 
     }
+
 }

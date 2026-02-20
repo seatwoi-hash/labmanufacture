@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .maxSessionsPreventsLogin(false)
                 )
                 .csrf(csrf -> csrf
-                                .ignoringRequestMatchers("/devicetype/edite/**")
+                                .ignoringRequestMatchers("/devicetype/edite/**", "/device/**")
                 );
 
         return http.build();

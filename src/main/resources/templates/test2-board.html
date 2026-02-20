@@ -263,6 +263,13 @@
                     <strong>Серийный номер:</strong>
                     <span id="modalPassedDeviceSn" class="device-sn"></span>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Прикрепить файл</label>
+                    <input type="file" class="form-control" accept=".txt" id="passedFiles">
+                </div>
+
+
                 <div class="mb-3">
                     <label for="passedDescription" class="form-label">Комментарий (опционально):</label>
                     <textarea class="form-control" id="passedDescription" rows="3"
@@ -301,6 +308,13 @@
                     <strong>Серийный номер:</strong>
                     <span id="modalFailedDeviceSn" class="device-sn"></span>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Прикрепить файл</label>
+                    <input type="file" class="form-control" accept=".txt" id="failedFiles">
+                </div>
+
+
                 <div class="mb-3">
                     <label for="failedDescription" class="form-label">Причина отказа <span class="text-danger">*</span>:</label>
                     <textarea class="form-control" id="failedDescription" rows="3"
@@ -370,13 +384,22 @@
             const button = this;
             const originalText = button.innerHTML;
             const description = document.getElementById('passedDescription').value;
+            const fileInput = document.getElementById('passedFiles');
+            const file = fileInput.files[0];
+
+
+            // Валидация обязательного файла
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showAlert('Пожалуйста, выберите файл для загрузки.', 'warning');
+                return;
+            }
 
             // Показываем индикатор загрузки
             button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
             button.disabled = true;
 
             // Отправляем запрос на сервер
-            sendCompletionRequest('passed', description, button, originalText);
+            sendCompletionRequest('passed', description, file, button, originalText);
         });
 
         // Обработчик подтверждения для "Не пройдено"
@@ -394,28 +417,41 @@
 
             const button = this;
             const originalText = button.innerHTML;
+            const fileInput = document.getElementById('failedFiles');
+            const file = fileInput.files[0];
+
+            // Валидация обязательного файла
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showAlert('Пожалуйста, выберите файл для загрузки.', 'warning');
+                return;
+            }
+
 
             // Показываем индикатор загрузки
             button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
             button.disabled = true;
 
             // Отправляем запрос на сервер
-            sendCompletionRequest('failed', description, button, originalText);
+            sendCompletionRequest('failed', description, file, button, originalText);
         });
 
         // Функция отправки запроса на сервер
-        function sendCompletionRequest(action, description, button, originalText) {
-            const formData = new URLSearchParams();
+        function sendCompletionRequest(action, description, file, button, originalText) {
+            const formData = new FormData();
             formData.append('deviceId', currentDeviceId);
             formData.append('description', description);
             formData.append('action', action);
 
+            if (file) {
+                formData.append('file', file);
+            }
+
+            // Добавляем CSRF токен в FormData
+            const csrfToken = document.querySelector('input[name="_csrf"]').value;
+            formData.append('_csrf', csrfToken);
+
             fetch('/device/test-board-two/complete', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
-                },
                 body: formData
             })
                 .then(response => {

@@ -154,6 +154,7 @@
                                 <i class="fas fa-sort float-end mt-1"></i>
                             </th>
                             <th>Фамилия</th>
+                            <th>Файл</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -180,6 +181,20 @@
                             </td>
                             <td>
                                 <span class="device-sn" th:text="${operation.account.lastName}"></span>
+                            </td>
+
+                            <td class="text-center">
+                                <!-- Проверяем наличие файла -->
+                                <th:block th:with="hasFile=${operation.fileData != null}">
+                                    <a th:if="${hasFile}"
+                                       th:href="@{'/file/' + ${operation.fileData.id}}"
+                                       class="text-success"
+                                       target="_blank"
+                                       data-bs-toggle="tooltip"
+                                       th:attr="data-bs-title='Скачать: ' + ${operation.fileData.newName}">
+                                        <i class="fas fa-cloud-download-alt fa-lg"></i>
+                                    </a>
+                                </th:block>
                             </td>
 
                         </tr>

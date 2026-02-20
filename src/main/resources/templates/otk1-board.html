@@ -9,6 +9,50 @@
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/styles.css}">
     <style>
+
+
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: #1d7acc;
+            background-color: #f8f9fa;
+        }
+
+        .file-item {
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .file-item i.fa-file {
+            color: #1d7acc;
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+
+        .upload-progress {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+
+
         .device-table {
             background: white;
             border-radius: 12px;
@@ -288,6 +332,13 @@
                     <strong>Серийный номер:</strong>
                     <span id="modalPassedDeviceSn" class="device-sn"></span>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Прикрепить файл</label>
+                    <input type="file" class="form-control" accept=".pdf" id="passedFiles">
+                </div>
+
+
                 <div class="mb-3">
                     <label for="passedDescription" class="form-label">Комментарий (опционально):</label>
                     <textarea class="form-control" id="passedDescription" rows="3"
@@ -327,6 +378,16 @@
                     <strong>Серийный номер:</strong>
                     <span id="modalFailedDeviceSn" class="device-sn"></span>
                 </div>
+
+
+
+
+                <div class="mb-3">
+                    <label class="form-label">Прикрепить файл</label>
+                    <input type="file" class="form-control" accept=".pdf" id="failedFiles">
+                </div>
+
+
                 <div class="mb-3">
                     <label for="failedDescription" class="form-label">Причина отказа <span class="text-danger">*</span>:</label>
                     <textarea class="form-control" id="failedDescription" rows="3"
@@ -340,7 +401,7 @@
                     <i class="fas fa-times me-2"></i>Отмена
                 </button>
                 <button type="button" class="btn btn-danger" id="confirmFailed">
-                    <i class="fas fa-times me-2"></i>Да, ОТК №1 не прошел
+                    <i class="fas fa-times me-2"></i>Да, ОТК не прошел
                 </button>
             </div>
         </div>
@@ -390,6 +451,9 @@
             });
         });
 
+
+
+
         // Обработчик подтверждения для "Пройдено"
         document.getElementById('confirmPassed').addEventListener('click', function () {
             if (!currentDeviceId || currentAction !== 'passed') return;
@@ -397,13 +461,23 @@
             const button = this;
             const originalText = button.innerHTML;
             const description = document.getElementById('passedDescription').value;
+            const fileInput = document.getElementById('passedFiles');
+            const file = fileInput.files[0];
+
+
+            // Валидация обязательного файла
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showAlert('Пожалуйста, выберите файл для загрузки.', 'warning');
+                return;
+            }
+
 
             // Показываем индикатор загрузки
             button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
             button.disabled = true;
 
             // Отправляем запрос на сервер
-            sendCompletionRequest('passed', description, button, originalText);
+            sendCompletionRequest('passed', description, file, button, originalText);
         });
 
         // Обработчик подтверждения для "Не пройдено"
@@ -413,36 +487,56 @@
             const descriptionField = document.getElementById('failedDescription');
             const description = descriptionField.value.trim();
 
+
             // Валидация обязательного поля
             if (!description) {
                 descriptionField.classList.add('is-invalid');
                 return;
             }
 
+
+
+
+
             const button = this;
             const originalText = button.innerHTML;
+            const fileInput = document.getElementById('failedFiles');
+            const file = fileInput.files[0];
+
+            // Валидация обязательного файла
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showAlert('Пожалуйста, выберите файл для загрузки.', 'warning');
+                return;
+            }
 
             // Показываем индикатор загрузки
             button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
             button.disabled = true;
 
             // Отправляем запрос на сервер
-            sendCompletionRequest('failed', description, button, originalText);
+            sendCompletionRequest('failed', description, file, button, originalText);
+
         });
 
         // Функция отправки запроса на сервер
-        function sendCompletionRequest(action, description, button, originalText) {
-            const formData = new URLSearchParams();
+        function sendCompletionRequest(action, description, file, button, originalText) {
+            const formData = new FormData();
             formData.append('deviceId', currentDeviceId);
             formData.append('description', description);
             formData.append('action', action);
 
+            if (file) {
+                formData.append('file', file);
+            }
+
+
+            // Добавляем CSRF токен в FormData
+            const csrfToken = document.querySelector('input[name="_csrf"]').value;
+            formData.append('_csrf', csrfToken);
+
+
             fetch('/device/otk1-board/complete', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
-                },
                 body: formData
             })
                 .then(response => {
@@ -660,33 +754,6 @@
                 }
             });
         }
-
-        // // Функция для поиска (если нужно сохранить)
-        // const searchInput = document.getElementById('searchInput');
-        // if (searchInput) {
-        //     searchInput.addEventListener('input', function() {
-        //         const searchTerm = this.value.toLowerCase().trim();
-        //         const rows = table.querySelectorAll('tbody tr');
-        //         let visibleRows = 0;
-        //
-        //         rows.forEach(row => {
-        //             const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
-        //
-        //             if (serialNumber.includes(searchTerm)) {
-        //                 row.style.display = '';
-        //                 visibleRows++;
-        //             } else {
-        //                 row.style.display = 'none';
-        //             }
-        //         });
-        //
-        //         // Можно добавить обновление счетчика видимых строк
-        //         const counter = document.querySelector('.badge.bg-light .me-1');
-        //         if (counter) {
-        //             counter.textContent = visibleRows;
-        //         }
-        //     });
-        // }
     });
 </script>
 </body>

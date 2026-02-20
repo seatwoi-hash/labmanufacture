@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_2;
@@ -50,10 +51,15 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
+import ru.polymetal.labManufacture.dto.FileResponseDto;
+import ru.polymetal.labManufacture.dto.FileUploadRequestDto;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.FileService;
 import ru.polymetal.labManufacture.service.OperationService;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,13 +73,15 @@ public class OtkController {
     private final OperationService operationService;
     private final DeviceStatusService deviceStatusService;
     private final DeviceSubTypeService deviceSubTypeService;
+    public final FileService fileService;
 
     public OtkController(AccountRepository accountRepository, OperationService operationService,
-                         DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService) {
+                         DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, FileService fileService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
         this.deviceStatusService = deviceStatusService;
         this.deviceSubTypeService = deviceSubTypeService;
+        this.fileService = fileService;
     }
 
     @GetMapping("/otk1-board")
@@ -107,7 +115,8 @@ public class OtkController {
     public ResponseEntity<?> completeOtkOne(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
-                                            Authentication authentication) {
+                                            Authentication authentication,
+                                            @RequestParam(required = false) MultipartFile file) throws IOException {
 
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
@@ -130,21 +139,30 @@ public class OtkController {
             }
         } else if ("failed".equals(action)) {
             if (operation.getStatus().getName().equals(SIDE2)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR1)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_1_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_1_1,
                         device.getDescription());
             }
         }
 
 
         if (!isInstallation && !"failed".equals(action)) {
-            operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL);
+          operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL);
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        if(file != null) {
+            FileUploadRequestDto request = new FileUploadRequestDto();
+            request.setAccount(account);
+            request.setOperation(operationNew);
+            fileService.uploadFile(file, request);
         }
 
         return ResponseEntity.ok().build();
-
     }
 
     @GetMapping("/otk2-board")
@@ -177,7 +195,10 @@ public class OtkController {
     public ResponseEntity<?> completeOtkTwo(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
-                                            Authentication authentication) {
+                                            MultipartFile file,
+                                            Authentication authentication) throws IOException {
+
+        UUID operationIdTech = null;
 
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
@@ -187,20 +208,33 @@ public class OtkController {
 
         if ("passed".equals(action)) {
             if (operation.getStatus().getName().equals(INSTALLATION)) {
-                operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_2,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_2,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR2)) {
-                operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_2_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        QUALITY_CHECK_2_1,
                         device.getDescription());
             }
         } else if ("failed".equals(action)) {
             if (operation.getStatus().getName().equals(INSTALLATION)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_2,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_2,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR2)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_2_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_2_1,
                         device.getDescription());
             }
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        if(file != null) {
+            FileUploadRequestDto request = new FileUploadRequestDto();
+            request.setAccount(account);
+            request.setOperation(operationNew);
+            fileService.uploadFile(file, request);
         }
 
         return ResponseEntity.ok().build();
@@ -229,18 +263,30 @@ public class OtkController {
     public ResponseEntity<?> completeOtkThree(@RequestParam UUID deviceId,
                                               @RequestParam String action,
                                               @ModelAttribute("device") Operation device,
-                                              Authentication authentication) {
+                                              MultipartFile file,
+                                              Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
 
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
 
         if ("passed".equals(action)) {
-            operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_3,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_3,
                     device.getDescription());
         } else if ("failed".equals(action)) {
-            operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_3,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_3,
                     device.getDescription());
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        if(file != null) {
+            FileUploadRequestDto request = new FileUploadRequestDto();
+            request.setAccount(account);
+            request.setOperation(operationNew);
+            fileService.uploadFile(file, request);
         }
 
         return ResponseEntity.ok().build();
@@ -281,7 +327,9 @@ public class OtkController {
     public ResponseEntity<?> completeOtkFour(@RequestParam UUID deviceId,
                                              @RequestParam String action,
                                              @ModelAttribute("device") Operation device,
-                                             Authentication authentication) {
+                                             MultipartFile file,
+                                             Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
 
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
@@ -291,26 +339,41 @@ public class OtkController {
 
         if ("passed".equals(action)) {
             if (operation.getStatus().getName().equals(INSTALLATION2)) {
-                operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_4,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_4,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR4)) {
-                operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_4_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        QUALITY_CHECK_4_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR5)) {
-                operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_4_2,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        QUALITY_CHECK_4_2,
                         device.getDescription());
             }
         } else if ("failed".equals(action)) {
             if (operation.getStatus().getName().equals(INSTALLATION2)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_4,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_4,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR4)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_4_1,
+                operationIdTech =  operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_4_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR5)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_4_2,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_4_2,
                         device.getDescription());
             }
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        if(file != null) {
+            FileUploadRequestDto request = new FileUploadRequestDto();
+            request.setAccount(account);
+            request.setOperation(operationNew);
+            fileService.uploadFile(file, request);
         }
 
         return ResponseEntity.ok().build();
@@ -352,7 +415,9 @@ public class OtkController {
     public ResponseEntity<?> completeOtkFive(@RequestParam UUID deviceId,
                                              @RequestParam String action,
                                              @ModelAttribute("device") Operation device,
-                                             Authentication authentication) {
+                                             MultipartFile file,
+                                             Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
 
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
@@ -364,28 +429,42 @@ public class OtkController {
 
         if ("passed".equals(action)) {
             if (operation.getStatus().getName().equals(WASHING1)) {
-                operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_5,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_5,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR6)) {
-                operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_5_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        QUALITY_CHECK_5_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(WASHING2)) {
-                operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_5,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_5,
                         device.getDescription());
             }
         } else if ("failed_wash".equals(action)) {
 
-            operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_5_1_1,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                    FAIL_QUALITY_CHECK_5_1_1,
                     device.getDescription());
 
         } else if ("failed_repair".equals(action)) {
             if (operation.getStatus().getName().equals(WASHING1)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_5,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_5,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(WASHING2)) {
-                operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_5_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_5_1,
                         device.getDescription());
             }
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        if(file != null) {
+            FileUploadRequestDto request = new FileUploadRequestDto();
+            request.setAccount(account);
+            request.setOperation(operationNew);
+            fileService.uploadFile(file, request);
         }
 
 
@@ -415,23 +494,34 @@ public class OtkController {
     public ResponseEntity<?> completeOtkSix(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
-                                            Authentication authentication) {
+                                            MultipartFile file,
+                                            Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
+
 
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
 
 
-
-
         if ("passed".equals(action)) {
-            UUID id = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_6,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_6,
                     device.getDescription());
 
-            operationService.completeOperationWithDescription(id, account, READY, device.getDescription());
+            operationService.completeOperationWithDescription(operationIdTech, account, READY, device.getDescription());
         } else if ("failed".equals(action)) {
-            operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_6,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_6,
                     device.getDescription());
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        if(file != null) {
+            FileUploadRequestDto request = new FileUploadRequestDto();
+            request.setAccount(account);
+            request.setOperation(operationNew);
+            fileService.uploadFile(file, request);
         }
 
         return ResponseEntity.ok().build();

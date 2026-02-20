@@ -51,7 +51,7 @@ public class DeviceServiceImpl implements DeviceService {
         DeviceSubType subtype = deviceSubTypeService.findById(deviceDto.getSubType().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Подтип не найден"));
 
-        if (deviceRepository.existsBySerialNumber(deviceDto.getSerialNumber())) {
+        if (existsSerialNumber(deviceDto.getSerialNumber())) {
             throw new IllegalArgumentException(
                     String.format("Устройство с серийным номером '%s' уже существует", deviceDto.getSerialNumber()));
         }
@@ -79,9 +79,10 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID id) {
         Device device = deviceRepository.findById(id).orElseThrow(() -> new RuntimeException("Устройство не найдено"));
-        deviceRepository.delete(device);
+        device.setIsDeleted(true);
     }
 
     public Device buildDevice(DeviceDto deviceDto, DeviceSubType subtype) {

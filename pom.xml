@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.polymetal</groupId>
 	<artifactId>labManufacture</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<!-- <packaging>war</packaging> -->
 	<packaging>jar</packaging>
 	<name>labManufacture</name>

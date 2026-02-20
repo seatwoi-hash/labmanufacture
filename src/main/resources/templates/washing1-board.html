@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мойка №1<</title>
+    <title>Отмывка №1</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/styles.css}">
@@ -110,7 +110,7 @@
     <!-- Шапка -->
     <header class="page-header">
         <div class="header-content">
-            <h1><i class="fas fa-microchip me-2"></i>Мойка №1</h1>
+            <h1><i class="fas fa-microchip me-2"></i>Отмывка №1</h1>
             <div class="header-actions">
                     <span class="badge bg-primary fs-6 mb-3">
                         Устройств: <span th:text="${devices.size()}">0</span>
@@ -141,7 +141,7 @@
                 <div class="table-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1">Устройства для мойки №1</h4>
+                            <h4 class="mb-1">Устройства для отмывки №1</h4>
                         </div>
                         <div class="text-end">
                                 <span class="badge bg-light text-dark fs-6">
@@ -207,7 +207,7 @@
             <!-- Состояние пустого списка -->
             <div th:if="${devices.empty}" class="empty-state">
                 <i class="fas fa-inbox"></i>
-                <h4>Нет устройств для мойки №1</h4>
+                <h4>Нет устройств для отмывки №1</h4>
                 <p class="text-muted">Все устройства уже обработаны или находятся на других этапах</p>
             </div>
         </div>
@@ -227,7 +227,7 @@
             <div class="modal-body text-center">
                 <div class="mb-4">
                     <i class="fas fa-question-circle fa-3x text-warning mb-3"></i>
-                    <h5>Вы уверены, что завершили мойку №1?</h5>
+                    <h5>Вы уверены, что завершили отмывку №1?</h5>
                     <p class="text-muted">Устройство будет перемещено на следующий этап</p>
                 </div>
                 <div class="device-info alert alert-info">
