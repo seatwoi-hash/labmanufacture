@@ -3,8 +3,9 @@ package ru.polymetal.labManufacture.data.models;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "devices")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,6 +43,12 @@ public class Device {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @Column(name = "url_pdf")
+    private String urlPDF;
+
+    @Column(name = "url_txt")
+    private String urlTXT;
 
     @CreationTimestamp
     @Column(name = "created_time", updatable = false)

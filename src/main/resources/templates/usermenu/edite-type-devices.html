@@ -37,6 +37,11 @@
             margin-bottom: 1.5rem;
         }
 
+        .form-group-num {
+            margin-bottom: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
         .home-button:active {
             transform: scale(0.95) !important;
         }
@@ -173,7 +178,8 @@
             </div>
 
             <div class="form-body">
-                <form id="editTypeForm" method="POST" th:action="@{'/devicetype/edite/' + ${subtype.id}}" th:object="${subtype}">
+                <form id="editTypeForm" method="POST" th:action="@{'/devicetype/edite/' + ${subtype.id}}" th:object="${subtype}"
+                      enctype="multipart/form-data">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <input type="hidden" th:field="*{id}" />
                     <input type="hidden" name="_method" value="PATCH" />
@@ -244,6 +250,65 @@
                                 </label>
                             </div>
                         </div>
+
+
+                        <!-- Номер типа платы -->
+                        <div class="form-group-num">
+                            <label for="typeName" class="form-label" style="font-weight: 300; color: #495057;">
+                                <i class="fas fa-cogs me-1"></i>Номер типа платы *
+                            </label>
+                            <input type="number"
+                                   class="form-control"
+                                   id="typeBoard"
+                                   th:field="*{snType}"
+                                   min="10"
+                                   max="99"
+                                   step="1"
+                                   placeholder="Введите номер типа"
+                                   style="border: 1px solid #dee2e6; border-radius: 6px; width: 300px"
+                                   required>
+                            <div class="form-text" style="color: #6b7280;">
+                                Введите номер типа платы  XX XX [Номер типа: XX] X XXX
+                            </div>
+                        </div>
+
+
+                        <!-- Версия типа платы -->
+                        <div class="form-group-num">
+                            <label for="typeName" class="form-label" style="font-weight: 300; color: #495057;">
+                                <i class="fas fa-cogs me-1"></i>Версия типа платы *
+                            </label>
+                            <input type="number"
+                                   class="form-control"
+                                   id="typeVersionBoard"
+                                   th:field="*{versionType}"
+                                   min="0"
+                                   max="9"
+                                   step="1"
+                                   placeholder="Введите версию типа"
+                                   style="border: 1px solid #dee2e6; border-radius: 6px; width: 300px"
+                                   required>
+                            <div class="form-text" style="color: #6b7280;">
+                                Введите версию типа платы  XX XX XX [Версия: X] XXX
+                            </div>
+
+                        </div>
+
+                        <!-- Заменить файл -->
+                        <div class="form-group-num">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">
+                                    <i class="fas fa-file-pdf me-1"></i> Заменить файл
+                                </label>
+                                <input type="file" class="form-control" id="file" name="file" accept=".pdf">
+                                <div class="form-text text-muted">
+                                    Оставьте пустым, если не хотите менять файл
+                                </div>
+                            </div>
+                        </div>
+
+
+
                     </div>
 
                     <!-- Кнопки действий -->

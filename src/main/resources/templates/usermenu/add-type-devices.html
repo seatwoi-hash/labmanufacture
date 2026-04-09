@@ -40,10 +40,16 @@
         .home-button:active {
             transform: scale(0.95) !important;
         }
+
         .accounts-container {
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        .form-group-num {
+            margin-bottom: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         .page-header {
@@ -60,7 +66,7 @@
         .accounts-table {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
@@ -69,6 +75,7 @@
             color: white;
             padding: 1.5rem 2rem;
         }
+
         .option-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -213,8 +220,9 @@
                     <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Добавить новый тип платы</h5>
                 </div>
                 <div class="form-body" style="padding: 1.5rem 2rem; background: white;">
-                    <form id="addTypeForm" method="POST" th:action="@{/devicetype/add}" class="row g-3 align-items-end">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <form id="addTypeForm" method="POST" th:action="@{/devicetype/add}" class="row g-3 align-items-end"
+                          enctype="multipart/form-data">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                         <div class="col-md-6">
                             <label for="typeName" class="form-label" style="font-weight: 600; color: #495057;">
@@ -232,7 +240,7 @@
                         </div>
 
                         <div class="mb-3">
-                        <label for="typeDescription" class="form-label" style="font-weight: 600; color: #495057;">
+                            <label for="typeDescription" class="form-label" style="font-weight: 600; color: #495057;">
                                 Описание типа платы
                             </label>
                             <textarea class="form-control"
@@ -279,10 +287,71 @@
                                     </label>
                                 </div>
                             </div>
+
+
+                            <!-- Номер типа платы -->
+                            <div class="form-group-num">
+                                <label for="typeNumber" class="form-label" style="font-weight: 300; color: #495057;">
+                                    <i class="fas fa-cogs me-1"></i>Номер типа платы *
+                                </label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="typeNumber"
+                                       name="snType"
+                                       placeholder="Введите номер типа"
+                                       min="10"
+                                       max="99"
+                                       step="1"
+                                       style="border: 1px solid #dee2e6; border-radius: 6px; width: 300px"
+                                       required>
+                                <div class="form-text" style="color: #6b7280;">
+                                    Введите номер типа платы XX XX [Номер типа: XX] X XXX
+                                </div>
+                            </div>
+
+
+                            <!-- Версия типа платы -->
+                            <div class="form-group-num">
+                                <label for="typeVersionBoard" class="form-label" style="font-weight: 300; color: #495057;">
+                                    <i class="fas fa-cogs me-1"></i>Версия типа платы *
+                                </label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="typeVersionBoard"
+                                       name="versionType"
+                                       placeholder="Введите версию типа"
+                                       min="0"
+                                       max="9"
+                                       step="1"
+                                       style="border: 1px solid #dee2e6; border-radius: 6px; width: 300px"
+                                       required>
+
+                                <div class="form-text" style="color: #6b7280;">
+                                    Введите версию типа платы XX XX XX [Версия: X] XXX
+                                </div>
+
+                            </div>
+
+                            <!-- Добавить файл -->
+                            <div class="col-md-12">
+                                <label class="form-label" style="font-weight: 600; color: #495057;">
+                                    <i class="fas fa-file-pdf me-1"></i> Добавить файл
+                                </label>
+                                <input type="file"
+                                       class="form-control"
+                                       name="file"
+                                       required
+                                       accept=".pdf">
+                                <div class="form-text" style="color: #6b7280;">
+                                    Загрузите PDF файл
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="col-md-4">
-                            <button type="submit" class="btn w-100" style="background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white; border: none; padding: 0.75rem; border-radius: 6px; font-weight: 600;">
+                            <button type="submit" class="btn w-100"
+                                    style="background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white; border: none; padding: 0.75rem; border-radius: 6px; font-weight: 600;">
                                 <i class="fas fa-plus me-1"></i> Добавить тип
                             </button>
                         </div>
@@ -296,15 +365,50 @@
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 
 <script>
+
+
+    // Обработка отправки формы
+    document.getElementById('addTypeForm').addEventListener('submit', function(e) {
+        const form = this;
+        const messageDiv = document.getElementById('formMessage');
+
+        // Проверка полей перед отправкой
+        const typeNumber = document.getElementById('typeNumber').value;
+        const versionType = document.getElementById('typeVersionBoard').value;
+        const fileInput = document.getElementById('fileInput');
+
+        if (typeNumber < 10 || typeNumber > 99) {
+            e.preventDefault();
+            messageDiv.innerHTML = '<div class="error-message">Номер типа должен быть от 10 до 99</div>';
+            return false;
+        }
+
+        if (versionType < 0 || versionType > 9) {
+            e.preventDefault();
+            messageDiv.innerHTML = '<div class="error-message">Версия типа должна быть от 0 до 9</div>';
+            return false;
+        }
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            e.preventDefault();
+            messageDiv.innerHTML = '<div class="error-message">Пожалуйста, загрузите PDF файл</div>';
+            return false;
+        }
+
+        messageDiv.innerHTML = ''; // Очищаем сообщения
+    });
+
+
+
     document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const typeId = this.getAttribute('data-subtype-id');
             editType(typeId);
         });
     });
 
     document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const typeId = this.getAttribute('data-subtype-id');
             deleteType(typeId);
         });

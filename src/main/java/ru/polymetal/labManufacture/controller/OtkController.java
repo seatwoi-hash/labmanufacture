@@ -115,8 +115,7 @@ public class OtkController {
     public ResponseEntity<?> completeOtkOne(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
-                                            Authentication authentication,
-                                            @RequestParam(required = false) MultipartFile file) throws IOException {
+                                            Authentication authentication) throws IOException {
 
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
@@ -155,12 +154,6 @@ public class OtkController {
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
                 " найдена"));
 
-        if(file != null) {
-            FileUploadRequestDto request = new FileUploadRequestDto();
-            request.setAccount(account);
-            request.setOperation(operationNew);
-            fileService.uploadFile(file, request);
-        }
 
         return ResponseEntity.ok().build();
     }
@@ -195,7 +188,6 @@ public class OtkController {
     public ResponseEntity<?> completeOtkTwo(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
-                                            MultipartFile file,
                                             Authentication authentication) throws IOException {
 
         UUID operationIdTech = null;
@@ -230,12 +222,6 @@ public class OtkController {
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
                 " найдена"));
 
-        if(file != null) {
-            FileUploadRequestDto request = new FileUploadRequestDto();
-            request.setAccount(account);
-            request.setOperation(operationNew);
-            fileService.uploadFile(file, request);
-        }
 
         return ResponseEntity.ok().build();
 
@@ -263,7 +249,6 @@ public class OtkController {
     public ResponseEntity<?> completeOtkThree(@RequestParam UUID deviceId,
                                               @RequestParam String action,
                                               @ModelAttribute("device") Operation device,
-                                              MultipartFile file,
                                               Authentication authentication) throws IOException {
         UUID operationIdTech = null;
 
@@ -282,12 +267,6 @@ public class OtkController {
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
                 " найдена"));
 
-        if(file != null) {
-            FileUploadRequestDto request = new FileUploadRequestDto();
-            request.setAccount(account);
-            request.setOperation(operationNew);
-            fileService.uploadFile(file, request);
-        }
 
         return ResponseEntity.ok().build();
 
@@ -327,7 +306,6 @@ public class OtkController {
     public ResponseEntity<?> completeOtkFour(@RequestParam UUID deviceId,
                                              @RequestParam String action,
                                              @ModelAttribute("device") Operation device,
-                                             MultipartFile file,
                                              Authentication authentication) throws IOException {
         UUID operationIdTech = null;
 
@@ -369,13 +347,6 @@ public class OtkController {
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
                 " найдена"));
 
-        if(file != null) {
-            FileUploadRequestDto request = new FileUploadRequestDto();
-            request.setAccount(account);
-            request.setOperation(operationNew);
-            fileService.uploadFile(file, request);
-        }
-
         return ResponseEntity.ok().build();
     }
 
@@ -415,7 +386,6 @@ public class OtkController {
     public ResponseEntity<?> completeOtkFive(@RequestParam UUID deviceId,
                                              @RequestParam String action,
                                              @ModelAttribute("device") Operation device,
-                                             MultipartFile file,
                                              Authentication authentication) throws IOException {
         UUID operationIdTech = null;
 
@@ -460,14 +430,6 @@ public class OtkController {
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
                 " найдена"));
 
-        if(file != null) {
-            FileUploadRequestDto request = new FileUploadRequestDto();
-            request.setAccount(account);
-            request.setOperation(operationNew);
-            fileService.uploadFile(file, request);
-        }
-
-
         return ResponseEntity.ok().build();
     }
 
@@ -494,7 +456,6 @@ public class OtkController {
     public ResponseEntity<?> completeOtkSix(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
-                                            MultipartFile file,
                                             Authentication authentication) throws IOException {
         UUID operationIdTech = null;
 
@@ -517,12 +478,6 @@ public class OtkController {
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
                 " найдена"));
 
-        if(file != null) {
-            FileUploadRequestDto request = new FileUploadRequestDto();
-            request.setAccount(account);
-            request.setOperation(operationNew);
-            fileService.uploadFile(file, request);
-        }
 
         return ResponseEntity.ok().build();
     }

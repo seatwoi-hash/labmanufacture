@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.dto.DeviceSubTypeDto;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,13 +56,27 @@ public class DeviceTypeController {
     @PostMapping("/add")
     public String addType(   @RequestParam String name,
                              @RequestParam String description,
+                             @RequestParam Integer snType,
+                             @RequestParam Integer versionType,
                              @RequestParam(required = false, defaultValue = "false") Boolean isInstallationOne,
-                             @RequestParam(required = false, defaultValue = "false") Boolean isTestTwo) {
+                             @RequestParam(required = false, defaultValue = "false") Boolean isTestTwo,
+                             @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        DeviceSubTypeDto deviceSubTypeDto = DeviceSubTypeDto.builder()
+                .name(name)
+                .description(description)
+                .snType(snType)
+                .versionType(versionType)
+                .isInstallationOne(isInstallationOne)
+                .isTestTwo(isTestTwo).
+                build();
 
         try {
-            deviceSubTypeService.save(name, description, isInstallationOne, isTestTwo);
+            deviceSubTypeService.save(deviceSubTypeDto, file);
         } catch (RuntimeException e) {
             return "usermenu/add-type-devices";
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         return "redirect:/devicetype/add";
@@ -97,10 +113,11 @@ public class DeviceTypeController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/edite/{id}")
-    public String editeType(DeviceSubTypeDto deviceSubTypeDto, @PathVariable UUID id)
-    {
+    public String editeType(DeviceSubTypeDto deviceSubTypeDto,
+                            @PathVariable UUID id,
+                            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 
-        deviceSubTypeService.edite(deviceSubTypeDto, id);
+        deviceSubTypeService.edite(deviceSubTypeDto, id, file);
 
         return "redirect:/devicetype/add";
     }

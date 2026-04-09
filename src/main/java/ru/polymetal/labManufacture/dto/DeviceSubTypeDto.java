@@ -1,7 +1,15 @@
 package ru.polymetal.labManufacture.dto;
 
+import lombok.Builder;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
-public record DeviceSubTypeDto(String name, String description, Boolean isInstallationOne, Boolean isTestTwo) {
+@Builder
+public record DeviceSubTypeDto(String name,
+                               String description,
+                               Integer snType,
+                               Integer versionType,
+                               Boolean isInstallationOne,
+                               Boolean isTestTwo) {
 
 }

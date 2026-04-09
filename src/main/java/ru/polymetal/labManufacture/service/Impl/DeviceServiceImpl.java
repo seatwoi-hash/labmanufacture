@@ -14,6 +14,9 @@ import ru.polymetal.labManufacture.service.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.DeviceTypeService;
 import ru.polymetal.labManufacture.service.OperationService;
+import ru.polymetal.labManufacture.service.nextcloud.LinkService;
+import ru.polymetal.labManufacture.service.nextcloud.NextcloudService;
+import java.io.IOException;
 import java.util.UUID;
 
 @Slf4j
@@ -27,20 +30,26 @@ public class DeviceServiceImpl implements DeviceService {
     private final AccountRepository accountRepository;
     private final DeviceTypeService deviceTypeService;
     private final DeviceSubTypeService deviceSubTypeService;
-    private final OperationStatusRepository deviceStatusRepository;
+    private final NextcloudService nextcloudService;
+    private final LinkService linkService;
 
-    public DeviceServiceImpl(DeviceRepository deviceRepository, OperationService operationService, AccountRepository accountRepository, DeviceTypeService deviceTypeService, DeviceSubTypeService deviceSubTypeService, OperationStatusRepository deviceStatusRepository) {
+
+    public DeviceServiceImpl(DeviceRepository deviceRepository, OperationService operationService,
+                             AccountRepository accountRepository, DeviceTypeService deviceTypeService,
+                             DeviceSubTypeService deviceSubTypeService, OperationStatusRepository deviceStatusRepository,
+                             NextcloudService nextcloudService, LinkService linkService) {
         this.deviceRepository = deviceRepository;
         this.operationService = operationService;
         this.accountRepository = accountRepository;
         this.deviceTypeService = deviceTypeService;
         this.deviceSubTypeService = deviceSubTypeService;
-        this.deviceStatusRepository = deviceStatusRepository;
+        this.nextcloudService = nextcloudService;
+        this.linkService = linkService;
     }
 
     @Override
     @Transactional
-    public void createDevice(DeviceDto deviceDto, String username) {
+    public void createDevice(DeviceDto deviceDto, String username) throws IOException {
         log.info("Создание устройства пользователем: {}", username);
 
         Account account = accountRepository.findByUsername(username)
@@ -57,11 +66,9 @@ public class DeviceServiceImpl implements DeviceService {
         }
 
         Device device = buildDevice(deviceDto, subtype);
-
         deviceRepository.save(device);
 
         operationService.createNewOperation(device, account, deviceDto.getDescription());
-
         log.info("Устройство успешно создано с ID: {}", device.getId());
     }
 

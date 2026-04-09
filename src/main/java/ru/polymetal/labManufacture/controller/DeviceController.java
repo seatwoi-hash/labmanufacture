@@ -17,6 +17,9 @@ import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.dto.DeviceDto;
 import ru.polymetal.labManufacture.service.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.nextcloud.Impl.LinkServiceImpl;
+import ru.polymetal.labManufacture.service.nextcloud.LinkService;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,13 +30,15 @@ public class DeviceController {
     private final AccountRepository accountRepository;
     private final DeviceService deviceService;
     private final DeviceSubTypeService deviceSubTypeService;
+    private final LinkService linkService;
 
 
     public DeviceController(AccountRepository accountRepository, DeviceService deviceService,
-                            DeviceSubTypeService deviceSubTypeService) {
+                            DeviceSubTypeService deviceSubTypeService, LinkService linkService) {
         this.accountRepository = accountRepository;
         this.deviceService = deviceService;
         this.deviceSubTypeService = deviceSubTypeService;
+        this.linkService = linkService;
     }
 
 
@@ -93,12 +98,15 @@ public class DeviceController {
 
         try {
             deviceService.createDevice(device, account.getUsername());
+            linkService.createFile(device.getSerialNumber());
             return "redirect:/main";
         } catch (RuntimeException e) {
             model.addAttribute("device", device);
             model.addAttribute("error", e.getMessage());
             device.setSerialNumber(null);
             return "new-board";
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

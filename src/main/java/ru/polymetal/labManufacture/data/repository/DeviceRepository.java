@@ -3,6 +3,7 @@ package ru.polymetal.labManufacture.data.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.polymetal.labManufacture.data.models.Device;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface DeviceRepository extends JpaRepository<Device, UUID> {
@@ -15,5 +16,8 @@ public interface DeviceRepository extends JpaRepository<Device, UUID> {
 
 
     List<Device> findByTypeId(UUID typeId);
+
+
+    Optional<Device> findOneBySerialNumberAndIsDeletedFalse(String serialNumber);
 
 }

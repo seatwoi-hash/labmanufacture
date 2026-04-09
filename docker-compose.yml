@@ -4,9 +4,9 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-labDB}  # ← Используем POSTGRES_DB из .env
-      POSTGRES_USER: ${DB_USER:-postgres}  # ← Используем DB_USER из .env
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123!@}  # ← Используем DB_PASSWORD из .env
+      POSTGRES_DB: ${POSTGRES_DB:-labDB}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123!@}
     ports:
       - "5432:5432"
     volumes:
@@ -16,11 +16,31 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network  # ← Добавлено
+    restart: unless-stopped  # ← Добавлено
+
+  nextcloud-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${NEXTCLOUD_DB_NAME:-nextcloud}
+      POSTGRES_USER: ${NEXTCLOUD_DB_USER:-nextcloud}
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:-nextcloud123!@}
+    volumes:
+      - nextcloud_db_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${NEXTCLOUD_DB_USER:-nextcloud}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
 
   app:
     build: .
     environment:
-      # Настройки приложения
       SPRING_APPLICATION_NAME: ${SPRING_APPLICATION_NAME:-labManufacture}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE_DOCKER:-docker}
 
@@ -41,8 +61,43 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./logs:/app/logs  # для сохранения логов
+      - ./logs:/app/logs
+    networks:
+      - app-network  # ← Добавлено
     restart: unless-stopped
+
+  nextcloud:
+    image: nextcloud:apache
+    environment:
+      POSTGRES_HOST: nextcloud-db
+      POSTGRES_DB: ${NEXTCLOUD_DB_NAME:-nextcloud}
+      POSTGRES_USER: ${NEXTCLOUD_DB_USER:-nextcloud}
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:-nextcloud123!@}
+
+      NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER:-admin}
+      NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD:-admin123!@}
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS:-localhost}
+
+      NEXTCLOUD_FILELOCKING_ENABLED: "true"
+      NEXTCLOUD_FILELOCKING_TTL: "360"
+    ports:
+      - "30540:80"
+    volumes:
+      - ./nextcloud-data/data:/var/www/html/data
+      - ./nextcloud-data/config:/var/www/html/config
+      - ./nextcloud-data/logs:/var/www/html/data/nextcloud.log
+      - ./nextcloud-data/tmp:/tmp
+    depends_on:
+      nextcloud-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+  nextcloud_db_data:  # ← Добавлен том для NextCloud DB

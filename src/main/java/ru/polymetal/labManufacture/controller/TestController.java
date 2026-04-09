@@ -95,7 +95,6 @@ public class TestController {
     public ResponseEntity<?> completeTest(@RequestParam UUID deviceId,
                                           @RequestParam String action,
                                           @ModelAttribute("device") Operation device,
-                                          MultipartFile file,
                                           Authentication authentication) throws IOException {
         UUID operationIdTech = null;
         Account account =
@@ -112,13 +111,6 @@ public class TestController {
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException(
                 "Операция не" +
                 " найдена"));
-
-        if (file != null) {
-            FileUploadRequestDto request = new FileUploadRequestDto();
-            request.setAccount(account);
-            request.setOperation(operationNew);
-            fileService.uploadFile(file, request);
-        }
 
         return ResponseEntity.ok().build();
 
@@ -156,7 +148,6 @@ public class TestController {
     public ResponseEntity<?> completeTestTwo(@RequestParam UUID deviceId,
                                              @RequestParam String action,
                                              @ModelAttribute("device") Operation device,
-                                             MultipartFile file,
                                              Authentication authentication) throws IOException {
         UUID operationIdTech = null;
         Account account =
@@ -174,12 +165,6 @@ public class TestController {
                 "Операция не" +
                 " найдена"));
 
-        if (file != null) {
-            FileUploadRequestDto request = new FileUploadRequestDto();
-            request.setAccount(account);
-            request.setOperation(operationNew);
-            fileService.uploadFile(file, request);
-        }
 
         return ResponseEntity.ok().build();
 

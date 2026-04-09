@@ -254,6 +254,7 @@
                             </th>
                             <th>Действия</th>
                             <th>Примечание</th>
+                            <th>Файл</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -295,6 +296,28 @@
                                     th:text="${nextStatus?.get(operation?.status?.name)} ?: '—'">
                                 </span>
                             </td>
+
+
+
+                            <td class="text-center">
+                                <!-- Проверяем наличие файла и URL -->
+                                <th:block th:with="hasFile=${operation.getDevice().getUrlPDF() != null && !operation.getDevice().getUrlPDF().isEmpty()}">
+                                    <a th:if="${hasFile}"
+                                       th:href="${operation.getDevice().getUrlPDF()}"
+                                       class="text-success"
+                                       target="_blank"
+                                       data-bs-toggle="tooltip"
+                                       th:attr="data-bs-title='Открыть файл: ' + ${operation.getDevice().getSerialNumber()}">
+                                        <i class="fas fa-cloud-download-alt fa-lg"></i>
+                                    </a>
+                                    <span th:unless="${hasFile}" class="text-muted">
+            <i class="fas fa-times-circle fa-lg" data-bs-toggle="tooltip" title="Файл не загружен"></i>
+        </span>
+                                </th:block>
+                            </td>
+
+
+
                         </tr>
                         </tbody>
                     </table>
@@ -331,11 +354,6 @@
                 <div class="device-info alert alert-success mb-3">
                     <strong>Серийный номер:</strong>
                     <span id="modalPassedDeviceSn" class="device-sn"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Прикрепить файл</label>
-                    <input type="file" class="form-control" accept=".pdf" id="passedFiles">
                 </div>
 
 
@@ -377,14 +395,6 @@
                 <div class="device-info alert alert-danger mb-3">
                     <strong>Серийный номер:</strong>
                     <span id="modalFailedDeviceSn" class="device-sn"></span>
-                </div>
-
-
-
-
-                <div class="mb-3">
-                    <label class="form-label">Прикрепить файл</label>
-                    <input type="file" class="form-control" accept=".pdf" id="failedFiles">
                 </div>
 
 
@@ -461,15 +471,9 @@
             const button = this;
             const originalText = button.innerHTML;
             const description = document.getElementById('passedDescription').value;
-            const fileInput = document.getElementById('passedFiles');
-            const file = fileInput.files[0];
 
 
-            // Валидация обязательного файла
-            if (!fileInput.files || fileInput.files.length === 0) {
-                showAlert('Пожалуйста, выберите файл для загрузки.', 'warning');
-                return;
-            }
+
 
 
             // Показываем индикатор загрузки
@@ -477,7 +481,7 @@
             button.disabled = true;
 
             // Отправляем запрос на сервер
-            sendCompletionRequest('passed', description, file, button, originalText);
+            sendCompletionRequest('passed', description, button, originalText);
         });
 
         // Обработчик подтверждения для "Не пройдено"
@@ -486,26 +490,11 @@
 
             const descriptionField = document.getElementById('failedDescription');
             const description = descriptionField.value.trim();
-
-
-            // Валидация обязательного поля
-            if (!description) {
-                descriptionField.classList.add('is-invalid');
-                return;
-            }
-
-
-
-
-
             const button = this;
             const originalText = button.innerHTML;
-            const fileInput = document.getElementById('failedFiles');
-            const file = fileInput.files[0];
 
-            // Валидация обязательного файла
-            if (!fileInput.files || fileInput.files.length === 0) {
-                showAlert('Пожалуйста, выберите файл для загрузки.', 'warning');
+            if (!description) {
+                descriptionField.classList.add('is-invalid');
                 return;
             }
 
@@ -514,20 +503,18 @@
             button.disabled = true;
 
             // Отправляем запрос на сервер
-            sendCompletionRequest('failed', description, file, button, originalText);
+            sendCompletionRequest('failed', description, button, originalText);
 
         });
 
         // Функция отправки запроса на сервер
-        function sendCompletionRequest(action, description, file, button, originalText) {
+        function sendCompletionRequest(action, description, button, originalText) {
             const formData = new FormData();
             formData.append('deviceId', currentDeviceId);
             formData.append('description', description);
             formData.append('action', action);
 
-            if (file) {
-                formData.append('file', file);
-            }
+
 
 
             // Добавляем CSRF токен в FormData

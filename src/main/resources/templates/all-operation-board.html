@@ -6,21 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Все операции</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link el="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/styles.css}">
     <style>
         .device-table {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             margin-bottom: 2rem;
         }
+
         .table-header {
             background: linear-gradient(135deg, #1d7acc, #1d7acc);
             color: white;
             padding: 1.5rem 2rem;
         }
+
         .table th {
             background-color: #f8f9fa;
             border-top: none;
@@ -28,10 +30,12 @@
             color: #495057;
             padding: 1rem;
         }
+
         .table td {
             padding: 1rem;
             vertical-align: middle;
         }
+
         .btn-complete {
             background: linear-gradient(135deg, #0b499b, #b7cce1);
             border: none;
@@ -40,46 +44,55 @@
             border-radius: 6px;
             transition: all 0.3s ease;
         }
+
         .btn-complete:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
         }
+
         .status-badge {
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
+
         .status-created {
             background-color: #e3f2fd;
             color: #1976d2;
         }
+
         .empty-state {
             text-align: center;
             padding: 3rem 2rem;
             color: #6c757d;
         }
+
         .empty-state i {
             font-size: 4rem;
             margin-bottom: 1rem;
             color: #dee2e6;
         }
+
         .confirm-modal .modal-header {
             background: linear-gradient(135deg, #1d7acc, #1d7acc);
             color: white;
         }
+
         .device-sn {
             font-family: 'Courier New', monospace;
             font-weight: 600;
             color: #2c3e50;
         }
+
         .search-container {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
         }
+
         .search-input {
             border: 2px solid #e9ecef;
             border-radius: 8px;
@@ -87,10 +100,12 @@
             font-size: 1rem;
             transition: all 0.3s ease;
         }
+
         .search-input:focus {
             border-color: #1d7acc;
             box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
         }
+
         .search-icon {
             position: absolute;
             right: 15px;
@@ -154,7 +169,6 @@
                                 <i class="fas fa-sort float-end mt-1"></i>
                             </th>
                             <th>Фамилия</th>
-                            <th>Файл</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -183,40 +197,70 @@
                                 <span class="device-sn" th:text="${operation.account.lastName}"></span>
                             </td>
 
-                            <td class="text-center">
-                                <!-- Проверяем наличие файла -->
-                                <th:block th:with="hasFile=${operation.fileData != null}">
-                                    <a th:if="${hasFile}"
-                                       th:href="@{'/file/' + ${operation.fileData.id}}"
-                                       class="text-success"
-                                       target="_blank"
-                                       data-bs-toggle="tooltip"
-                                       th:attr="data-bs-title='Скачать: ' + ${operation.fileData.newName}">
-                                        <i class="fas fa-cloud-download-alt fa-lg"></i>
-                                    </a>
-                                </th:block>
-                            </td>
-
                         </tr>
+
+                        <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+
+                            <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
+                                class="table-active">
+                                <td colspan="5">
+                                    <div class="ms-3">
+                                        <!-- PDF ссылка - используем firstDevice -->
+                                        <a th:if="${firstDevice != null && firstDevice.getUrlPDF() != null && !firstDevice.getUrlPDF().isEmpty()}"
+                                           th:href="${firstDevice.getUrlPDF()}"
+                                           class="btn btn-sm btn-success ms-2"
+                                           target="_blank">
+                                            <i class="fas fa-file-pdf"></i> PDF
+                                        </a>
+                                        <span th:unless="${firstDevice != null && firstDevice.getUrlPDF() != null && !firstDevice.getUrlPDF().isEmpty()}"
+                                              class="text-muted ms-2">
+                PDF нет
+            </span>
+
+                                        <!-- TXT ссылка - используем firstDevice -->
+                                        <a th:if="${firstDevice != null && firstDevice.getUrlTXT() != null && !firstDevice.getUrlTXT().isEmpty()}"
+                                           th:href="${firstDevice.getUrlTXT()}"
+                                           class="btn btn-sm btn-info ms-2"
+                                           target="_blank">
+                                            <i class="fas fa-file-alt"></i> TXT
+                                        </a>
+                                        <span th:unless="${firstDevice != null && firstDevice.getUrlTXT() != null && !firstDevice.getUrlTXT().isEmpty()}"
+                                              class="text-muted ms-2">
+                TXT нет
+            </span>
+
+                                        <!-- Добавим отображение серийного номера для ясности -->
+                                        <small class="text-muted ms-3">
+                                            (Устройство: <span th:text="${firstDevice.getSerialNumber()}"></span>)
+                                        </small>
+                                    </div>
+                                </td>
+                            </tr>
+
+
+                        </th:block>
+
                         </tbody>
                     </table>
+
                 </div>
             </div>
+
+
         </div>
     </main>
 </div>
 <div th:replace="~{fragments :: scripts}"></div>
 
 
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('searchInput');
         const tableRows = document.querySelectorAll('tbody tr');
         const visibleCount = document.getElementById('visibleCount');
         const noResults = document.getElementById('noResults');
 
-        searchInput.addEventListener('input', function() {
+        searchInput.addEventListener('input', function () {
             const searchTerm = this.value.toLowerCase().trim();
             let visibleRows = 0;
 
@@ -245,7 +289,7 @@
 
 
     //сортировка...
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const table = document.querySelector('.table');
         const tbody = table.querySelector('tbody');
         const headers = table.querySelectorAll('thead th');
@@ -299,8 +343,8 @@
 
                 // Для остальных столбцов - текстовое сравнение
                 return sortDirection === 'asc'
-                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
-                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
+                    ? aValue.localeCompare(bValue, 'ru', {sensitivity: 'base'})
+                    : bValue.localeCompare(aValue, 'ru', {sensitivity: 'base'});
             });
 
             // Удаляем все строки из tbody
@@ -346,7 +390,7 @@
         // Функция для поиска (если нужно сохранить)
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 const searchTerm = this.value.toLowerCase().trim();
                 const rows = table.querySelectorAll('tbody tr');
                 let visibleRows = 0;
