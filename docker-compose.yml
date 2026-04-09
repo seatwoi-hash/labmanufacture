@@ -107,3 +107,5 @@ networks:
 volumes:
   postgres_data:
   nextcloud_db_data:  # ← Добавлен том для NextCloud DB
+  nextcloud_data: # ← Объявление volume для данных Nextcloud
+  nextcloud_config:  # ← Объявление volume для конфига Nextcloud
