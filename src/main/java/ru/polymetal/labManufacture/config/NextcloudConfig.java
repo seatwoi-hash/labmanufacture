@@ -17,6 +17,7 @@ public class NextcloudConfig {
     private String username;
     private String password;
     private String webdavPath;
+    private String publicUrl;
 
     private SharesConfig shares = new SharesConfig();
 

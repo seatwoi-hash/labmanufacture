@@ -144,7 +144,7 @@ public class LinkServiceImpl implements LinkService {
         nextcloudService.uploadFile(newFileNamePdf, content);
         nextcloudService.uploadFile(newFileNameTxt, emptyContent);
 
-        String apiUrl = nextcloudConfig.getServerUrl() +
+        String apiUrl = nextcloudConfig.getPublicUrl() +
                 "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json";
 
         String shareName = "ссылка";
