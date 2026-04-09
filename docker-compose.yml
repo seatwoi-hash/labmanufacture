@@ -81,6 +81,8 @@ services:
         127.0.0.1
         192.168.37.125
         192.168.37.125:30540
+        nextcloud
+        nextcloud:80
 
       NEXTCLOUD_FILELOCKING_ENABLED: "true"
       NEXTCLOUD_FILELOCKING_TTL: "360"
