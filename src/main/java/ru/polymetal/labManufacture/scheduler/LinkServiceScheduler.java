@@ -23,7 +23,7 @@ public class LinkServiceScheduler {
         List<Device> devices = deviceRepository.findAll();
 
         for(Device d: devices) {
-            if(d.getUrlPDF().isEmpty()) {
+            if(d.getUrlPDF() == null || d.getUrlPDF().isEmpty()) {
                 linkService.createFile(d.getSerialNumber());
             }
         }
