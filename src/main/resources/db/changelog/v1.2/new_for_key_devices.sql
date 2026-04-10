@@ -12,9 +12,9 @@ ALTER TABLE devices
 ALTER TABLE devices
     ADD CONSTRAINT fk_devices_subtype
         FOREIGN KEY (subtype_id)
-            REFERENCES device_sub_types(id)
+            REFERENCES device_subtypes(id)
             ON DELETE SET NULL;
 
 --rollback
 -- ALTER TABLE devices DROP CONSTRAINT IF EXISTS fk_devices_subtype;
--- ALTER TABLE devices ADD CONSTRAINT fk_devices_subtype FOREIGN KEY (subtype_id) REFERENCES device_sub_types(id);
+-- ALTER TABLE devices ADD CONSTRAINT fk_devices_subtype FOREIGN KEY (subtype_id) REFERENCES device_subtypes(id);
