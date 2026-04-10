@@ -1,20 +1,20 @@
--- --liquibase formatted sql
---
--- --changeset Tatarinov A:049
--- --comment Set CASCADE SET NULL on subtype_id foreign key
--- --preconditions onFail:MARK_RAN
---
--- -- 1. Удаляем существующий foreign key constraint (если есть)
--- ALTER TABLE devices
---     DROP CONSTRAINT IF EXISTS fk_devices_subtype;
---
--- -- 2. Создаем новый с ON DELETE SET NULL
--- ALTER TABLE devices
---     ADD CONSTRAINT fk_devices_subtype
---         FOREIGN KEY (subtype_id)
---             REFERENCES device_subtypes(id)
---             ON DELETE SET NULL;
---
--- --rollback
--- -- ALTER TABLE devices DROP CONSTRAINT IF EXISTS fk_devices_subtype;
--- -- ALTER TABLE devices ADD CONSTRAINT fk_devices_subtype FOREIGN KEY (subtype_id) REFERENCES device_subtypes(id);
+--liquibase formatted sql
+
+--changeset Tatarinov A:049
+--comment Set CASCADE SET NULL on subtype_id foreign key
+--preconditions onFail:MARK_RAN
+
+-- 1. Удаляем существующий foreign key constraint (если есть)
+ALTER TABLE devices
+    DROP CONSTRAINT IF EXISTS fk_devices_subtype;
+
+-- 2. Создаем новый с ON DELETE SET NULL
+ALTER TABLE devices
+    ADD CONSTRAINT fk_devices_subtype
+        FOREIGN KEY (subtype_id)
+            REFERENCES device_subtypes(id)
+            ON DELETE SET NULL;
+
+--rollback
+-- ALTER TABLE devices DROP CONSTRAINT IF EXISTS fk_devices_subtype;
+-- ALTER TABLE devices ADD CONSTRAINT fk_devices_subtype FOREIGN KEY (subtype_id) REFERENCES device_subtypes(id);
