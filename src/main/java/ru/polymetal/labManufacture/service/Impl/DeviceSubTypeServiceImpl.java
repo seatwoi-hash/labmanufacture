@@ -1,7 +1,9 @@
 package ru.polymetal.labManufacture.service.Impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
@@ -78,7 +80,7 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         DeviceSubType deviceSubType = deviceSubTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Тип платы не найден"));
 
-        deviceSubType.setIsDeleted(true);
+        deviceSubTypeRepository.delete(deviceSubType);
     }
 
     @Override
@@ -90,7 +92,8 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
 
         if(file != null) {
             String newName = UUID.randomUUID().toString() + ".pdf";
-            nextcloudService.uploadFile(newName, file.getBytes());
+            this.uploadFile(newName,file.getBytes());
+
             deviceSubType.setFileName(newName);
         }
 
@@ -117,5 +120,13 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         UUID id = operation.getDevice().getSubtype().getId();
         return deviceSubTypeRepository.findIsTestTwoByIdAndNotDeleted(id);
     }
+
+    @Override
+    @Async
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void uploadFile(String newName, byte[] file) throws IOException {
+        nextcloudService.uploadFile(newName, file);
+    }
+
 
 }

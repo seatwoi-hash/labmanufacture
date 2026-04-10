@@ -93,6 +93,18 @@ public class NextcloudServiceImpl implements NextcloudService {
 
     }
 
+    @Override
+    public boolean fileExists(String fileName) throws IOException {
+        try {
+            String fileUrl = webdavBaseUrl + "/" + fileName;
+            // Sardine имеет метод exists
+            return sardine.exists(fileUrl);
+        } catch (Exception e) {
+            log.error("Error checking if file exists: {}", fileName, e);
+            return false;
+        }
+    }
+
     private String extractShareUrlFromResponse(String response) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

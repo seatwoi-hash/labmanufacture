@@ -133,16 +133,20 @@ public class LinkServiceImpl implements LinkService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createFile(String sn) throws IOException {
 
+
         Device device =
                 deviceRepository.findOneBySerialNumberAndIsDeletedFalse(sn).orElseThrow(() -> new RuntimeException(
                         "Плата не найдена"));
 
-        byte[] content = nextcloudService.downloadFile(device.getSubtype().getFileName());
-        byte[] emptyContent = new byte[0];
         String newFileNamePdf = device.getSerialNumber() + ".pdf";
         String newFileNameTxt = device.getSerialNumber() + ".txt";
-        nextcloudService.uploadFile(newFileNamePdf, content);
-        nextcloudService.uploadFile(newFileNameTxt, emptyContent);
+
+
+        boolean pdfExists = nextcloudService.fileExists(newFileNamePdf);
+        boolean txtExists = nextcloudService.fileExists(newFileNameTxt);
+
+
+
 
         String apiUrl = nextcloudConfig.getPublicUrl() +
                 "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json";
@@ -151,8 +155,31 @@ public class LinkServiceImpl implements LinkService {
         String filePathPdf = "/" + newFileNamePdf;
         String filePathTxt = "/" + newFileNameTxt;
 
-        this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device);
-        this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device);
+        if (!pdfExists) {
+            byte[] content = nextcloudService.downloadFile(device.getSubtype().getFileName());
+            nextcloudService.uploadFile(newFileNamePdf, content);
+            this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device);
+            log.info("PDF file created: {}", newFileNamePdf);
+        } else {
+            log.info("PDF file already exists: {}, skipping upload", newFileNamePdf);
+            // Если файл есть, но ссылки нет в БД - создаем только ссылку
+            if (device.getUrlPDF() == null || device.getUrlPDF().isEmpty()) {
+                this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device);
+            }
+        }
+
+        // Создаем TXT файл только если его нет
+        if (!txtExists) {
+            byte[] emptyContent = new byte[0];
+            nextcloudService.uploadFile(newFileNameTxt, emptyContent);
+            this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device);
+            log.info("TXT file created: {}", newFileNameTxt);
+        } else {
+            log.info("TXT file already exists: {}, skipping upload", newFileNameTxt);
+            if (device.getUrlTXT() == null || device.getUrlTXT().isEmpty()) {
+                this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device);
+            }
+        }
 
 
     }

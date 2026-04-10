@@ -17,7 +17,7 @@ public class LinkServiceScheduler {
     public final DeviceRepository deviceRepository;
     public final LinkService linkService;
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 */10 * * * *")
     public void taskWithCron() throws IOException {
         List<Device> devices = deviceRepository.findAll();
 

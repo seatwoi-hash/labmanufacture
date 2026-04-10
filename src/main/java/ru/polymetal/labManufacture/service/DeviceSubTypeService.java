@@ -21,4 +21,6 @@ public interface DeviceSubTypeService {
 
     Boolean findIsInstallationOneById(Operation operation);
     Boolean findIsTestTwoById(Operation operation);
+
+    void uploadFile(String newName, byte[] file) throws IOException;
 }

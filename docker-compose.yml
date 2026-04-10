@@ -67,7 +67,7 @@ services:
     restart: unless-stopped
 
   nextcloud:
-    image: nextcloud:apache
+    image: nextcloud:33.0
     environment:
       POSTGRES_HOST: nextcloud-db
       POSTGRES_DB: ${NEXTCLOUD_DB_NAME:-nextcloud}

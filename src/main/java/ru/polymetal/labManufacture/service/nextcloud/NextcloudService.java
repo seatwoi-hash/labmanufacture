@@ -10,4 +10,6 @@ public interface NextcloudService {
 
     byte[] downloadFile(String remotePath) throws IOException;
 
+    public boolean fileExists(String fileName) throws IOException;
+
 }
