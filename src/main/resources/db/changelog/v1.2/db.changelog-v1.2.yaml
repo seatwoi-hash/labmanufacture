@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/v1.2/add_new_column_device_subtypes.sql
   - include:
       file: db/changelog/v1.2/add_new_column_devices.sql
+  - include:
+      file: db/changelog/v1.2/drop_contr_devises.sql
