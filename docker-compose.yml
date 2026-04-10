@@ -86,6 +86,8 @@ services:
 
       NEXTCLOUD_FILELOCKING_ENABLED: "true"
       NEXTCLOUD_FILELOCKING_TTL: "360"
+      NEXTCLOUD_BACKGROUNDJOBS_MODE: "ajax"
+
     ports:
       - "30540:80"
     volumes:
