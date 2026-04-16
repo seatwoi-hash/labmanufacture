@@ -40,8 +40,6 @@ public class NextcloudServiceImpl implements NextcloudService {
 
     private final NextcloudConfig nextcloudConfig;
 
-    private final RestTemplate restTemplate;
-
     @Override
     public void uploadFile(String remotePath, byte[] content) throws IOException {
 

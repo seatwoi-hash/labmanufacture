@@ -6,26 +6,38 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.polymetal.labManufacture.config.NextcloudConfig;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.DeviceSubTypeRepository;
 import ru.polymetal.labManufacture.dto.DeviceSubTypeDto;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import ru.polymetal.labManufacture.service.nextcloud.NextcloudService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+
 @Service
 @Slf4j
 public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
+
     private final DeviceSubTypeRepository deviceSubTypeRepository;
     private final NextcloudService nextcloudService;
 
-    public DeviceSubTypeServiceImpl(DeviceSubTypeRepository deviceSubTypeRepository, NextcloudService nextcloudService) {
+    private final LinkService linkService;
+    private final NextcloudConfig nextcloudConfig;
+
+
+    public DeviceSubTypeServiceImpl(DeviceSubTypeRepository deviceSubTypeRepository,
+                                    NextcloudService nextcloudService, LinkService linkService,
+                                    NextcloudConfig nextcloudConfig) {
         this.deviceSubTypeRepository = deviceSubTypeRepository;
         this.nextcloudService = nextcloudService;
+        this.linkService = linkService;
+        this.nextcloudConfig = nextcloudConfig;
     }
 
 
@@ -49,17 +61,18 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     }
 
     @Override
+    @Transactional
     public void save(DeviceSubTypeDto deviceSubTypeDto, MultipartFile file) throws IOException {
 
-        if(deviceSubTypeRepository.findByName(deviceSubTypeDto.name()).isPresent()) {
+        if (deviceSubTypeRepository.findByName(deviceSubTypeDto.name()).isPresent()) {
             throw new RuntimeException("Такой тип уже существует");
         }
 
         DeviceSubType deviceSubType = new DeviceSubType();
 
-        if(file != null) {
-            String newName = UUID.randomUUID().toString() + ".pdf";
-            nextcloudService.uploadFile(newName, file.getBytes());
+        if (file != null) {
+            String newName = UUID.randomUUID() + ".pdf";
+            this.uploadFile(newName, file.getBytes(), deviceSubType);
             deviceSubType.setFileName(newName);
         }
 
@@ -90,10 +103,9 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
                 .orElseThrow(() -> new RuntimeException("Тип не найден"));
 
 
-        if(file != null) {
+        if (file != null) {
             String newName = UUID.randomUUID().toString() + ".pdf";
-            this.uploadFile(newName,file.getBytes());
-
+            this.uploadFile(newName, file.getBytes(), deviceSubType);
             deviceSubType.setFileName(newName);
         }
 
@@ -124,9 +136,18 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     @Override
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void uploadFile(String newName, byte[] file) throws IOException {
-        nextcloudService.uploadFile(newName, file);
-    }
+    public void uploadFile(String newName, byte[] file, DeviceSubType deviceSubType) throws IOException {
 
+
+        if (file.length > 0) {
+            nextcloudService.uploadFile(newName, file);
+            linkService.createPublicShareDeviceSubType(
+                    newName,
+                    deviceSubType
+            );
+        } else {
+            throw new RuntimeException("Файл пустой " + newName);
+        }
+    }
 
 }

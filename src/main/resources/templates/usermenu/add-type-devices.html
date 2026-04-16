@@ -189,6 +189,8 @@
                         <th>Описание</th>
                         <th>Дата создания</th>
                         <th>Действие</th>
+                        <th>Файл</th>
+
                     </tr>
                     </thead>
 
@@ -210,6 +212,22 @@
                                     th:data-subtype-id="${subtype.id}">
                                 <i class="fas fa-trash"></i>
                             </button>
+                        </td>
+                        <td class="text-center">
+                            <!-- Проверяем наличие файла и URL -->
+                            <th:block th:with="hasFile=${subtype.getUrlPDF() != null && !subtype.getUrlPDF().isEmpty()}">
+                                <a th:if="${hasFile}"
+                                   th:href="${subtype.getUrlPDF()}"
+                                   class="text-success"
+                                   target="_blank"
+                                   data-bs-toggle="tooltip"
+                                   th:attr="data-bs-title='Открыть файл: ' + ${subtype.getUrlPDF()}">
+                                    <i class="fas fa-cloud-download-alt fa-lg"></i>
+                                </a>
+                                <span th:unless="${hasFile}" class="text-muted">
+            <i class="fas fa-times-circle fa-lg" data-bs-toggle="tooltip" title="Файл не загружен"></i>
+        </span>
+                            </th:block>
                         </td>
                     </tr>
                     </tbody>

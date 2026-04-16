@@ -17,6 +17,7 @@ import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.dto.DeviceSubTypeDto;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +28,7 @@ public class DeviceTypeController {
 
     private final DeviceSubTypeService deviceSubTypeService;
     private final AccountRepository accountRepository;
+
 
 
     public DeviceTypeController(DeviceSubTypeService deviceSubTypeService, AccountRepository accountRepository) {
@@ -73,6 +75,7 @@ public class DeviceTypeController {
 
         try {
             deviceSubTypeService.save(deviceSubTypeDto, file);
+
         } catch (RuntimeException e) {
             return "usermenu/add-type-devices";
         } catch (IOException e) {

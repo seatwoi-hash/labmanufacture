@@ -18,13 +18,15 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ru.polymetal.labManufacture.config.NextcloudConfig;
 import ru.polymetal.labManufacture.data.models.Device;
+import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.repository.DeviceRepository;
+import ru.polymetal.labManufacture.data.repository.DeviceSubTypeRepository;
 import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import ru.polymetal.labManufacture.service.nextcloud.NextcloudService;
 import java.io.IOException;
 import java.util.Base64;
 import org.springframework.scheduling.annotation.Async;
-
+import ru.polymetal.labManufacture.service.nextcloud.ShareCallback;
 
 
 @Service
@@ -32,20 +34,19 @@ import org.springframework.scheduling.annotation.Async;
 @RequiredArgsConstructor
 public class LinkServiceImpl implements LinkService {
 
-    private final Sardine sardine;
-
-    private final String webdavBaseUrl;
 
     private final NextcloudConfig nextcloudConfig;
     private final DeviceRepository deviceRepository;
+    private final DeviceSubTypeRepository deviceSubTypeRepository;
+
     private final NextcloudService nextcloudService;
 
 
 
     @Override
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void createPublicShare(String sn, String filePath, String shareName, String apiUrl, Device device) throws IOException {
+    @Transactional
+    public void createPublicShare(String sn, String filePath, String shareName, String apiUrl,
+                                  Device device) throws IOException {
 
 
 // Формируем тело запроса (application/x-www-form-urlencoded)
@@ -65,6 +66,12 @@ public class LinkServiceImpl implements LinkService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.set("OCS-APIRequest", "true");
         headers.set("User-Agent", "MyApp/1.0");
+
+        headers.setCacheControl("no-cache, no-store, must-revalidate");
+        headers.setPragma("no-cache");
+        headers.setExpires(0);
+        headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.set("Pragma", "no-cache");
 
 // Устанавливаем базовую аутентификацию
         String auth = nextcloudConfig.getUsername() + ":" + nextcloudConfig.getPassword();
@@ -128,6 +135,8 @@ public class LinkServiceImpl implements LinkService {
         }
     }
 
+
+
     @Override
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -154,9 +163,9 @@ public class LinkServiceImpl implements LinkService {
         String shareName = "ссылка";
         String filePathPdf = "/" + newFileNamePdf;
         String filePathTxt = "/" + newFileNameTxt;
+        byte[] content = nextcloudService.downloadFile(device.getSubtype().getFileName());
 
-        if (!pdfExists) {
-            byte[] content = nextcloudService.downloadFile(device.getSubtype().getFileName());
+        if (!pdfExists && content.length > 0) {
             nextcloudService.uploadFile(newFileNamePdf, content);
             this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device);
             log.info("PDF file created: {}", newFileNamePdf);
@@ -181,11 +190,103 @@ public class LinkServiceImpl implements LinkService {
             }
         }
 
-
     }
 
 
+    @Override
+    @Async
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void createPublicShareDeviceSubType(String name,
+                                  DeviceSubType deviceSubType) throws IOException {
 
+        boolean pdfExists = nextcloudService.fileExists(name);
 
+        if(pdfExists) {
+            String filePath = "/" + name;
+            String apiUrl = nextcloudConfig.getPublicUrl() +
+                    "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json";
+            String shareName = "ссылка";
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+
+            body.add("path", filePath);  // Убедитесь, что путь правильный
+            body.add("shareType", "3");
+            body.add("permissions", "31");
+
+            if (shareName != null && !shareName.isEmpty()) {
+                body.add("name", shareName);
+            }
+
+// Создаем заголовки
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.set("OCS-APIRequest", "true");
+            headers.set("User-Agent", "MyApp/1.0");
+
+            headers.setCacheControl("no-cache, no-store, must-revalidate");
+            headers.setPragma("no-cache");
+            headers.setExpires(0);
+            headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+            headers.set("Pragma", "no-cache");
+
+// Устанавливаем базовую аутентификацию
+            String auth = nextcloudConfig.getUsername() + ":" + nextcloudConfig.getPassword();
+            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
+            String authHeader = "Basic " + new String(encodedAuth);
+            headers.set("Authorization", authHeader);
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+            log.debug("Creating share with params: {}", body);
+            log.debug("URL: {}", apiUrl);
+            log.debug("Headers: {}", headers);
+
+            try {
+                // Важно: используем FormHttpMessageConverter
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(0, new FormHttpMessageConverter());
+
+                ResponseEntity<JsonNode> response = restTemplate.exchange(
+                        apiUrl,
+                        HttpMethod.POST,
+                        request,
+                        JsonNode.class
+                );
+
+                log.debug("Response: {}", response.getBody());
+
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    JsonNode responseBody = response.getBody();
+
+                    // Проверяем статус ответа OCS
+                    if (responseBody != null && responseBody.has("ocs")) {
+                        JsonNode ocs = responseBody.get("ocs");
+                        JsonNode meta = ocs.get("meta");
+                        String status = meta.get("status").asText();
+
+                        if ("ok".equals(status)) {
+                            // Извлекаем URL из JSON ответа
+                            JsonNode data = ocs.get("data");
+                            String shareUrl = data.get("url").asText();
+                            log.info("Public share created: {}", shareUrl);
+                            if (filePath.contains(".pdf")) {
+                                deviceSubType.setUrlPDF(shareUrl);
+                                deviceSubTypeRepository.save(deviceSubType);
+                            }
+                        } else {
+                            String message = meta.get("message").asText();
+                            throw new IOException("OCS API error: " + message);
+                        }
+                    }
+                }
+
+                //throw new IOException("Failed to create share: " + response.getStatusCode());
+
+            } catch (Exception e) {
+                log.error("Error creating public share", e);
+                throw new IOException("Failed to create share: " + e.getMessage(), e);
+            }
+        }
+    }
 
 }
