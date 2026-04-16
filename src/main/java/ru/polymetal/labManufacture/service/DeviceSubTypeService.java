@@ -10,17 +10,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DeviceSubTypeService {
+
     DeviceSubType findByName(String name);
+
     Optional<DeviceSubType> findById(UUID id);
 
     List<DeviceSubType> findAll();
 
     void save(DeviceSubTypeDto deviceSubTypeDto, MultipartFile file) throws IOException;
+
     void delete(UUID id);
+
     void edite(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file) throws IOException;
 
     Boolean findIsInstallationOneById(Operation operation);
+
     Boolean findIsTestTwoById(Operation operation);
 
-    void uploadFile(String newName, byte[] file) throws IOException;
+    void uploadFile(String newName, byte[] file, DeviceSubType deviceSubType) throws IOException;
+
 }
