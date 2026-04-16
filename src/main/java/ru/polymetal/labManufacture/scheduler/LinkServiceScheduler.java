@@ -34,6 +34,12 @@ public class LinkServiceScheduler {
                 linkService.createFile(d.getSerialNumber());
             }
         }
+
+       for(Device d: devices) {
+           if(d.getUrlTXT() == null || d.getUrlTXT().isEmpty()) {
+               linkService.createFile(d.getSerialNumber());
+           }
+       }
     }
 
     @Scheduled(cron = "0 0 * * * *")
