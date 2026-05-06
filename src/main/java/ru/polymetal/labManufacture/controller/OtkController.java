@@ -35,6 +35,7 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHE
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_4_2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_6;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.READY;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR1;
@@ -45,6 +46,7 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR5;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR6;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL3;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.VARNISH;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
@@ -87,14 +89,20 @@ public class OtkController {
     @GetMapping("/otk1-board")
     public String showOtkOneDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = Stream.concat(
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(SIDE2).getId()
-                ).stream(),
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(REPAIR1).getId()
-                ).stream()
-        ).collect(Collectors.toList());
+        List<Operation> devices = new ArrayList<>();
+
+        devices.addAll(operationService.findByStatusIdAndIsDelete(
+                deviceStatusService.findByName(SIDE2).getId()
+        ));
+
+        devices.addAll(operationService.findByStatusIdAndIsDelete(
+                deviceStatusService.findByName(REPAIR1).getId()
+        ));
+
+        devices.addAll(operationService.findByStatusIdAndIsDelete(
+                deviceStatusService.findByName(TECHNICAL3).getId()
+        ));
+
 
 
         model.addAttribute("devices", devices);
@@ -128,7 +136,7 @@ public class OtkController {
         UUID operationIdTech = null;
 
         if ("passed".equals(action)) {
-            if (operation.getStatus().getName().equals(SIDE2)) {
+            if (operation.getStatus().getName().equals(SIDE2) || operation.getStatus().getName().equals(TECHNICAL3)) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR1)) {
@@ -150,10 +158,6 @@ public class OtkController {
         if (!isInstallation && !"failed".equals(action)) {
           operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL);
         }
-
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
-
 
         return ResponseEntity.ok().build();
     }
@@ -406,7 +410,8 @@ public class OtkController {
                         QUALITY_CHECK_5_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(WASHING2)) {
-                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_5,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        QUALITY_CHECK_5_1_1,
                         device.getDescription());
             }
         } else if ("failed_wash".equals(action)) {
@@ -421,6 +426,10 @@ public class OtkController {
                         FAIL_QUALITY_CHECK_5,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(WASHING2)) {
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_5_1,
+                        device.getDescription());
+            } else if (operation.getStatus().getName().equals(REPAIR6)) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
                         FAIL_QUALITY_CHECK_5_1,
                         device.getDescription());

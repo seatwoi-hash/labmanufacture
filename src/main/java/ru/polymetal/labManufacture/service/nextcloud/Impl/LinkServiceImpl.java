@@ -199,6 +199,10 @@ public class LinkServiceImpl implements LinkService {
     public void createPublicShareDeviceSubType(String name,
                                   DeviceSubType deviceSubType) throws IOException {
 
+//        DeviceSubType fresh =
+//                deviceSubTypeRepository.findById(deviceSubType.getId()).orElseThrow(() -> new RuntimeException(
+//                        "Тип не найден"));
+
         boolean pdfExists = nextcloudService.fileExists(name);
 
         if(pdfExists) {

@@ -82,6 +82,8 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         deviceSubType.setDescription(deviceSubTypeDto.description());
         deviceSubType.setIsInstallationOne(deviceSubTypeDto.isInstallationOne());
         deviceSubType.setIsTestTwo(deviceSubTypeDto.isTestTwo());
+        deviceSubType.setIsSideTwo(deviceSubTypeDto.isSideTwo());
+
 
         deviceSubTypeRepository.save(deviceSubType);
 
@@ -103,7 +105,7 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
                 .orElseThrow(() -> new RuntimeException("Тип не найден"));
 
 
-        if (file != null) {
+        if (file != null && !file.isEmpty() && file.getSize() > 0) {
             String newName = UUID.randomUUID().toString() + ".pdf";
             this.uploadFile(newName, file.getBytes(), deviceSubType);
             deviceSubType.setFileName(newName);
@@ -111,6 +113,7 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
 
         deviceSubType.setIsTestTwo(deviceSubTypeDto.isTestTwo());
         deviceSubType.setIsInstallationOne(deviceSubTypeDto.isInstallationOne());
+        deviceSubType.setIsSideTwo(deviceSubTypeDto.isSideTwo());
         deviceSubType.setName(deviceSubTypeDto.name());
         deviceSubType.setVersionType(deviceSubTypeDto.versionType());
         deviceSubType.setSnType(deviceSubTypeDto.snType());
@@ -132,6 +135,11 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         UUID id = operation.getDevice().getSubtype().getId();
         return deviceSubTypeRepository.findIsTestTwoByIdAndNotDeleted(id);
     }
+
+    @Override
+    public Boolean findIsSideTwoById(Operation operation) {
+        UUID id = operation.getDevice().getSubtype().getId();
+        return deviceSubTypeRepository.findIsSideTwoByIdAndNotDeleted(id);    }
 
     @Override
     @Async

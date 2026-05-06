@@ -440,34 +440,11 @@
             sendCompletionRequest('passed', description, button, originalText);
         });
 
-        // Обработчик подтверждения для "Не пройдено"
         document.getElementById('confirmFailed').addEventListener('click', function() {
-            if (!currentDeviceId || currentAction !== 'failed_wash') return;
-
-            const descriptionField = document.getElementById('failedDescription');
-            const description = descriptionField.value.trim();
-
-            // Валидация обязательного поля
-            if (!description) {
-                descriptionField.classList.add('is-invalid');
+            // Проверяем, что действие либо failed_wash, либо failed_repair
+            if (!currentDeviceId || (currentAction !== 'failed_wash' && currentAction !== 'failed_repair')) {
                 return;
             }
-
-            const button = this;
-            const originalText = button.innerHTML;
-
-
-
-            // Показываем индикатор загрузки
-            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
-            button.disabled = true;
-
-            // Отправляем запрос на сервер
-            sendCompletionRequest('failed', description, button, originalText);
-        });
-
-        document.getElementById('confirmFailed').addEventListener('click', function() {
-            if (!currentDeviceId || currentAction !== 'failed_repair') return;
 
             const descriptionField = document.getElementById('failedDescription');
             const description = descriptionField.value.trim();
@@ -485,8 +462,8 @@
             button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
             button.disabled = true;
 
-            // Отправляем запрос на сервер
-            sendCompletionRequest('failed_repair', description, button, originalText);
+            // Отправляем currentAction (не hardcoded!)
+            sendCompletionRequest(currentAction, description, button, originalText);
         });
 
         // Функция отправки запроса на сервер

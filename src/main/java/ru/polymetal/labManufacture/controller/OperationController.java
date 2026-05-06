@@ -36,13 +36,16 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL3;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.VARNISH;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
+import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
+import ru.polymetal.labManufacture.service.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.OperationService;
@@ -58,10 +61,16 @@ public class OperationController {
     private final AccountRepository accountRepository;
     private final OperationService operationService;
     private final DeviceStatusService deviceStatusService;
-    public OperationController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService) {
+    private final DeviceSubTypeService deviceSubTypeService;
+    private final DeviceService deviceService;
+
+
+    public OperationController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, DeviceService deviceService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
         this.deviceStatusService = deviceStatusService;
+        this.deviceSubTypeService = deviceSubTypeService;
+        this.deviceService = deviceService;
     }
 
     @GetMapping("/mone-board")
@@ -90,7 +99,17 @@ public class OperationController {
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
 
-        operationService.completeOperationWithoutDescription(deviceId, account, SIDE1);
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        Boolean isInstallation = deviceSubTypeService.findIsSideTwoById(operation);
+        UUID operationIdTech = null;
+
+        operationIdTech = operationService.completeOperationWithoutDescription(deviceId, account, SIDE1);
+
+        if (!isInstallation ) {
+            operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL3);
+        }
 
         return ResponseEntity.ok().build();
     }
@@ -163,8 +182,13 @@ public class OperationController {
                 .sorted(Comparator.comparing(Operation::getCreatedTime).reversed())
                 .toList();
 
+        List<Device> devices = deviceService.findAll().stream()
+                .filter(a -> a.getOperations().stream()
+                        .noneMatch(op -> op.getStatus().equals(READY)))
+                .toList();
 
-        model.addAttribute("devices", operations);
+
+        model.addAttribute("devices", devices);
         Account account = accountRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
@@ -178,7 +202,7 @@ public class OperationController {
 
         List<Operation> operations =
                 operationService.findBySerialNumber(sn).stream().filter(a -> !(a.getStatus().getName().equals(TECHNICAL)
-                        || a.getStatus().getName().equals(TECHNICAL2)))
+                        || a.getStatus().getName().equals(TECHNICAL2) || a.getStatus().getName().equals(TECHNICAL3)))
                         .sorted(Comparator.comparing(a -> a.getCreatedTime())).collect(Collectors.toList());
 
         model.addAttribute("operations", operations);

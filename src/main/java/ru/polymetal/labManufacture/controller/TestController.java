@@ -21,6 +21,7 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHE
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_4_2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR6;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST_2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
@@ -30,6 +31,7 @@ import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.dto.FileUploadRequestDto;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
+import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.FileService;
 import ru.polymetal.labManufacture.service.OperationService;
 import java.io.IOException;
@@ -47,14 +49,17 @@ public class TestController {
     private final OperationService operationService;
     private final DeviceStatusService deviceStatusService;
     public final FileService fileService;
+    private final DeviceSubTypeService deviceSubTypeService;
+
 
 
     public TestController(AccountRepository accountRepository, OperationService operationService,
-                          DeviceStatusService deviceStatusService, FileService fileService) {
+                          DeviceStatusService deviceStatusService, FileService fileService, DeviceSubTypeService deviceSubTypeService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
         this.deviceStatusService = deviceStatusService;
         this.fileService = fileService;
+        this.deviceSubTypeService = deviceSubTypeService;
     }
 
     @GetMapping("/test-board")
@@ -100,6 +105,10 @@ public class TestController {
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+        Boolean isTestOne = deviceSubTypeService.findIsTestTwoById(operation);
+
         if ("passed".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account, TEST,
                     device.getDescription());
@@ -111,6 +120,11 @@ public class TestController {
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException(
                 "Операция не" +
                 " найдена"));
+
+        if (!isTestOne && !"failed".equals(action)) {
+            operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account,
+                    TECHNICAL2);
+        }
 
         return ResponseEntity.ok().build();
 
@@ -150,15 +164,26 @@ public class TestController {
                                              @ModelAttribute("device") Operation device,
                                              Authentication authentication) throws IOException {
         UUID operationIdTech = null;
+
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        Boolean isTestTwoById = deviceSubTypeService.findIsTestTwoById(operation);
+
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
+
         if ("passed".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account, TEST_2,
                     device.getDescription());
         } else if ("failed".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST_2,
                     device.getDescription());
+        }
+
+        if(!isTestTwoById) {
+            operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL2);
         }
 
         Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException(

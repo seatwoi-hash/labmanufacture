@@ -55,5 +55,38 @@ public class Device {
     private LocalDateTime createdTime;
 
      @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+     @OrderBy("createdTime DESC")
      private List<Operation> operations;
+
+
+
+    public Operation getDisplayStatus() {
+        if (operations == null || operations.isEmpty()) {
+            return null;
+        }
+
+        // Получаем последний статус
+        Operation lastOperation = operations.get(0);
+        String lastStatus = lastOperation.getStatus().getName();
+
+        // Проверяем, является ли последний статус Technical/Technical2/Technical3
+        if (isTechnicalStatus(lastStatus)) {
+            // Если есть хотя бы 2 операции, показываем предпоследнюю
+            if (operations.size() >= 2) {
+                Operation secondLastOperation = operations.get(1);
+                return secondLastOperation;
+            } else {
+                // Если только одна операция, показываем её
+                return lastOperation;
+            }
+        }
+
+        return lastOperation;
+    }
+
+    private boolean isTechnicalStatus(String status) {
+        return "Technical".equals(status)
+                || "Technical2".equals(status)
+                || "Technical3".equals(status);
+    }
 }

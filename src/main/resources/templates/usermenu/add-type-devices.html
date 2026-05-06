@@ -304,6 +304,21 @@
                                         Тестировка №2
                                     </label>
                                 </div>
+
+
+                                <div class="option-item">
+                                    <input type="checkbox"
+                                           id="isSideTwo"
+                                           name="isSideTwo"
+                                           value="true"
+                                           class="option-checkbox"
+                                           th:checked="${subtype?.isSideTwo == null ? true : subtype.isSideTwo}">
+                                    <input type="hidden" name="_isSideTwo" value="on"/>
+                                    <label for="isSideTwo" class="option-label">
+                                        Монтаж сторона №2
+                                    </label>
+                                </div>
+
                             </div>
 
 

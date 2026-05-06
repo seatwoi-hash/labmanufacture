@@ -17,6 +17,7 @@ import ru.polymetal.labManufacture.service.OperationService;
 import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import ru.polymetal.labManufacture.service.nextcloud.NextcloudService;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -89,7 +90,12 @@ public class DeviceServiceImpl implements DeviceService {
     @Transactional
     public void delete(UUID id) {
         Device device = deviceRepository.findById(id).orElseThrow(() -> new RuntimeException("Устройство не найдено"));
-        device.setIsDeleted(true);
+        deviceRepository.delete(device);
+    }
+
+    @Override
+    public List<Device> findAll() {
+        return deviceRepository.findAll();
     }
 
     public Device buildDevice(DeviceDto deviceDto, DeviceSubType subtype) {

@@ -10,6 +10,7 @@ public record DeviceSubTypeDto(String name,
                                Integer snType,
                                Integer versionType,
                                Boolean isInstallationOne,
-                               Boolean isTestTwo) {
+                               Boolean isTestTwo,
+                               Boolean isSideTwo) {
 
 }

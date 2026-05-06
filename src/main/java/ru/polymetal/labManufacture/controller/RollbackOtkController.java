@@ -1,0 +1,394 @@
+package ru.polymetal.labManufacture.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_2_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_3;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_4;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_4_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_4_2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5_1_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_6;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_1_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_2_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_3;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_4;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_4_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_4_2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_6;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.READY;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR3;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR4;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR5;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR6;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
+import ru.polymetal.labManufacture.data.models.Account;
+import ru.polymetal.labManufacture.data.models.Operation;
+import ru.polymetal.labManufacture.data.repository.AccountRepository;
+import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.FileService;
+import ru.polymetal.labManufacture.service.OperationService;
+import java.io.IOException;
+import java.util.UUID;
+
+@Controller
+@RequestMapping("/device")
+public class RollbackOtkController {
+
+    private final AccountRepository accountRepository;
+    private final OperationService operationService;
+    private final DeviceSubTypeService deviceSubTypeService;
+    public final FileService fileService;
+
+    public RollbackOtkController(AccountRepository accountRepository, OperationService operationService,
+                        DeviceSubTypeService deviceSubTypeService, FileService fileService) {
+        this.accountRepository = accountRepository;
+        this.operationService = operationService;
+        this.deviceSubTypeService = deviceSubTypeService;
+        this.fileService = fileService;
+    }
+
+    @PostMapping("/otk1-board/rollback")
+    @ResponseBody
+    public ResponseEntity<?> completeOtkOne(@RequestParam UUID deviceId,
+                                            @RequestParam String action,
+                                            @ModelAttribute("device") Operation device,
+                                            Authentication authentication) throws IOException {
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
+                        "Пользователь не найден"));
+
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        UUID operationIdTech = null;
+
+
+        Boolean isSideTwo = deviceSubTypeService.findIsTestTwoById(operation);
+
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_1) && isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2,
+                    "Возвращён  - " + device.getDescription());
+        } else if (operation.getStatus().getName().equals(QUALITY_CHECK_1) && !isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_1_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1) && isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2,
+                    "Возвращён  - " + device.getDescription());
+        } else if (operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1) && !isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(TECHNICAL)  && isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2,
+                    "Возвращён  - " + device.getDescription());
+        } else if (operation.getStatus().getName().equals(TECHNICAL) && !isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(TECHNICAL2)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2,
+                    "Возвращён  - " + device.getDescription());
+        } else if (operation.getStatus().getName().equals(TECHNICAL2) && !isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/otk2-board/rollback")
+    @ResponseBody
+    public ResponseEntity<?> completeOtkTwo(@RequestParam UUID deviceId,
+                                            @RequestParam String action,
+                                            @ModelAttribute("device") Operation device,
+                                            Authentication authentication) throws IOException {
+
+
+
+        UUID operationIdTech = null;
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
+                        "Пользователь не найден"));
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_2)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(REPAIR2)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_2_1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_2)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_2_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR2,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+
+
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        return ResponseEntity.ok().build();
+
+    }
+
+
+    @PostMapping("/otk3-board/rollback")
+    @ResponseBody
+    public ResponseEntity<?> completeOtkThree(@RequestParam UUID deviceId,
+                                              @RequestParam String action,
+                                              @ModelAttribute("device") Operation device,
+                                              Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
+                        "Пользователь не найден"));
+
+
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_3)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR3,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_3)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR3,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PostMapping("/otk4-board/rollback")
+    @ResponseBody
+    public ResponseEntity<?> completeOtkFour(@RequestParam UUID deviceId,
+                                             @RequestParam String action,
+                                             @ModelAttribute("device") Operation device,
+                                             Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
+                        "Пользователь не найден"));
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_4)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_4_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR4,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_4_2)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR5,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR4,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4_2)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR5,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/otk5-board/rollback")
+    @ResponseBody
+    public ResponseEntity<?> completeOtkFive(@RequestParam UUID deviceId,
+                                             @RequestParam String action,
+                                             @ModelAttribute("device") Operation device,
+                                             Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
+                        "Пользователь не найден"));
+
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        Boolean isInstallation = deviceSubTypeService.findIsInstallationOneById(operation);
+        Boolean isTestTwo = deviceSubTypeService.findIsTestTwoById(operation);
+        Boolean isSideOne = deviceSubTypeService.findIsTestTwoById(operation);
+
+
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_5)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_5_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR6,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_5_1_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING2,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5_1_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING2,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5_1)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR6,
+                    "Возвращён  - " + "Возвращён  - " + device.getDescription());
+        }
+
+
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/otk6-board/rollback")
+    @ResponseBody
+    public ResponseEntity<?> completeOtkSix(@RequestParam UUID deviceId,
+                                            @RequestParam String action,
+                                            @ModelAttribute("device") Operation device,
+                                            Authentication authentication) throws IOException {
+        UUID operationIdTech = null;
+
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
+                        "Пользователь не найден"));
+
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        if(operation.getStatus().getName().equals(READY)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_6)) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1,
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
+                " найдена"));
+
+
+        return ResponseEntity.ok().build();
+    }
+
+}

@@ -33,13 +33,18 @@ public class OperationServiceImpl implements OperationService {
 
     private static final Map<String, List<String>> ROLE_STATUS_MAPPING = Map.of(
             "operator", Arrays.asList(CREATE, SIDE1),
-            "quality", Arrays.asList(SIDE2, REPAIR1, REPAIR2, REPAIR3, INSTALLATION, WASHING1, VARNISH),
-            "output", Arrays.asList(QUALITY_CHECK_1),
-            "repairman", Arrays.asList(FAIL_QUALITY_CHECK_1, FAIL_QUALITY_CHECK_2,
-                    FAIL_QUALITY_CHECK_3, FAIL_QUALITY_CHECK_4, FAIL_TEST),
-            "washer", Arrays.asList(QUALITY_CHECK_2, TEST),
-            "varnisher", Arrays.asList(WASHING2),
-            "testerb", Arrays.asList(QUALITY_CHECK_4, QUALITY_CHECK_3),
+            "quality", Arrays.asList(SIDE2, REPAIR1, REPAIR2, REPAIR3, REPAIR4, REPAIR5, INSTALLATION, INSTALLATION2,
+                    REPAIR6,
+                    WASHING1,
+                    WASHING2,
+                    VARNISH),
+            "output", Arrays.asList(QUALITY_CHECK_1, TEST, QUALITY_CHECK_1_1),
+            "repairman", Arrays.asList(FAIL_QUALITY_CHECK_1,FAIL_QUALITY_CHECK_1_1, FAIL_QUALITY_CHECK_2,
+                    FAIL_QUALITY_CHECK_2_1, FAIL_QUALITY_CHECK_3, FAIL_QUALITY_CHECK_4, FAIL_QUALITY_CHECK_4_1,
+                    FAIL_TEST, FAIL_TEST_2, FAIL_QUALITY_CHECK_4_2, FAIL_QUALITY_CHECK_5, FAIL_QUALITY_CHECK_5_1),
+            "washer", Arrays.asList(TEST_2, QUALITY_CHECK_5_1, TECHNICAL2, FAIL_QUALITY_CHECK_5_1_1),
+            "varnisher", Arrays.asList(QUALITY_CHECK_5, FAIL_QUALITY_CHECK_6, QUALITY_CHECK_5_1_1),
+            "testerb", Arrays.asList(QUALITY_CHECK_2, QUALITY_CHECK_2_1, QUALITY_CHECK_4, QUALITY_CHECK_3, TECHNICAL, QUALITY_CHECK_4_1, QUALITY_CHECK_4_2),
             "user", Arrays.asList(CREATE)
     );
 
@@ -80,8 +85,10 @@ public class OperationServiceImpl implements OperationService {
 
 
             Map.entry(WASHING1, "ОТК №5"),
+            Map.entry(REPAIR3, "ОТК №3"),
 
             Map.entry(QUALITY_CHECK_5, "Нанесение компаунда"),
+            Map.entry(QUALITY_CHECK_5_1_1, "Нанесение компаунда"),
             Map.entry(FAIL_QUALITY_CHECK_5, "Ремонт №6"),
             Map.entry(FAIL_QUALITY_CHECK_5_1_1, "Отмывка №2"),
             Map.entry(WASHING2, "ОТК №5"),
@@ -90,7 +97,9 @@ public class OperationServiceImpl implements OperationService {
             Map.entry(QUALITY_CHECK_6, "Готовые платы"),
             Map.entry(FAIL_QUALITY_CHECK_6, "Нанесение компаунда"),
             Map.entry(TECHNICAL, "Тестировка №1"),
-            Map.entry(TECHNICAL2, "Отмывка №1")
+            Map.entry(TECHNICAL2, "Отмывка №1"),
+            Map.entry(TECHNICAL3, "ОТК №1")
+
     );
 
     @Override

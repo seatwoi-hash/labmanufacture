@@ -16,13 +16,19 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALIT
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_4_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR6;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL3;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.VARNISH;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.OperationService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -46,14 +52,22 @@ public class VarnishController {
     @GetMapping("/varnish-board")
     public String showVarnishDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = Stream.concat(
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(QUALITY_CHECK_5).getId()
-                ).stream(),
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(FAIL_QUALITY_CHECK_6).getId()
-                ).stream()
-        ).collect(Collectors.toList());
+        List<Operation> devices = new ArrayList<>();
+
+        devices.addAll(operationService.findByStatusIdAndIsDelete(
+                deviceStatusService.findByName(QUALITY_CHECK_5).getId()
+        ));
+
+        devices.addAll(operationService.findByStatusIdAndIsDelete(
+                deviceStatusService.findByName(FAIL_QUALITY_CHECK_6).getId()
+        ));
+
+        devices.addAll(operationService.findByStatusIdAndIsDelete(
+                deviceStatusService.findByName(QUALITY_CHECK_5_1_1).getId()
+        ));
+        devices.addAll(operationService.findByStatusIdAndIsDelete(
+                deviceStatusService.findByName(TECHNICAL2).getId()
+        ));
 
         model.addAttribute("devices", devices);
 
