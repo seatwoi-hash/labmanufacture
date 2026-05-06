@@ -176,25 +176,24 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="operation : ${devices}">
+                        <tr th:each="device : ${devices}">
                             <td>
-                                <a th:href="@{/device/operation-board/{sn}(sn=${operation.device.getSerialNumber()})}"
+                                <a th:href="@{/device/operation-board/{sn}(sn=${device.getSerialNumber()})}"
                                    style="text-decoration: none; color: inherit;">
-                                    <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
+                                    <span class="device-sn" th:text="${device.getSerialNumber()}"></span>
                                 </a>
                             </td>
-                            <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
+                            <td th:text="${device.subtype?.name} ?: 'Не указан'">Тип</td>
                             <td>
-                                <span class="device-op" th:text="${operation.getStatus().description}"></span>
-                            </td>
+                                <span class="device-op" th:text="${device.getDisplayStatus().getStatus().getDescription()}"></span>                            </td>
                             <td>
-                                        <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                        <span th:text="${#temporals.format(device.getDisplayStatus().getCreatedTime(), 'dd.MM.yyyy HH:mm')}">
                                         </span>
                             </td>
                             <td class="action-buttons">
                                 <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
                                     <button class="btn btn-sm btn-outline-danger delete-btn"
-                                        th:data-device-id="${operation.getDevice().getId()}">
+                                        th:data-device-id="${device.getId()}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </th:block>

@@ -22,6 +22,7 @@ public class DeviceStatusCodes {
     public static final String QUALITY_CHECK_4_2 = "Quality_check_№4.2";
     public static final String QUALITY_CHECK_5 = "Quality_check_№5";
     public static final String QUALITY_CHECK_5_1 = "Quality_check_№5.1";
+    public static final String QUALITY_CHECK_5_1_1 = "Quality_check_№5.1.1";
     public static final String QUALITY_CHECK_6 = "Quality_check_№6";
     public static final String FAIL_QUALITY_CHECK_1 = "Fail_quality_check_№1";
     public static final String FAIL_QUALITY_CHECK_1_1 = "Fail_quality_check_№1.1";
@@ -48,6 +49,8 @@ public class DeviceStatusCodes {
     public static final String VARNISH = "Varnish";
     public static final String TECHNICAL = "Technical";
     public static final String TECHNICAL2 = "Technical2";
+    public static final String TECHNICAL3 = "Technical3";
+
     public static final String NOT_READY = "not_ready";
 
     private DeviceStatusCodes() {

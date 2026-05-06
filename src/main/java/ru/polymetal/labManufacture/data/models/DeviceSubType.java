@@ -58,6 +58,9 @@ public class DeviceSubType {
     @Column(name = "is_test_two")
     private Boolean isTestTwo = true;
 
+    @Column(name = "is_side_two")
+    private Boolean isSideTwo = true;
+
     @Column(name = "url_pdf")
     private String urlPDF;
 

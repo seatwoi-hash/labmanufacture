@@ -125,9 +125,6 @@ public class InstallationController {
         UUID operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2, device.getDescription());
 
 
-        if(!isTestTwoById) {
-            operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL2);
-        }
 
         return ResponseEntity.ok().build();
 

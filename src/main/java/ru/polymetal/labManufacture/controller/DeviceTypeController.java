@@ -62,6 +62,7 @@ public class DeviceTypeController {
                              @RequestParam Integer versionType,
                              @RequestParam(required = false, defaultValue = "false") Boolean isInstallationOne,
                              @RequestParam(required = false, defaultValue = "false") Boolean isTestTwo,
+                             @RequestParam(required = false, defaultValue = "false") Boolean isSideTwo,
                              @RequestParam(value = "file", required = false) MultipartFile file) {
 
         DeviceSubTypeDto deviceSubTypeDto = DeviceSubTypeDto.builder()
@@ -70,7 +71,8 @@ public class DeviceTypeController {
                 .snType(snType)
                 .versionType(versionType)
                 .isInstallationOne(isInstallationOne)
-                .isTestTwo(isTestTwo).
+                .isTestTwo(isTestTwo)
+                .isSideTwo(isSideTwo).
                 build();
 
         try {

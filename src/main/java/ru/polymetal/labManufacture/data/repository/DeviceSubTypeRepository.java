@@ -26,5 +26,8 @@ public interface DeviceSubTypeRepository extends JpaRepository<DeviceSubType, UU
 
     @Query("SELECT d.isTestTwo FROM DeviceSubType d WHERE d.id = :id AND d.isDeleted = false")
     Boolean findIsTestTwoByIdAndNotDeleted(@Param("id") UUID id);
+
+    @Query("SELECT d.isSideTwo FROM DeviceSubType d WHERE d.id = :id AND d.isDeleted = false")
+    Boolean findIsSideTwoByIdAndNotDeleted(@Param("id") UUID id);
 }
 
