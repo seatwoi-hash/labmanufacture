@@ -67,11 +67,17 @@ public class LinkServiceImpl implements LinkService {
         headers.set("OCS-APIRequest", "true");
         headers.set("User-Agent", "MyApp/1.0");
 
-        headers.setCacheControl("no-cache, no-store, must-revalidate");
-        headers.setPragma("no-cache");
-        headers.setExpires(0);
-        headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.set("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
         headers.set("Pragma", "no-cache");
+        headers.set("Expires", "0");
+        headers.set("If-None-Match", "*");
+        headers.set("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT");
+
+// Дополнительные для полного запрета кэша
+        headers.set("Cache-Control", "no-cache, no-store, must-revalidate, private");
+        headers.set("Surrogate-Control", "no-store");
+        headers.set("X-Accel-Expires", "0");  // для nginx
+        headers.set("Last-Modified", "Thu, 01 Jan 1970 00:00:00 GMT");
 
 // Устанавливаем базовую аутентификацию
         String auth = nextcloudConfig.getUsername() + ":" + nextcloudConfig.getPassword();

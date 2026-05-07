@@ -70,11 +70,6 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
 
         DeviceSubType deviceSubType = new DeviceSubType();
 
-        if (file != null) {
-            String newName = UUID.randomUUID() + ".pdf";
-            this.uploadFile(newName, file.getBytes(), deviceSubType);
-            deviceSubType.setFileName(newName);
-        }
 
         deviceSubType.setName(deviceSubTypeDto.name());
         deviceSubType.setSnType(deviceSubTypeDto.snType());
@@ -85,7 +80,13 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         deviceSubType.setIsSideTwo(deviceSubTypeDto.isSideTwo());
 
 
-        deviceSubTypeRepository.save(deviceSubType);
+        DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);
+
+        if (file != null) {
+            String newName = UUID.randomUUID() + ".pdf";
+            this.uploadFile(newName, file.getBytes(), saved.getId());
+            deviceSubType.setFileName(newName);
+        }
 
     }
 
@@ -105,11 +106,7 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
                 .orElseThrow(() -> new RuntimeException("Тип не найден"));
 
 
-        if (file != null && !file.isEmpty() && file.getSize() > 0) {
-            String newName = UUID.randomUUID().toString() + ".pdf";
-            this.uploadFile(newName, file.getBytes(), deviceSubType);
-            deviceSubType.setFileName(newName);
-        }
+
 
         deviceSubType.setIsTestTwo(deviceSubTypeDto.isTestTwo());
         deviceSubType.setIsInstallationOne(deviceSubTypeDto.isInstallationOne());
@@ -119,7 +116,13 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         deviceSubType.setSnType(deviceSubTypeDto.snType());
         deviceSubType.setDescription(deviceSubTypeDto.description());
 
-        deviceSubTypeRepository.save(deviceSubType);
+        DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);
+
+        if (file != null) {
+            String newName = UUID.randomUUID() + ".pdf";
+            this.uploadFile(newName, file.getBytes(), saved.getId());
+            deviceSubType.setFileName(newName);
+        }
     }
 
     @Override
@@ -144,11 +147,16 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     @Override
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void uploadFile(String newName, byte[] file, DeviceSubType deviceSubType) throws IOException {
+    public void uploadFile(String newName, byte[] file, UUID deviceSubTypeID) throws IOException {
 
 
         if (file.length > 0) {
             nextcloudService.uploadFile(newName, file);
+
+            DeviceSubType deviceSubType = deviceSubTypeRepository.findById(deviceSubTypeID).orElseThrow(
+                    () -> new RuntimeException("Тип платы не найден")
+            );
+
             linkService.createPublicShareDeviceSubType(
                     newName,
                     deviceSubType
