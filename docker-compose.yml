@@ -40,16 +40,16 @@ services:
       - app-network
     restart: unless-stopped
 
-  collabora:
-    container_name: collabora
-    ports:
-      - "127.0.0.1:9980:9980"  # ← Явно привязываем к localhost
-    environment:
-      - domain=localhost
-      - extra_params=--o:ssl.enable=false --o:storage.wopi.host=localhost
-    networks:
-      - app-network  # Используем общую сеть!
-    restart: unless-stopped
+#  collabora:
+#    container_name: collabora
+#    ports:
+#      - "127.0.0.1:9980:9980"  # ← Явно привязываем к localhost
+#    environment:
+#      - domain=localhost
+#      - extra_params=--o:ssl.enable=false --o:storage.wopi.host=localhost
+#    networks:
+#      - app-network  # Используем общую сеть!
+#    restart: unless-stopped
 
   app:
     build: .
