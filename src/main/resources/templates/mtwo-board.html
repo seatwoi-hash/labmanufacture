@@ -397,17 +397,87 @@
         const tbody = table.querySelector('tbody');
         const headers = table.querySelectorAll('thead th');
 
-        // Инициализируем состояние сортировки
-        let currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
-        let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
+        // Функции для работы с localStorage
+        function saveSortState(columnIndex, direction) {
+            localStorage.setItem('tableSort', JSON.stringify({
+                column: columnIndex,
+                direction: direction
+            }));
+        }
 
-        // Устанавливаем иконку для столбца по умолчанию
+        function loadSortState() {
+            const savedSort = localStorage.getItem('tableSort');
+            if (savedSort) {
+                try {
+                    return JSON.parse(savedSort);
+                } catch(e) {
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        // ЗАГРУЖАЕМ СОХРАНЕННУЮ СОРТИРОВКУ
+        const savedSort = loadSortState();
+
+        // Инициализируем состояние сортировки
+        let currentSortColumn;
+        let sortDirection;
+
+        if (savedSort) {
+            // Используем сохраненные значения
+            currentSortColumn = savedSort.column;
+            sortDirection = savedSort.direction;
+        } else {
+            // Значения по умолчанию
+            currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
+            sortDirection = 'desc'; // По умолчанию сортировка по убыванию
+        }
+
+        // ПРИМЕНЯЕМ СОХРАНЕННУЮ СОРТИРОВКУ
+        function applySavedSort() {
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                const aCell = a.cells[currentSortColumn];
+                const bCell = b.cells[currentSortColumn];
+
+                let aValue = aCell.textContent.trim();
+                let bValue = bCell.textContent.trim();
+
+                // Для столбца с датой (индекс 4)
+                if (currentSortColumn === 4) {
+                    aValue = parseDateString(aValue);
+                    bValue = parseDateString(bValue);
+                    return sortDirection === 'asc'
+                        ? aValue - bValue
+                        : bValue - aValue;
+                }
+
+                // Для остальных столбцов
+                return sortDirection === 'asc'
+                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
+                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
+            });
+
+            // Обновляем DOM
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Применяем сохраненную сортировку (если есть)
+        if (savedSort && tbody.querySelectorAll('tr').length > 0) {
+            applySavedSort();
+        }
+
+        // Устанавливаем иконку для столбца
         updateSortIcons();
 
         // Добавляем обработчики кликов на заголовки
         headers.forEach((header, index) => {
             if (header.hasAttribute('onclick')) {
-                // Удаляем inline onclick и добавляем обработчик
                 header.removeAttribute('onclick');
                 header.style.cursor = 'pointer';
                 header.addEventListener('click', () => sortTable(index));
@@ -426,12 +496,14 @@
                 sortDirection = 'asc';
             }
 
+            // Сохраняем состояние
+            saveSortState(currentSortColumn, sortDirection);
+
             // Сортируем строки
             rows.sort((a, b) => {
                 const aCell = a.cells[columnIndex];
                 const bCell = b.cells[columnIndex];
 
-                // Получаем текстовое содержимое ячеек
                 let aValue = aCell.textContent.trim();
                 let bValue = bCell.textContent.trim();
 
@@ -450,12 +522,10 @@
                     : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
             });
 
-            // Удаляем все строки из tbody
+            // Обновляем DOM
             while (tbody.firstChild) {
                 tbody.removeChild(tbody.firstChild);
             }
-
-            // Добавляем отсортированные строки обратно
             rows.forEach(row => tbody.appendChild(row));
 
             // Обновляем иконки сортировки
@@ -489,34 +559,135 @@
                 }
             });
         }
-
-        // // Функция для поиска (если нужно сохранить)
-        // const searchInput = document.getElementById('searchInput');
-        // if (searchInput) {
-        //     searchInput.addEventListener('input', function() {
-        //         const searchTerm = this.value.toLowerCase().trim();
-        //         const rows = table.querySelectorAll('tbody tr');
-        //         let visibleRows = 0;
-        //
-        //         rows.forEach(row => {
-        //             const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
-        //
-        //             if (serialNumber.includes(searchTerm)) {
-        //                 row.style.display = '';
-        //                 visibleRows++;
-        //             } else {
-        //                 row.style.display = 'none';
-        //             }
-        //         });
-        //
-        //         // Можно добавить обновление счетчика видимых строк
-        //         const counter = document.querySelector('.badge.bg-light .me-1');
-        //         if (counter) {
-        //             counter.textContent = visibleRows;
-        //         }
-        //     });
-        // }
     });
+    //
+    //
+    // //сортировка...
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     const table = document.querySelector('.table');
+    //     const tbody = table.querySelector('tbody');
+    //     const headers = table.querySelectorAll('thead th');
+    //
+    //     // Инициализируем состояние сортировки
+    //     let currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
+    //     let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
+    //
+    //     // Устанавливаем иконку для столбца по умолчанию
+    //     updateSortIcons();
+    //
+    //     // Добавляем обработчики кликов на заголовки
+    //     headers.forEach((header, index) => {
+    //         if (header.hasAttribute('onclick')) {
+    //             // Удаляем inline onclick и добавляем обработчик
+    //             header.removeAttribute('onclick');
+    //             header.style.cursor = 'pointer';
+    //             header.addEventListener('click', () => sortTable(index));
+    //         }
+    //     });
+    //
+    //     function sortTable(columnIndex) {
+    //         const rows = Array.from(tbody.querySelectorAll('tr'));
+    //
+    //         // Если кликаем по той же колонке, меняем направление
+    //         if (columnIndex === currentSortColumn) {
+    //             sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    //         } else {
+    //             // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
+    //             currentSortColumn = columnIndex;
+    //             sortDirection = 'asc';
+    //         }
+    //
+    //         // Сортируем строки
+    //         rows.sort((a, b) => {
+    //             const aCell = a.cells[columnIndex];
+    //             const bCell = b.cells[columnIndex];
+    //
+    //             // Получаем текстовое содержимое ячеек
+    //             let aValue = aCell.textContent.trim();
+    //             let bValue = bCell.textContent.trim();
+    //
+    //             // Для столбца с датой (индекс 4)
+    //             if (columnIndex === 4) {
+    //                 aValue = parseDateString(aValue);
+    //                 bValue = parseDateString(bValue);
+    //                 return sortDirection === 'asc'
+    //                     ? aValue - bValue
+    //                     : bValue - aValue;
+    //             }
+    //
+    //             // Для остальных столбцов - текстовое сравнение
+    //             return sortDirection === 'asc'
+    //                 ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
+    //                 : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
+    //         });
+    //
+    //         // Удаляем все строки из tbody
+    //         while (tbody.firstChild) {
+    //             tbody.removeChild(tbody.firstChild);
+    //         }
+    //
+    //         // Добавляем отсортированные строки обратно
+    //         rows.forEach(row => tbody.appendChild(row));
+    //
+    //         // Обновляем иконки сортировки
+    //         updateSortIcons();
+    //     }
+    //
+    //     function parseDateString(dateString) {
+    //         try {
+    //             // Парсим дату в формате "dd.MM.yyyy HH:mm"
+    //             const [datePart, timePart] = dateString.split(' ');
+    //             const [day, month, year] = datePart.split('.');
+    //             const [hours, minutes] = timePart.split(':');
+    //
+    //             return new Date(year, month - 1, day, hours, minutes).getTime();
+    //         } catch (e) {
+    //             return 0; // В случае ошибки возвращаем 0
+    //         }
+    //     }
+    //
+    //     function updateSortIcons() {
+    //         headers.forEach((header, index) => {
+    //             const icon = header.querySelector('i');
+    //             if (icon) {
+    //                 if (index === currentSortColumn) {
+    //                     icon.className = sortDirection === 'asc'
+    //                         ? 'fas fa-sort-up float-end mt-1'
+    //                         : 'fas fa-sort-down float-end mt-1';
+    //                 } else {
+    //                     icon.className = 'fas fa-sort float-end mt-1';
+    //                 }
+    //             }
+    //         });
+    //     }
+    //
+    //     // // Функция для поиска (если нужно сохранить)
+    //     // const searchInput = document.getElementById('searchInput');
+    //     // if (searchInput) {
+    //     //     searchInput.addEventListener('input', function() {
+    //     //         const searchTerm = this.value.toLowerCase().trim();
+    //     //         const rows = table.querySelectorAll('tbody tr');
+    //     //         let visibleRows = 0;
+    //     //
+    //     //         rows.forEach(row => {
+    //     //             const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+    //     //
+    //     //             if (serialNumber.includes(searchTerm)) {
+    //     //                 row.style.display = '';
+    //     //                 visibleRows++;
+    //     //             } else {
+    //     //                 row.style.display = 'none';
+    //     //             }
+    //     //         });
+    //     //
+    //     //         // Можно добавить обновление счетчика видимых строк
+    //     //         const counter = document.querySelector('.badge.bg-light .me-1');
+    //     //         if (counter) {
+    //     //             counter.textContent = visibleRows;
+    //     //         }
+    //     //     });
+    //     // }
+    // });
 </script>
 </body>
 </html>
