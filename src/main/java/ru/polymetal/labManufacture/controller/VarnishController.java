@@ -65,9 +65,6 @@ public class VarnishController {
         devices.addAll(operationService.findByStatusIdAndIsDelete(
                 deviceStatusService.findByName(QUALITY_CHECK_5_1_1).getId()
         ));
-        devices.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(TECHNICAL2).getId()
-        ));
 
         model.addAttribute("devices", devices);
 

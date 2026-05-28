@@ -25,7 +25,7 @@ public class LinkServiceScheduler {
     public final DeviceSubTypeService deviceSubTypeService;
     public final LinkService linkService;
 
-   @Scheduled(cron = "0 0 * * * *")
+   @Scheduled(cron = "0 0 1,6 * * *")
    public void taskWithCron() throws IOException {
         List<Device> devices = deviceRepository.findAll();
 
@@ -42,7 +42,7 @@ public class LinkServiceScheduler {
        }
     }
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 2,7 * * *")
     public void taskWithCronTwo() throws IOException {
         List<DeviceSubType> deviceSubType = deviceSubTypeRepository.findAll();
 

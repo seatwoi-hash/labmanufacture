@@ -122,6 +122,7 @@ public class DeviceTypeController {
                             @PathVariable UUID id,
                             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 
+
         deviceSubTypeService.edite(deviceSubTypeDto, id, file);
 
         return "redirect:/devicetype/add";
