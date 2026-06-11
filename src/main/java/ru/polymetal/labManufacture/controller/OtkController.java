@@ -145,7 +145,7 @@ public class OtkController {
                         device.getDescription());
             }
         } else if ("failed".equals(action)) {
-            if (operation.getStatus().getName().equals(SIDE2)) {
+            if (operation.getStatus().getName().equals(SIDE2) || operation.getStatus().getName().equals(TECHNICAL3)) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR1)) {
