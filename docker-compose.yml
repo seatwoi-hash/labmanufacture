@@ -30,7 +30,6 @@ services:
     volumes:
       - nextcloud_db_data:/var/lib/postgresql/data
 #      - nextcloud_data:/var/www/html/data
-#      - nextcloud_config:/var/www/html/config
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${NEXTCLOUD_DB_USER:-nextcloud}" ]
       interval: 10s
@@ -68,6 +67,19 @@ services:
       - app-network  # ← Добавлено
     restart: unless-stopped
 
+
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=verysecretkey123
+    networks:
+      - app-network
+
   nextcloud:
     image: nextcloud:33-apache
     environment:
@@ -95,11 +107,11 @@ services:
 
       NEXTCLOUD_AUTOINSTALL: "false"
 
-
     ports:
       - "30540:80"
     volumes:
       - nextcloud_data:/var/www/html/data
+      - nextcloud_config:/var/www/html/config
     depends_on:
       nextcloud-db:
         condition: service_healthy
