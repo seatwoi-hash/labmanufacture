@@ -79,6 +79,19 @@ services:
       - app-network  # ← Добавлено
     restart: unless-stopped
 
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=verysecretkey123
+    networks:
+      - app-network
+
+
   nextcloud:
     image: nextcloud:33-apache
     environment:
