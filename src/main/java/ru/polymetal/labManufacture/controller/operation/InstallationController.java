@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.operation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,21 +10,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_1_1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
+import ru.polymetal.labManufacture.exception.OperationNotFoundException;
+import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
-import ru.polymetal.labManufacture.service.OperationService;
+import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -63,8 +61,8 @@ public class InstallationController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
 
@@ -79,8 +77,8 @@ public class InstallationController {
                                                   Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         operationService.completeOperationWithDescription(deviceId, account, INSTALLATION, device.getDescription());
 
@@ -98,8 +96,8 @@ public class InstallationController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
 
@@ -114,13 +112,13 @@ public class InstallationController {
                                                      Authentication authentication) {
 
 
-        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new OperationNotFoundException());
+
         Boolean isTestTwoById = deviceSubTypeService.findIsTestTwoById(operation);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         UUID operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2, device.getDescription());
 

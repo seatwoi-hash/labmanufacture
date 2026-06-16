@@ -1,10 +1,10 @@
-package ru.polymetal.labManufacture.service.account;
+package ru.polymetal.labManufacture.service.account.Impl;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
-import ru.polymetal.labManufacture.service.AccountService;
+import ru.polymetal.labManufacture.service.account.AccountService;
 import java.util.List;
 import java.util.UUID;
 

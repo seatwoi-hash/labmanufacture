@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service.Impl;
+package ru.polymetal.labManufacture.service.operation.Impl;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +18,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.*;
+import ru.polymetal.labManufacture.service.operation.OperationService;
 
 @Service
 @Slf4j

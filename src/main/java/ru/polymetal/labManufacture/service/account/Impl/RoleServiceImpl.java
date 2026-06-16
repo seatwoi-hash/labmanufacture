@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service.account;
+package ru.polymetal.labManufacture.service.account.Impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,11 +7,11 @@ import ru.polymetal.labManufacture.data.repository.RoleRepository;
 import java.util.List;
 
 @Service
-public class RoleService {
+public class RoleServiceImpl {
 
     private final RoleRepository roleRepository;
 
-    public RoleService(RoleRepository roleRepository) {
+    public RoleServiceImpl(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
 

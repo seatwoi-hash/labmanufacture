@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.operation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -31,10 +31,9 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR6;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
-import ru.polymetal.labManufacture.service.DeviceService;
+import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
-import ru.polymetal.labManufacture.service.DeviceSubTypeService;
-import ru.polymetal.labManufacture.service.OperationService;
+import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -71,8 +70,9 @@ public class RepairController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -87,8 +87,9 @@ public class RepairController {
                                                Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         operationService.completeOperationWithDescription(deviceId, account, REPAIR1, device.getDescription());
 
@@ -112,8 +113,9 @@ public class RepairController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -128,8 +130,9 @@ public class RepairController {
                                                Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         operationService.completeOperationWithDescription(deviceId, account, REPAIR2, device.getDescription());
 
@@ -153,8 +156,9 @@ public class RepairController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -169,8 +173,9 @@ public class RepairController {
                                                  Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         operationService.completeOperationWithDescription(deviceId, account, REPAIR3, device.getDescription());
 
@@ -194,8 +199,9 @@ public class RepairController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -210,8 +216,9 @@ public class RepairController {
                                                 Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         operationService.completeOperationWithDescription(deviceId, account, REPAIR4, device.getDescription());
 
@@ -235,8 +242,9 @@ public class RepairController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -251,8 +259,9 @@ public class RepairController {
                                                 Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         operationService.completeOperationWithDescription(deviceId, account, REPAIR5, device.getDescription());
 
@@ -276,8 +285,9 @@ public class RepairController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -292,8 +302,9 @@ public class RepairController {
                                                Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         operationService.completeOperationWithDescription(deviceId, account, REPAIR6, device.getDescription());
 

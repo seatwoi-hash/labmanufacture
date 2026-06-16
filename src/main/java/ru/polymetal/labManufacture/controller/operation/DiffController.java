@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.operation;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,55 +9,36 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.polymetal.labManufacture.constant.DeviceStatusCodes;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_2;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_3;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_4;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_TEST;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_2;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_3;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_4;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.READY;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR2;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR3;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL3;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.VARNISH;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
-import ru.polymetal.labManufacture.service.DeviceService;
+import ru.polymetal.labManufacture.exception.OperationNotFoundException;
+import ru.polymetal.labManufacture.exception.UserNotFoundException;
+import ru.polymetal.labManufacture.service.device.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
-import ru.polymetal.labManufacture.service.OperationService;
+import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/device")
-public class OperationController {
+public class DiffController {
     private final AccountRepository accountRepository;
     private final OperationService operationService;
     private final DeviceStatusService deviceStatusService;
@@ -65,7 +46,7 @@ public class OperationController {
     private final DeviceService deviceService;
 
 
-    public OperationController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, DeviceService deviceService) {
+    public DiffController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, DeviceService deviceService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
         this.deviceStatusService = deviceStatusService;
@@ -82,8 +63,8 @@ public class OperationController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
 
@@ -96,11 +77,10 @@ public class OperationController {
                                           Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
 
         Boolean isInstallation = deviceSubTypeService.findIsSideTwoById(operation);
         UUID operationIdTech = null;
@@ -123,8 +103,8 @@ public class OperationController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
 
@@ -137,8 +117,8 @@ public class OperationController {
                                           Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         operationService.completeOperationWithoutDescription(deviceId, account, SIDE2);
 
@@ -158,8 +138,10 @@ public class OperationController {
 
         model.addAttribute("devices", sortDevices);
 
-        Account account = accountRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        Account account =
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -189,8 +171,11 @@ public class OperationController {
 
 
         model.addAttribute("devices", devices);
-        Account account = accountRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -207,9 +192,10 @@ public class OperationController {
 
         model.addAttribute("operations", operations);
 
-        // Информация о текущем пользователе
-        Account account = accountRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        Account account =
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -247,8 +233,10 @@ public class OperationController {
         model.addAttribute("pageSize", size);
         model.addAttribute("searchTerm", search);
 
-        Account account = accountRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        Account account =
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 

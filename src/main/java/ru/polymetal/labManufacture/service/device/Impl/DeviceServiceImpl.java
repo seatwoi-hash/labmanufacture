@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service.Impl;
+package ru.polymetal.labManufacture.service.device.Impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,10 +10,10 @@ import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceRepository;
 import ru.polymetal.labManufacture.data.repository.OperationStatusRepository;
 import ru.polymetal.labManufacture.dto.DeviceDto;
-import ru.polymetal.labManufacture.service.DeviceService;
+import ru.polymetal.labManufacture.service.device.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.DeviceTypeService;
-import ru.polymetal.labManufacture.service.OperationService;
+import ru.polymetal.labManufacture.service.operation.OperationService;
 import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import ru.polymetal.labManufacture.service.nextcloud.NextcloudService;
 import java.io.IOException;

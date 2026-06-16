@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.operation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_2;
@@ -53,15 +52,14 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
-import ru.polymetal.labManufacture.dto.FileResponseDto;
-import ru.polymetal.labManufacture.dto.FileUploadRequestDto;
+import ru.polymetal.labManufacture.exception.OperationNotFoundException;
+import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
-import ru.polymetal.labManufacture.service.FileService;
-import ru.polymetal.labManufacture.service.OperationService;
+import ru.polymetal.labManufacture.service.file.FileService;
+import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -110,8 +108,9 @@ public class OtkController {
 
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -126,11 +125,11 @@ public class OtkController {
                                             Authentication authentication) throws IOException {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+
+        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
 
         Boolean isInstallation = deviceSubTypeService.findIsInstallationOneById(operation);
         UUID operationIdTech = null;
@@ -179,8 +178,9 @@ public class OtkController {
 
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -197,10 +197,9 @@ public class OtkController {
         UUID operationIdTech = null;
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
-        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
 
         if ("passed".equals(action)) {
             if (operation.getStatus().getName().equals(INSTALLATION)) {
@@ -223,8 +222,7 @@ public class OtkController {
             }
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
 
         return ResponseEntity.ok().build();
@@ -240,8 +238,9 @@ public class OtkController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -257,8 +256,9 @@ public class OtkController {
         UUID operationIdTech = null;
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         if ("passed".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_3,
@@ -268,8 +268,7 @@ public class OtkController {
                     device.getDescription());
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
 
         return ResponseEntity.ok().build();
@@ -297,8 +296,9 @@ public class OtkController {
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -314,10 +314,10 @@ public class OtkController {
         UUID operationIdTech = null;
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
-        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
+        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
 
         if ("passed".equals(action)) {
             if (operation.getStatus().getName().equals(INSTALLATION2)) {
@@ -348,8 +348,7 @@ public class OtkController {
             }
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
         return ResponseEntity.ok().build();
     }
@@ -375,8 +374,8 @@ public class OtkController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
@@ -394,11 +393,11 @@ public class OtkController {
         UUID operationIdTech = null;
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+
+        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
 
 
         if ("passed".equals(action)) {
@@ -436,8 +435,7 @@ public class OtkController {
             }
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
         return ResponseEntity.ok().build();
     }
@@ -452,8 +450,8 @@ public class OtkController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
 
@@ -470,8 +468,9 @@ public class OtkController {
 
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
 
         if ("passed".equals(action)) {
@@ -484,8 +483,7 @@ public class OtkController {
                     device.getDescription());
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
 
         return ResponseEntity.ok().build();

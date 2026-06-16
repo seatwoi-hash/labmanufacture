@@ -1,7 +1,6 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.user;
 
 import jakarta.validation.Valid;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,15 +15,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.dto.AccountCreateFormDto;
 import ru.polymetal.labManufacture.dto.ProfileUpdateDto;
-import ru.polymetal.labManufacture.service.AccountService;
-import ru.polymetal.labManufacture.service.account.AccountServiceImpl;
-import ru.polymetal.labManufacture.service.account.RoleService;
+import ru.polymetal.labManufacture.service.account.AccountService;
+import ru.polymetal.labManufacture.service.account.Impl.RoleServiceImpl;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -35,10 +32,10 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final PasswordEncoder passwordEncoder;
-    private final RoleService roleService;
+    private final RoleServiceImpl roleService;
     private final AccountService accountService;
 
-    public UserController(PasswordEncoder passwordEncoder, RoleService roleService, AccountService accountService) {
+    public UserController(PasswordEncoder passwordEncoder, RoleServiceImpl roleService, AccountService accountService) {
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
         this.accountService = accountService;
@@ -178,21 +175,6 @@ public class UserController {
         model.addAttribute("accounts", accounts);
         return "usermenu/employee";
     }
-
-//    @GetMapping("/editing-user/{id}")
-//    public String editUserAccount(@PathVariable("id") UUID id,
-//                                  Authentication authentication,
-//                                  Model model) {
-//        String username = authentication.getName();
-//        Account userToEdit = accountService.findById(id);
-//        model.addAttribute("user", userToEdit);
-//
-//        // Для ролей в форме
-//        List<Role> allRoles = roleService.findAll();
-//        model.addAttribute("allRoles", allRoles);
-//
-//        return "usermenu/edit-account";
-//    }
 
     @GetMapping("/editing-user/{id}")
     public String editUserAccount(@PathVariable("id") UUID id, Model model) {

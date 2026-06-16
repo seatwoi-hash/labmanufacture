@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.devicetype;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -16,6 +16,7 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.dto.DeviceSubTypeDto;
+import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import java.io.IOException;
@@ -41,8 +42,8 @@ public class DeviceTypeController {
     public String showCreateDeviceForm(Model model, Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
 
@@ -103,8 +104,8 @@ public class DeviceTypeController {
     public String showEditeDeviceForm(Model model, Authentication authentication, @PathVariable UUID id) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
 

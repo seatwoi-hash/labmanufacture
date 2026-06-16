@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service;
+package ru.polymetal.labManufacture.service.operation;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

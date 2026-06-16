@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service;
+package ru.polymetal.labManufacture.service.account;
 
 import ru.polymetal.labManufacture.data.models.Account;
 import java.util.List;

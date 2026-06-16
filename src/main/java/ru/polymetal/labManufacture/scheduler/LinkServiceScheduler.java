@@ -8,7 +8,6 @@ import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.repository.DeviceRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceSubTypeRepository;
-import ru.polymetal.labManufacture.service.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import ru.polymetal.labManufacture.service.nextcloud.NextcloudService;

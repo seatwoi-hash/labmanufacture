@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service;
+package ru.polymetal.labManufacture.service.device;
 
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;

@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service.file;
+package ru.polymetal.labManufacture.service.file.Impl;
 
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -10,9 +10,8 @@ import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.data.repository.FileDataRepository;
 import ru.polymetal.labManufacture.dto.FileResponseDto;
 import ru.polymetal.labManufacture.dto.FileUploadRequestDto;
-import ru.polymetal.labManufacture.service.FileService;
-import ru.polymetal.labManufacture.service.OperationService;
-import java.io.File;
+import ru.polymetal.labManufacture.service.file.FileService;
+import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

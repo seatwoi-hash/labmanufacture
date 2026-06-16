@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.auth;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

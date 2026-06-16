@@ -40,17 +40,6 @@ services:
       - app-network
     restart: unless-stopped
 
-#  collabora:
-#    container_name: collabora
-#    ports:
-#      - "127.0.0.1:9980:9980"  # ← Явно привязываем к localhost
-#    environment:
-#      - domain=localhost
-#      - extra_params=--o:ssl.enable=false --o:storage.wopi.host=localhost
-#    networks:
-#      - app-network  # Используем общую сеть!
-#    restart: unless-stopped
-
   app:
     build: .
     environment:
@@ -111,7 +100,6 @@ services:
       - "30540:80"
     volumes:
       - nextcloud_data:/var/www/html/data
-      - nextcloud_config:/var/www/html/config
     depends_on:
       nextcloud-db:
         condition: service_healthy

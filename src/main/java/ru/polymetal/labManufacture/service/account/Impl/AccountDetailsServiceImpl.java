@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service.account;
+package ru.polymetal.labManufacture.service.account.Impl;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,13 +15,13 @@ import java.util.Set;
 
 @Service
 @Transactional
-public class AccountDetailsService implements UserDetailsService {
+public class AccountDetailsServiceImpl implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
 
-    public AccountDetailsService(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+    public AccountDetailsServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
     }
