@@ -29,7 +29,8 @@ services:
 
     volumes:
       - nextcloud_db_data:/var/lib/postgresql/data
-#      - nextcloud_data:/var/www/html/data
+    #      - nextcloud_data:/var/www/html/data
+    #      - nextcloud_config:/var/www/html/config
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${NEXTCLOUD_DB_USER:-nextcloud}" ]
       interval: 10s
@@ -38,6 +39,17 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+
+  #  collabora:
+  #    container_name: collabora
+  #    ports:
+  #      - "127.0.0.1:9980:9980"  # ← Явно привязываем к localhost
+  #    environment:
+  #      - domain=localhost
+  #      - extra_params=--o:ssl.enable=false --o:storage.wopi.host=localhost
+  #    networks:
+  #      - app-network  # Используем общую сеть!
+  #    restart: unless-stopped
 
   app:
     build: .
@@ -67,7 +79,6 @@ services:
       - app-network  # ← Добавлено
     restart: unless-stopped
 
-
   onlyoffice:
     image: onlyoffice/documentserver:latest
     container_name: onlyoffice
@@ -79,6 +90,7 @@ services:
       - JWT_SECRET=verysecretkey123
     networks:
       - app-network
+
 
   nextcloud:
     image: nextcloud:33-apache
@@ -98,14 +110,15 @@ services:
         192.168.37.125:30540
         nextcloud
         nextcloud:80
-#        collabora
-#        collabora:9980
+      #        collabora
+      #        collabora:9980
 
       NEXTCLOUD_FILELOCKING_ENABLED: "true"
       NEXTCLOUD_FILELOCKING_TTL: "360"
       NEXTCLOUD_BACKGROUNDJOBS_MODE: "ajax"
 
       NEXTCLOUD_AUTOINSTALL: "false"
+
 
     ports:
       - "30540:80"
