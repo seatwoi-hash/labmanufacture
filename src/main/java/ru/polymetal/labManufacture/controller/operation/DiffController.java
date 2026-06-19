@@ -165,6 +165,7 @@ public class DiffController {
 //                .toList();
 
         List<Device> devices = deviceService.findAll().stream()
+                .filter(a -> !a.getIsDeleted())
                 .filter(a -> a.getOperations().stream()
                         .noneMatch(op -> op.getStatus().getName().equals(READY)))
                 .toList();
