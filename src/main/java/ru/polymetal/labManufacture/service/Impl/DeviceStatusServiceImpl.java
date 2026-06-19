@@ -21,7 +21,6 @@ public class DeviceStatusServiceImpl implements DeviceStatusService {
     @Transactional(readOnly = true)
     public OperationStatus findByName(String name) {
 
-        //log.debug("Поиск статуса по названию: {}", name);
 
         return deviceStatusRepository.findByNameWithDevices(name)
                 .orElseThrow(() -> new RuntimeException("Статус устройства '" + name + "' не найден"));
@@ -29,8 +28,6 @@ public class DeviceStatusServiceImpl implements DeviceStatusService {
 
     @Transactional(readOnly = true)
     public List<OperationStatus> findByListName(List<String> name) {
-
-        //log.debug("Поиск статуса по названию: {}", name);
 
         return deviceStatusRepository.findByNames(name);    }
 

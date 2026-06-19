@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.device;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -15,9 +15,9 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.dto.DeviceDto;
-import ru.polymetal.labManufacture.service.DeviceService;
+import ru.polymetal.labManufacture.exception.UserNotFoundException;
+import ru.polymetal.labManufacture.service.device.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
-import ru.polymetal.labManufacture.service.nextcloud.Impl.LinkServiceImpl;
 import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import java.io.IOException;
 import java.util.List;
@@ -48,18 +48,15 @@ public class DeviceController {
         DeviceDto device = new DeviceDto();
         model.addAttribute("device", device);
 
-        try {
-            Account account =
-                    accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                            "Пользователь не найден"));
+
+        Account account =
+                    accountRepository.findByUsername(authentication.getName())
+                            .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
             model.addAttribute("currentUser", account);
 
             List<DeviceSubType> deviceSubTypes = deviceSubTypeService.findAll();
             model.addAttribute("subtypeList", deviceSubTypes);
             return "new-board";
-        } catch (RuntimeException e) {
-            throw new RuntimeException("What is this");
-        }
     }
 
     @PostMapping("/create-board")
@@ -68,8 +65,10 @@ public class DeviceController {
                                BindingResult result,
                                Authentication authentication) {
 
-        Account account = accountRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        Account account =
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
         model.addAttribute("currentUser", account);
 
         // Проверки

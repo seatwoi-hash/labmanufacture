@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.operation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,29 +10,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5_1_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_6;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_4_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1_1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR6;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL3;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.VARNISH;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
+import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
-import ru.polymetal.labManufacture.service.OperationService;
+import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/device")
@@ -69,8 +59,9 @@ public class VarnishController {
         model.addAttribute("devices", devices);
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         model.addAttribute("currentUser", account);
 
@@ -85,8 +76,9 @@ public class VarnishController {
                                              Authentication authentication) {
 
         Account account =
-                accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
-                        "Пользователь не найден"));
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
 
         operationService.completeOperationWithoutDescription(deviceId, account, VARNISH);
 

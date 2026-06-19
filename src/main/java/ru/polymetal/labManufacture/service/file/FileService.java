@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.service;
+package ru.polymetal.labManufacture.service.file;
 
 
 import org.apache.coyote.BadRequestException;

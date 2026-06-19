@@ -44,7 +44,6 @@ public class AccountCreateFormDto {
     }
 
 
-    // Конструкторы, геттеры и сеттеры
     public AccountCreateFormDto() {}
 
 }
