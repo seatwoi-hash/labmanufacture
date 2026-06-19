@@ -151,22 +151,22 @@ public class DiffController {
     @GetMapping("/noready-board")
     public String showNoReadyBoard(Model model, Authentication authentication) {
 
-        List<Operation> operations = operationService.findAll().stream()
-                .filter(a -> !a.getIsDeleted())
-                .filter(a -> a.getDevice() != null
-                        && "BOARD".equals(a.getDevice().getType().getName()))
-                .filter(a -> !a.getDevice().getIsDeleted())
-                .collect(Collectors.groupingBy(operation -> operation.getDevice().getSerialNumber()))
-                .entrySet().stream()
-                .filter(entry -> entry.getValue().stream()
-                        .noneMatch(device -> device.getStatus().getName().equals(READY)))
-                .flatMap(entry -> entry.getValue().stream())
-                .sorted(Comparator.comparing(Operation::getCreatedTime).reversed())
-                .toList();
+//        List<Operation> operations = operationService.findAll().stream()
+//                .filter(a -> !a.getIsDeleted())
+//                .filter(a -> a.getDevice() != null
+//                        && "BOARD".equals(a.getDevice().getType().getName()))
+//                .filter(a -> !a.getDevice().getIsDeleted())
+//                .collect(Collectors.groupingBy(operation -> operation.getDevice().getSerialNumber()))
+//                .entrySet().stream()
+//                .filter(entry -> entry.getValue().stream()
+//                        .noneMatch(device -> device.getStatus().getName().equals(READY)))
+//                .flatMap(entry -> entry.getValue().stream())
+//                .sorted(Comparator.comparing(Operation::getCreatedTime).reversed())
+//                .toList();
 
         List<Device> devices = deviceService.findAll().stream()
                 .filter(a -> a.getOperations().stream()
-                        .noneMatch(op -> op.getStatus().equals(READY)))
+                        .noneMatch(op -> op.getStatus().getName().equals(READY)))
                 .toList();
 
 
