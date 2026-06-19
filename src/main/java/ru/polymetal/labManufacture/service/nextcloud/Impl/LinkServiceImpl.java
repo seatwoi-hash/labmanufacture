@@ -1,7 +1,6 @@
 package ru.polymetal.labManufacture.service.nextcloud.Impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.sardine.Sardine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -46,7 +45,7 @@ public class LinkServiceImpl implements LinkService {
     @Override
     @Transactional
     public void createPublicShare(String sn, String filePath, String shareName, String apiUrl,
-                                  Device device) throws IOException {
+                                  Device device, Integer access) throws IOException {
 
 
 // Формируем тело запроса (application/x-www-form-urlencoded)
@@ -55,7 +54,7 @@ public class LinkServiceImpl implements LinkService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("path", filePath);  // Убедитесь, что путь правильный
         body.add("shareType", "3");
-        body.add("permissions", "31");
+        body.add("permissions", String.valueOf(access));
 
         if (shareName != null && !shareName.isEmpty()) {
             body.add("name", shareName);
@@ -120,10 +119,20 @@ public class LinkServiceImpl implements LinkService {
                         String shareUrl = data.get("url").asText();
                         log.info("Public share created: {}", shareUrl);
                         if(filePath.contains(".pdf")) {
-                            device.setUrlPDF(shareUrl);
+                            if(access == 3 || access == 31) {
+                                device.setUrlPDF(shareUrl);
+                            }
+                            if(access == 1){
+                                device.setUrlPDFRead(shareUrl);
+                            }
                             deviceRepository.save(device);
                         } else {
-                            device.setUrlTXT(shareUrl);
+                            if(access == 3 || access == 31) {
+                                device.setUrlTXT(shareUrl);
+                            }
+                            if(access == 1){
+                                device.setUrlTXTRead(shareUrl);
+                            }
                             deviceRepository.save(device);
                         }
                     } else {
@@ -173,13 +182,38 @@ public class LinkServiceImpl implements LinkService {
 
         if (!pdfExists && content.length > 0) {
             nextcloudService.uploadFile(newFileNamePdf, content);
-            this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device, 31);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Sleep interrupted", e);
+            }
+
+            this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device, 1);
+
             log.info("PDF file created: {}", newFileNamePdf);
         } else {
             log.info("PDF file already exists: {}, skipping upload", newFileNamePdf);
             // Если файл есть, но ссылки нет в БД - создаем только ссылку
-            if (device.getUrlPDF() == null || device.getUrlPDF().isEmpty()) {
-                this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device);
+            if (device.getUrlPDF() == null || device.getUrlPDF().isEmpty() ||
+                    device.getUrlPDFRead() == null || device.getUrlPDFRead().isEmpty()) {
+
+                this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device, 31);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.warn("Sleep interrupted", e);
+                }
+                this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device, 1);
+
             }
         }
 
@@ -187,12 +221,38 @@ public class LinkServiceImpl implements LinkService {
         if (!txtExists) {
             byte[] emptyContent = new byte[0];
             nextcloudService.uploadFile(newFileNameTxt, emptyContent);
-            this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device, 31);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Sleep interrupted", e);
+            }
+
+            this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device, 1);
+
             log.info("TXT file created: {}", newFileNameTxt);
         } else {
             log.info("TXT file already exists: {}, skipping upload", newFileNameTxt);
-            if (device.getUrlTXT() == null || device.getUrlTXT().isEmpty()) {
-                this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device);
+            if (device.getUrlTXT() == null || device.getUrlTXT().isEmpty() ||
+                    device.getUrlTXTRead() == null || device.getUrlTXTRead().isEmpty()) {
+                this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device, 31);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.warn("Sleep interrupted", e);
+                }
+
+                this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device, 1);
+
             }
         }
 
@@ -204,7 +264,6 @@ public class LinkServiceImpl implements LinkService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createPublicShareDeviceSubType(String name,
                                   DeviceSubType deviceSubType) throws IOException {
-
 //        DeviceSubType fresh =
 //                deviceSubTypeRepository.findById(deviceSubType.getId()).orElseThrow(() -> new RuntimeException(
 //                        "Тип не найден"));
@@ -221,7 +280,7 @@ public class LinkServiceImpl implements LinkService {
 
             body.add("path", filePath);  // Убедитесь, что путь правильный
             body.add("shareType", "3");
-            body.add("permissions", "3");
+            body.add("permissions", "31");
 
             if (shareName != null && !shareName.isEmpty()) {
                 body.add("name", shareName);
@@ -289,8 +348,6 @@ public class LinkServiceImpl implements LinkService {
                         }
                     }
                 }
-
-                //throw new IOException("Failed to create share: " + response.getStatusCode());
 
             } catch (Exception e) {
                 log.error("Error creating public share", e);

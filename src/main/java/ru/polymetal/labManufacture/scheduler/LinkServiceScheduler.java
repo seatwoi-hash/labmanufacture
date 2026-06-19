@@ -41,6 +41,7 @@ public class LinkServiceScheduler {
        }
     }
 
+
     @Scheduled(cron = "0 0 2,7 * * *")
     public void taskWithCronTwo() throws IOException {
         List<DeviceSubType> deviceSubType = deviceSubTypeRepository.findAll();

@@ -128,7 +128,7 @@
                             <input type="text"
                                    class="form-control search-input"
                                    id="searchInput"
-                                   placeholder="Поиск по серийному номеру...">
+                                   placeholder="Поиск по серийному номеру и типу платы...">
                             <i class="fas fa-search search-icon"></i>
                         </div>
                     </div>
@@ -168,7 +168,7 @@
                                 <i class="fas fa-sort float-end mt-1"></i>
                             </th>
                             <th style="width: 18%; cursor: pointer;" onclick="sortTable(3)">
-                                Дата создания
+                                Дата операции
                                 <i class="fas fa-sort float-end mt-1"></i>
                             </th>
                             <th>
@@ -186,7 +186,10 @@
                                     <span class="device-sn" th:text="${device.getSerialNumber()}"></span>
                                 </a>
                             </td>
-                            <td th:text="${device.subtype?.name} ?: 'Не указан'">Тип</td>
+                            <td>
+                                <span class="device-ty" th:text="${device.subtype?.name} ?: 'Не указан'">Тип </span>
+
+                            </td>
                             <td>
                                 <span class="device-op" th:text="${device.getDisplayStatus().getStatus().getDescription()}"></span>                            </td>
                             <td>
@@ -233,6 +236,8 @@
 
 <!-- Специфичные скрипты для этой страницы -->
 <script>
+
+    // поиск
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         const tableRows = document.querySelectorAll('tbody tr');
@@ -245,8 +250,9 @@
 
             tableRows.forEach(row => {
                 const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+                const typeOperation = row.querySelector('.device-ty').textContent.toLowerCase();
 
-                if (serialNumber.includes(searchTerm)) {
+                if (serialNumber.includes(searchTerm)  || typeOperation.includes(searchTerm)) {
                     row.style.display = '';
                     visibleRows++;
                 } else {
@@ -355,7 +361,7 @@
                 let bValue = bCell.textContent.trim();
 
                 // Для столбца с датой (индекс 4)
-                if (currentSortColumn === 4) {
+                if (currentSortColumn === 3) {
                     aValue = parseDateString(aValue);
                     bValue = parseDateString(bValue);
                     return sortDirection === 'asc'
@@ -417,7 +423,7 @@
                 let bValue = bCell.textContent.trim();
 
                 // Для столбца с датой (индекс 4)
-                if (columnIndex === 4) {
+                if (columnIndex === 3) {
                     aValue = parseDateString(aValue);
                     bValue = parseDateString(bValue);
                     return sortDirection === 'asc'

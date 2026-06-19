@@ -50,6 +50,12 @@ public class Device {
     @Column(name = "url_txt")
     private String urlTXT;
 
+    @Column(name = "url_pdf_read")
+    private String urlPDFRead;
+
+    @Column(name = "url_txt_read")
+    private String urlTXTRead;
+
     @CreationTimestamp
     @Column(name = "created_time", updatable = false)
     private LocalDateTime createdTime;

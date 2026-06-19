@@ -8,7 +8,8 @@ import java.io.IOException;
 
 public interface LinkService {
 
-    void createPublicShare(String sn, String filePath, String shareName, String apiUrl, Device device) throws IOException;
+    void createPublicShare(String sn, String filePath, String shareName,
+                           String apiUrl, Device device, Integer access) throws IOException;
 
     void createFile(String sn) throws IOException;
     void createPublicShareDeviceSubType(String name,

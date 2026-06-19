@@ -199,6 +199,10 @@
 
                         </tr>
 
+
+
+
+
                         <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
 
                             <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
@@ -225,6 +229,47 @@
                                             <i class="fas fa-file-alt"></i> TXT
                                         </a>
                                         <span th:unless="${firstDevice != null && firstDevice.getUrlTXT() != null && !firstDevice.getUrlTXT().isEmpty()}"
+                                              class="text-muted ms-2">
+                TXT нет
+            </span>
+
+                                        <!-- Добавим отображение серийного номера для ясности -->
+                                        <small class="text-muted ms-3">
+                                            (Устройство: <span th:text="${firstDevice.getSerialNumber()}"></span>)
+                                        </small>
+                                    </div>
+                                </td>
+                            </tr>
+
+
+                        </th:block>
+
+                        <th:block sec:authorize="hasAuthority('ROLE_QUALITY')">
+
+                            <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
+                                class="table-active">
+                                <td colspan="5">
+                                    <div class="ms-3">
+                                        <!-- PDF ссылка - используем firstDevice -->
+                                        <a th:if="${firstDevice != null && firstDevice.getUrlPDFRead() != null && !firstDevice.getUrlPDFRead().isEmpty()}"
+                                           th:href="${firstDevice.getUrlPDFRead()}"
+                                           class="btn btn-sm btn-success ms-2"
+                                           target="_blank">
+                                            <i class="fas fa-file-pdf"></i> PDF
+                                        </a>
+                                        <span th:unless="${firstDevice != null && firstDevice.getUrlPDFRead() != null && !firstDevice.getUrlPDFRead().isEmpty()}"
+                                              class="text-muted ms-2">
+                PDF нет
+            </span>
+
+                                        <!-- TXT ссылка - используем firstDevice -->
+                                        <a th:if="${firstDevice != null && firstDevice.getUrlTXTRead() != null && !firstDevice.getUrlTXTRead().isEmpty()}"
+                                           th:href="${firstDevice.getUrlTXTRead()}"
+                                           class="btn btn-sm btn-info ms-2"
+                                           target="_blank">
+                                            <i class="fas fa-file-alt"></i> TXT
+                                        </a>
+                                        <span th:unless="${firstDevice != null && firstDevice.getUrlTXTRead() != null && !firstDevice.getUrlTXTRead().isEmpty()}"
                                               class="text-muted ms-2">
                 TXT нет
             </span>
