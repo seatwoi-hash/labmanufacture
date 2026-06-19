@@ -221,7 +221,7 @@ public class LinkServiceImpl implements LinkService {
 
             body.add("path", filePath);  // Убедитесь, что путь правильный
             body.add("shareType", "3");
-            body.add("permissions", "31");
+            body.add("permissions", "3");
 
             if (shareName != null && !shareName.isEmpty()) {
                 body.add("name", shareName);
