@@ -16,6 +16,7 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.dto.DeviceSubTypeDto;
+import ru.polymetal.labManufacture.exception.DeviceTypeNotFoundException;
 import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.nextcloud.LinkService;
@@ -109,8 +110,7 @@ public class DeviceTypeController {
 
         model.addAttribute("currentUser", account);
 
-        DeviceSubType deviceSubType = deviceSubTypeService.findById(id).orElseThrow(() -> new RuntimeException(
-                "Тип платы не найден"));
+        DeviceSubType deviceSubType = deviceSubTypeService.findById(id).orElseThrow(DeviceTypeNotFoundException::new);
         model.addAttribute("subtype", deviceSubType);
 
         return "usermenu/edite-type-devices";

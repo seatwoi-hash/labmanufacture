@@ -19,7 +19,7 @@ public class AuthController {
         Optional.ofNullable(logout)
                 .ifPresent(l -> model.addAttribute("message", "Вы успешно вышли из системы"));
 
-        return "login";
+        return "auth/login";
     }
 
 }

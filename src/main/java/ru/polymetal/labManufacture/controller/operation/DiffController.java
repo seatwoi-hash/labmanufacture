@@ -68,7 +68,7 @@ public class DiffController {
 
         model.addAttribute("currentUser", account);
 
-        return "mone-board";
+        return "operation/board/mone-board";
     }
 
     @PostMapping("/mone-board/complete")
@@ -108,7 +108,7 @@ public class DiffController {
 
         model.addAttribute("currentUser", account);
 
-        return "mtwo-board";
+        return "operation/board/mtwo-board";
     }
 
     @PostMapping("/mtwo-board/complete")
@@ -145,7 +145,7 @@ public class DiffController {
 
         model.addAttribute("currentUser", account);
 
-        return "ready-board";
+        return "board/ready-board";
     }
 
     @GetMapping("/noready-board")
@@ -180,7 +180,7 @@ public class DiffController {
 
         model.addAttribute("currentUser", account);
 
-        return "noready-board";
+        return "board/noready-board";
     }
 
     @GetMapping("/operation-board/{sn}")
@@ -200,7 +200,7 @@ public class DiffController {
 
         model.addAttribute("currentUser", account);
 
-        return "all-operation-board";
+        return "board/all-operation-board";
     }
 
     @GetMapping("/ready-board-temp")

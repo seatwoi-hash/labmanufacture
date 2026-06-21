@@ -65,7 +65,7 @@ public class VarnishController {
 
         model.addAttribute("currentUser", account);
 
-        return "varnish-board";
+        return "operation/varnish/varnish-board";
     }
 
 

@@ -56,7 +56,7 @@ public class DeviceController {
 
             List<DeviceSubType> deviceSubTypes = deviceSubTypeService.findAll();
             model.addAttribute("subtypeList", deviceSubTypes);
-            return "new-board";
+            return "board/new-board";
     }
 
     @PostMapping("/create-board")
@@ -77,7 +77,7 @@ public class DeviceController {
             model.addAttribute("subtypeList", deviceSubTypes);
             model.addAttribute("device", device);
             model.addAttribute("error", "Номер не может быть пустым");
-            return "new-board";
+            return "board/new-board";
         }
 
         if (deviceService.existsSerialNumber(device.getSerialNumber())) {
@@ -85,14 +85,14 @@ public class DeviceController {
             model.addAttribute("subtypeList", deviceSubTypes);
             model.addAttribute("device", device);
             model.addAttribute("error", "Номер должен быть уникальным");
-            return "new-board";
+            return "board/new-board";
         }
 
         if (result.hasErrors()) {
             List<DeviceSubType> deviceSubTypes = deviceSubTypeService.findAll();
             model.addAttribute("subtypeList", deviceSubTypes);
             model.addAttribute("device", device);
-            return "new-board";
+            return "board/new-board";
         }
 
         try {
@@ -103,7 +103,7 @@ public class DeviceController {
             model.addAttribute("device", device);
             model.addAttribute("error", e.getMessage());
             device.setSerialNumber(null);
-            return "new-board";
+            return "board/new-board";
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

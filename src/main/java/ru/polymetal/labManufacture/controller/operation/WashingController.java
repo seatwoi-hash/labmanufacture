@@ -66,7 +66,7 @@ public class WashingController {
 
         model.addAttribute("currentUser", account);
 
-        return "washing1-board";
+        return "operation/washing/washing1-board";
     }
 
 
@@ -108,7 +108,7 @@ public class WashingController {
 
         model.addAttribute("currentUser", account);
 
-        return "washing2-board";
+        return "operation/washing/washing2-board";
     }
 
 

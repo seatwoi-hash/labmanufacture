@@ -1,5 +1,6 @@
 package ru.polymetal.labManufacture.handler;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,6 +26,18 @@ public class GlobalExceptionHandler {
     public String handleDeviceTypeNotFound(DeviceTypeNotFoundException ex, Model model) {
         model.addAttribute("error", ex.getMessage());
         return "redirect:/main";
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public String handleRuntimeException(HttpServletResponse response) {
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        return "404/404";
+    }
+
+    @ExceptionHandler(Exception.class)
+    public String handleException(HttpServletResponse response) {
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        return "404/404";
     }
 
 }
