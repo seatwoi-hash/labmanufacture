@@ -66,7 +66,7 @@ public class InstallationController {
 
         model.addAttribute("currentUser", account);
 
-        return "installation-board";
+        return "operation/installation/installation-board";
     }
 
 
@@ -101,7 +101,7 @@ public class InstallationController {
 
         model.addAttribute("currentUser", account);
 
-        return "installation-board2";
+        return "operation/installation/installation-board2";
     }
 
 

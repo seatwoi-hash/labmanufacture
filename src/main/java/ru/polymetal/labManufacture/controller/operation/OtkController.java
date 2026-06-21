@@ -114,7 +114,7 @@ public class OtkController {
 
         model.addAttribute("currentUser", account);
 
-        return "otk1-board";
+        return "operation/otk/otk1-board";
     }
 
     @PostMapping("/otk1-board/complete")
@@ -184,7 +184,7 @@ public class OtkController {
 
         model.addAttribute("currentUser", account);
 
-        return "otk2-board";
+        return "operation/otk/otk2-board";
     }
 
     @PostMapping("/otk2-board/complete")
@@ -244,7 +244,7 @@ public class OtkController {
 
         model.addAttribute("currentUser", account);
 
-        return "otk3-board";
+        return "operation/otk/otk3-board";
     }
 
     @PostMapping("/otk3-board/complete")
@@ -302,7 +302,7 @@ public class OtkController {
 
         model.addAttribute("currentUser", account);
 
-        return "otk4-board";
+        return "operation/otk/otk4-board";
     }
 
     @PostMapping("/otk4-board/complete")
@@ -381,7 +381,7 @@ public class OtkController {
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
 
 
-        return "otk5-board";
+        return "operation/otk/otk5-board";
     }
 
     @PostMapping("/otk5-board/complete")
@@ -455,7 +455,7 @@ public class OtkController {
 
         model.addAttribute("currentUser", account);
 
-        return "otk6-board";
+        return "operation/otk/otk6-board";
     }
 
     @PostMapping("/otk6-board/complete")

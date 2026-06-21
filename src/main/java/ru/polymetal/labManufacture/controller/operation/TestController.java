@@ -87,7 +87,7 @@ public class TestController {
         model.addAttribute("currentUser", account);
 
 
-        return "test-board";
+        return "operation/test/test-board";
     }
 
     @PostMapping("/test-board/complete")
@@ -150,7 +150,7 @@ public class TestController {
 
         model.addAttribute("currentUser", account);
 
-        return "test2-board";
+        return "operation/test/test2-board";
     }
 
     @PostMapping("/test-board-two/complete")
@@ -158,11 +158,10 @@ public class TestController {
     public ResponseEntity<?> completeTestTwo(@RequestParam UUID deviceId,
                                              @RequestParam String action,
                                              @ModelAttribute("device") Operation device,
-                                             Authentication authentication) throws IOException {
+                                             Authentication authentication) {
         UUID operationIdTech = null;
 
-        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new RuntimeException("Операция не" +
-                " найдена"));
+        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
 
         Boolean isTestTwoById = deviceSubTypeService.findIsTestTwoById(operation);
 

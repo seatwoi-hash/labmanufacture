@@ -76,7 +76,7 @@ public class RepairController {
 
         model.addAttribute("currentUser", account);
 
-        return "repair1-board";
+        return "operation/repair/repair1-board";
     }
 
 
@@ -119,7 +119,7 @@ public class RepairController {
 
         model.addAttribute("currentUser", account);
 
-        return "repair2-board";
+        return "operation/repair/repair2-board";
     }
 
 
@@ -162,7 +162,7 @@ public class RepairController {
 
         model.addAttribute("currentUser", account);
 
-        return "repair3-board";
+        return "operation/repair/repair3-board";
     }
 
 
@@ -205,7 +205,7 @@ public class RepairController {
 
         model.addAttribute("currentUser", account);
 
-        return "repair4-board";
+        return "operation/repair/repair4-board";
     }
 
 
@@ -248,7 +248,7 @@ public class RepairController {
 
         model.addAttribute("currentUser", account);
 
-        return "repair5-board";
+        return "operation/repair/repair5-board";
     }
 
 
@@ -291,7 +291,7 @@ public class RepairController {
 
         model.addAttribute("currentUser", account);
 
-        return "repair6-board";
+        return "operation/repair/repair6-board";
     }
 
 
