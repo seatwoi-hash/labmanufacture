@@ -8,21 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.data.repository.RoleRepository;
 import testdata.AccountTestData;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DiffControllerTest  extends AbstractTestNGSpringContextTests {
+public class DiffControllerTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     protected AccountRepository accountRepository;
@@ -57,9 +57,9 @@ public class DiffControllerTest  extends AbstractTestNGSpringContextTests {
     public void showMOneDeviceForm() throws Exception {
 
         mockMvc.perform(get("/device/mone-board")
-                    .with(user("operatorTestMVC")))
-                    .andExpect(status().isOk())
-                    .andExpect(view().name("operation/board/mone-board"));
+                        .with(user("operatorTestMVC")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("operation/board/mone-board"));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class DiffControllerTest  extends AbstractTestNGSpringContextTests {
     void showReadyBoard() throws Exception {
 
         mockMvc.perform(get("/device/ready-board")
-                .with(user("operatorTestMVC")))
+                        .with(user("operatorTestMVC")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("board/ready-board"));
     }
