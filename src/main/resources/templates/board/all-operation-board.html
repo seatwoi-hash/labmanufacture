@@ -9,6 +9,15 @@
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/styles.css}">
     <style>
+
+        .table-fail {
+            background-color: #f8d7da !important;
+        }
+
+        .table-fail:hover {
+            background-color: #f5c2c7 !important;
+        }
+
         .device-table {
             background: white;
             border-radius: 12px;
@@ -174,7 +183,8 @@
                         </thead>
                         <tbody>
 
-                        <tr th:each="operation : ${operations}">
+                        <tr th:each="operation : ${operations}"
+                            th:classappend="${#strings.containsIgnoreCase(operation.status.name, 'Fail')} ? ' table-fail' : ''">
                             <td>
                                 <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
                             </td>
@@ -187,7 +197,9 @@
                                 <span th:unless="${operation.description}" class="text-muted">—</span>
                             </td>
                             <td>
-                                <span class="device-sn" th:text="${operation.getStatus().description}"></span>
+                                <span class="device-sn"
+                                      th:text="${operation.status.description}">
+                                </span>
                             </td>
 
                             <td>
