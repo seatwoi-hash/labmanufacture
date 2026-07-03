@@ -13,6 +13,7 @@ import java.util.Base64;
 @ConfigurationProperties(prefix = "nextcloud")
 @Data
 public class NextcloudConfig {
+
     private String serverUrl;
     private String username;
     private String password;
@@ -23,9 +24,11 @@ public class NextcloudConfig {
 
     @Data
     public static class SharesConfig {
+
         private int defaultExpirationDays = 1000000365;
         private boolean allowEditing = true;
         private String defaultPermissions = "31";
+
     }
 
     @Bean
@@ -35,6 +38,7 @@ public class NextcloudConfig {
 
     @Bean
     public RestTemplate restTemplate() {
+
         RestTemplate restTemplate = new RestTemplate();
 
         // Добавляем интерцептор для базовой аутентификации
@@ -52,6 +56,7 @@ public class NextcloudConfig {
 
     @Bean
     public String webdavBaseUrl() {
+
         String baseUrl = serverUrl;
         if (!baseUrl.endsWith("/")) {
             baseUrl += "/";
@@ -70,6 +75,7 @@ public class NextcloudConfig {
 
 
     public String getOcsApiUrl() {
+
         String baseUrl = serverUrl;
         if (!baseUrl.endsWith("/")) {
             baseUrl += "/";

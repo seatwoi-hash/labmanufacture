@@ -39,9 +39,9 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
     @BeforeClass
     public void createUser() {
 
-        Role qualityRole = roleRepository.findByName("operator").orElseThrow();
+        Role operatorRole = roleRepository.findByName("operator").orElseThrow();
 
-        Account account = AccountTestData.createOperator(passwordEncoder, qualityRole);
+        Account account = AccountTestData.createOperator(passwordEncoder, operatorRole);
         accountRepository.saveAndFlush(account);
 
     }

@@ -12,6 +12,7 @@ public final class AccountTestData {
     }
 
     public static Account createAdmin(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "adminTestMVC",
                 "admin@test.local",
@@ -21,6 +22,7 @@ public final class AccountTestData {
     }
 
     public static Account createUser(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "userTestMVC",
                 "user@test.local",
@@ -30,6 +32,7 @@ public final class AccountTestData {
     }
 
     public static Account createOperator(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "operatorTestMVC",
                 "operator@test.local",
@@ -39,6 +42,7 @@ public final class AccountTestData {
     }
 
     public static Account createQuality(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "qualityTestMVC",
                 "quality@test.local",
@@ -48,6 +52,7 @@ public final class AccountTestData {
     }
 
     public static Account createTesterA(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "testerATestMVC",
                 "testerA@test.local",
@@ -57,6 +62,7 @@ public final class AccountTestData {
     }
 
     public static Account createTesterB(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "testerBTestMVC",
                 "testerB@test.local",
@@ -66,6 +72,7 @@ public final class AccountTestData {
     }
 
     public static Account createAssembler(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "assemblerTestMVC",
                 "assembler@test.local",
@@ -75,6 +82,7 @@ public final class AccountTestData {
     }
 
     public static Account createRepairman(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "repairmanTestMVC",
                 "repairman@test.local",
@@ -84,6 +92,7 @@ public final class AccountTestData {
     }
 
     public static Account createWasher(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "washerTestMVC",
                 "washer@test.local",
@@ -93,6 +102,7 @@ public final class AccountTestData {
     }
 
     public static Account createOutput(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "outputTestMVC",
                 "output@test.local",
@@ -102,6 +112,7 @@ public final class AccountTestData {
     }
 
     public static Account createVarnisher(PasswordEncoder encoder, Role role) {
+
         return createAccount(
                 "varnisherTestMVC",
                 "varnisher@test.local",
@@ -116,6 +127,7 @@ public final class AccountTestData {
             PasswordEncoder encoder,
             Role role
     ) {
+
         Account account = new Account();
         account.setUsername(username);
         account.setPasswordHash(encoder.encode("testMVC"));
