@@ -23,7 +23,7 @@ import ru.polymetal.labManufacture.service.operation.OperationService;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class OperationServiceImpl implements OperationService {
+public class  OperationServiceImpl implements OperationService {
 
     private static final String BOARD_TYPE_NAME = "BOARD";
 

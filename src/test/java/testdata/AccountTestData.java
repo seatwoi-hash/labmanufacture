@@ -8,9 +8,6 @@ import java.util.Set;
 
 public final class AccountTestData {
 
-    private AccountTestData() {
-    }
-
     public static Account createAdmin(PasswordEncoder encoder, Role role) {
 
         return createAccount(
