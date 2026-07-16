@@ -10,8 +10,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.polymetal.labManufacture.data.models.Account;
+import ru.polymetal.labManufacture.data.models.Device;
+import ru.polymetal.labManufacture.data.models.DeviceSubType;
+import ru.polymetal.labManufacture.data.models.DeviceType;
+import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
+import ru.polymetal.labManufacture.data.repository.DeviceRepository;
+import ru.polymetal.labManufacture.data.repository.DeviceSubTypeRepository;
+import ru.polymetal.labManufacture.data.repository.DeviceTypeRepository;
+import ru.polymetal.labManufacture.data.repository.OperationRepository;
 import ru.polymetal.labManufacture.data.repository.RoleRepository;
 import testdata.AccountTestData;
 
@@ -31,6 +39,12 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
     protected RoleRepository roleRepository;
 
     @Autowired
+    protected DeviceSubTypeRepository deviceSubTypeRepository;
+
+    @Autowired
+    protected DeviceTypeRepository deviceTypeRepository;
+
+    @Autowired
     protected PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -44,6 +58,10 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
         Account account = AccountTestData.createOperator(passwordEncoder, operatorRole);
         accountRepository.saveAndFlush(account);
 
+        DeviceType deviceType = deviceTypeRepository.findByName("BOARD").orElseThrow(() -> new RuntimeException("тип " +
+                "не найден"));
+
+        DeviceSubType deviceSubType =
     }
 
     @AfterClass
