@@ -71,20 +71,17 @@ public class Device {
             return null;
         }
 
-        // Получаем последний статус
         Operation lastOperation = operations.get(0);
+
+        if (lastOperation == null || lastOperation.getStatus() == null) {
+            return lastOperation;
+        }
+
         String lastStatus = lastOperation.getStatus().getName();
 
-        // Проверяем, является ли последний статус Technical/Technical2/Technical3
-        if (isTechnicalStatus(lastStatus)) {
-            // Если есть хотя бы 2 операции, показываем предпоследнюю
-            if (operations.size() >= 2) {
-                Operation secondLastOperation = operations.get(1);
-                return secondLastOperation;
-            } else {
-                // Если только одна операция, показываем её
-                return lastOperation;
-            }
+        if (isTechnicalStatus(lastStatus) && operations.size() >= 2) {
+            Operation secondLastOperation = operations.get(1);
+            return secondLastOperation != null ? secondLastOperation : lastOperation;
         }
 
         return lastOperation;

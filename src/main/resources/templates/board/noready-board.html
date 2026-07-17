@@ -190,10 +190,18 @@
                                 <span class="device-ty" th:text="${device.subtype?.name} ?: 'Не указан'">Тип </span>
 
                             </td>
+
                             <td>
-                                <span class="device-op" th:text="${device.getDisplayStatus().getStatus().getDescription()}"></span>                            </td>
+                                <span class="device-op"
+                                      th:if="${device.displayStatus != null}"
+                                      th:text="${device.displayStatus.status.description}">
+                                </span>
+                            </td>
+
                             <td>
-                                        <span th:text="${#temporals.format(device.getDisplayStatus().getCreatedTime(), 'dd.MM.yyyy HH:mm')}">
+                                        <span
+                                                th:if="${device.displayStatus != null}"
+                                                th:text="${#temporals.format(device.getDisplayStatus().getCreatedTime(), 'dd.MM.yyyy HH:mm')}">
                                         </span>
                             </td>
                             <td class="action-buttons">
