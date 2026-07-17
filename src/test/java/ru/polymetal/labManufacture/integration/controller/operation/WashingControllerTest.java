@@ -1,11 +1,15 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.integration.controller.operation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -13,16 +17,11 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.data.repository.RoleRepository;
-import testdata.AccountTestData;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import ru.polymetal.labManufacture.integration.testdata.AccountTestData;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TestControllerTest extends AbstractTestNGSpringContextTests {
+public class WashingControllerTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     protected AccountRepository accountRepository;
@@ -39,9 +38,9 @@ public class TestControllerTest extends AbstractTestNGSpringContextTests {
     @BeforeClass
     public void createUser() {
 
-        Role testerBRole = roleRepository.findByName("testerB").orElseThrow();
+        Role washerRole = roleRepository.findByName("washer").orElseThrow();
 
-        Account account = AccountTestData.createTesterB(passwordEncoder, testerBRole);
+        Account account = AccountTestData.createWasher(passwordEncoder, washerRole);
         accountRepository.saveAndFlush(account);
 
     }
@@ -49,34 +48,34 @@ public class TestControllerTest extends AbstractTestNGSpringContextTests {
     @AfterClass
     public void deleteUser() {
 
-        accountRepository.findByUsername("testerBTestMVC")
+        accountRepository.findByUsername("washerTestMVC")
                 .ifPresent(accountRepository::delete);
     }
 
     @Test
-    public void testShowTestDeviceForm() throws Exception {
+    public void testShowWashingOneDeviceForm() throws Exception {
 
-        mockMvc.perform(get("/device/test-board")
-                        .with(user("testerBTestMVC")))
+        mockMvc.perform(get("/device/washing1-board")
+                        .with(user("washerTestMVC")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("operation/test/test-board"));
+                .andExpect(view().name("operation/washing/washing1-board"));
     }
 
     @Test
-    public void testCompleteTest() {
+    public void testCompleteWashingOne() {
     }
 
     @Test
-    public void testShowTestTwoDeviceForm() throws Exception {
+    public void testShowWashingTwoDeviceForm() throws Exception {
 
-        mockMvc.perform(get("/device/test-board-two")
-                        .with(user("testerBTestMVC")))
+        mockMvc.perform(get("/device/washing2-board")
+                        .with(user("washerTestMVC")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("operation/test/test2-board"));
+                .andExpect(view().name("operation/washing/washing2-board"));
     }
 
     @Test
-    public void testCompleteTestTwo() {
+    public void testCompleteWashingTwo() {
     }
 
 }

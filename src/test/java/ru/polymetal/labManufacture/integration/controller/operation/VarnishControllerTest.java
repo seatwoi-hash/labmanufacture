@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.integration.controller.operation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,7 +17,7 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.data.repository.RoleRepository;
-import testdata.AccountTestData;
+import ru.polymetal.labManufacture.integration.testdata.AccountTestData;
 
 @SpringBootTest
 @AutoConfigureMockMvc

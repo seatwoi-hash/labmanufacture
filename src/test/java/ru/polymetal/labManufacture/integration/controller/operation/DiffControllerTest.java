@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.integration.controller.operation;
 
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterClass;
@@ -13,20 +13,20 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.models.DeviceType;
-import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceSubTypeRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceTypeRepository;
-import ru.polymetal.labManufacture.data.repository.OperationRepository;
 import ru.polymetal.labManufacture.data.repository.RoleRepository;
-import testdata.AccountTestData;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import ru.polymetal.labManufacture.integration.testdata.AccountTestData;
+import ru.polymetal.labManufacture.integration.testdata.DeviceSubTypeData;
+import ru.polymetal.labManufacture.integration.testdata.DeviceTestData;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -45,6 +45,9 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
     protected DeviceTypeRepository deviceTypeRepository;
 
     @Autowired
+    protected DeviceRepository deviceRepository;
+
+    @Autowired
     protected PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -61,7 +64,11 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
         DeviceType deviceType = deviceTypeRepository.findByName("BOARD").orElseThrow(() -> new RuntimeException("тип " +
                 "не найден"));
 
-        DeviceSubType deviceSubType =
+        DeviceSubType deviceSubType = DeviceSubTypeData.createDeviceSubTypeData("forTest");
+        deviceSubTypeRepository.save(deviceSubType);
+        Device device = DeviceTestData.createDevice("forTest", deviceType, deviceSubType);
+        deviceRepository.save(device);
+
     }
 
     @AfterClass
@@ -69,6 +76,12 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
 
         accountRepository.findByUsername("operatorTestMVC")
                 .ifPresent(accountRepository::delete);
+
+        deviceSubTypeRepository.deleteAll(
+                deviceSubTypeRepository.findAllByName("forTest"));
+
+        deviceRepository.findBySerialNumber("forTest")
+                .ifPresent(deviceRepository::delete);
     }
 
     @Test
@@ -118,7 +131,10 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
     @Test
     void showOperationBoard() throws Exception {
 
-//        mockMvc.perform(get("/device/operation-board/{sn}"))  TODO: test data sn board create!!!
-    }
+        mockMvc.perform(get("/device/operation-board/forTest")
+                .with(user("operatorTestMVC")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("board/all-operation-board"));
 
+    }
 }

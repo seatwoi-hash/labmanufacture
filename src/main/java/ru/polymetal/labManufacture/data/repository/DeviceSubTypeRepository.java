@@ -19,6 +19,8 @@ public interface DeviceSubTypeRepository extends JpaRepository<DeviceSubType, UU
 
     List<DeviceSubType> findAll();
 
+    List<DeviceSubType> findAllByName(String name);
+
     boolean existsByName(String name);
 
     @Query("SELECT d.isInstallationOne FROM DeviceSubType d WHERE d.id = :id AND d.isDeleted = false")

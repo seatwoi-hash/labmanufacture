@@ -1,4 +1,4 @@
-package testdata;
+package ru.polymetal.labManufacture.integration.testdata;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.polymetal.labManufacture.data.models.Account;
