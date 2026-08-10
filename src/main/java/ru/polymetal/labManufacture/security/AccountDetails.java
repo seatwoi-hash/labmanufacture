@@ -9,12 +9,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Builder
-public class AccountDetails implements UserDetails {
-    private final Account account;
-
-    public AccountDetails(Account account) {
-        this.account = account;
-    }
+public record AccountDetails(Account account) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -52,10 +47,6 @@ public class AccountDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.account.getActive();
-    }
-
-    public Account getAccount() {
-        return account;
     }
 
 }

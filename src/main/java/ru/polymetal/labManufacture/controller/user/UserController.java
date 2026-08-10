@@ -41,8 +41,8 @@ public class UserController {
         this.accountService = accountService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/add-user")
+    @PreAuthorize("hasRole('ADMIN')")
     public String addUser(Authentication authentication, Model model) {
         if (authentication != null && authentication.isAuthenticated()) {
             model.addAttribute("username", authentication.getName());
@@ -52,8 +52,8 @@ public class UserController {
         return "usermenu/add-user";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/users/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public String addUser(@Valid @ModelAttribute("user") AccountCreateFormDto userFormDto,
                           BindingResult result,
                           Model model,
@@ -200,8 +200,8 @@ public class UserController {
         return "usermenu/edit-account";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/users/edit")
+    @PreAuthorize("hasRole('ADMIN')")
     public String editUser(@Valid @ModelAttribute("user") AccountCreateFormDto accountCreateFormDto,
                            BindingResult result,
                            Model model) {
@@ -278,8 +278,8 @@ public class UserController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/account/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteUser(@PathVariable UUID id)
     {
 

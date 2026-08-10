@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import ru.polymetal.labManufacture.constant.DeviceStatusCodes;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.CREATE;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.READY;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE2;
@@ -30,9 +30,11 @@ import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.device.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -44,21 +46,24 @@ public class DiffController {
     private final DeviceStatusService deviceStatusService;
     private final DeviceSubTypeService deviceSubTypeService;
     private final DeviceService deviceService;
+    private final OperationQueryService operationQueryService;
 
 
-    public DiffController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, DeviceService deviceService) {
+
+    public DiffController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, DeviceService deviceService, OperationQueryService operationQueryService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
         this.deviceStatusService = deviceStatusService;
         this.deviceSubTypeService = deviceSubTypeService;
         this.deviceService = deviceService;
+        this.operationQueryService = operationQueryService;
     }
 
     @GetMapping("/mone-board")
     public String showMOneDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = operationService.findByStatusIdAndIsDelete(deviceStatusService
-                .findByName(DeviceStatusCodes.CREATE).getId());
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(CREATE));
 
         model.addAttribute("devices", devices);
 
@@ -97,8 +102,8 @@ public class DiffController {
     @GetMapping("/mtwo-board")
     public String showMTwoDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = operationService.findByStatusIdAndIsDelete(deviceStatusService
-                .findByName(SIDE1).getId());
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(SIDE1));
 
         model.addAttribute("devices", devices);
 
@@ -128,13 +133,12 @@ public class DiffController {
     @GetMapping("/ready-board")
     public String showReadyBoard(Model model, Authentication authentication) {
 
-        List<Operation> operations = operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(READY).getId()
-        );
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(READY));
 
 
         List<Operation> sortDevices =
-                operations.stream().sorted(Comparator.comparing(Operation::getCreatedTime).reversed()).collect(Collectors.toList());
+                devices.stream().sorted(Comparator.comparing(Operation::getCreatedTime).reversed()).collect(Collectors.toList());
 
         model.addAttribute("devices", sortDevices);
 

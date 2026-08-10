@@ -46,11 +46,9 @@ public class FileData {
     @Column(name = "mime_type", length = 127)
     private String mimeType;
 
-
     @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "data")
     private byte[] data;
-
 
     @OneToOne
     @JoinColumn(name = "operations_id", referencedColumnName = "id", nullable = false, unique = true)

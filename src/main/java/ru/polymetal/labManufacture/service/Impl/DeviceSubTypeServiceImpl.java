@@ -62,7 +62,7 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
 
     @Override
     @Transactional
-    public void save(DeviceSubTypeDto deviceSubTypeDto, MultipartFile file) throws IOException {
+    public void save(DeviceSubTypeDto deviceSubTypeDto, MultipartFile file, MultipartFile zip) throws IOException {
 
         if (deviceSubTypeRepository.findByName(deviceSubTypeDto.name()).isPresent()) {
             throw new RuntimeException("Такой тип уже существует");
@@ -79,6 +79,9 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         deviceSubType.setIsTestTwo(deviceSubTypeDto.isTestTwo());
         deviceSubType.setIsSideTwo(deviceSubTypeDto.isSideTwo());
 
+        if (zip != null) {
+            deviceSubType.setData(zip.getBytes());
+        }
 
         DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);
 
@@ -101,11 +104,9 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
 
     @Override
     @Transactional
-    public void edite(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file) throws IOException {
+    public void edite(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file, MultipartFile zip) throws IOException {
         DeviceSubType deviceSubType = deviceSubTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Тип не найден"));
-
-
 
 
         deviceSubType.setIsTestTwo(deviceSubTypeDto.isTestTwo());
@@ -116,9 +117,13 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         deviceSubType.setSnType(deviceSubTypeDto.snType());
         deviceSubType.setDescription(deviceSubTypeDto.description());
 
+        if (zip != null && !zip.isEmpty()) {
+            deviceSubType.setData(zip.getBytes());
+        }
+
         DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);
 
-        if (file != null) {
+        if (file != null && !file.isEmpty()) {
             String newName = UUID.randomUUID() + ".pdf";
             this.uploadFile(newName, file.getBytes(), saved.getId());
             deviceSubType.setFileName(newName);
@@ -142,7 +147,8 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     @Override
     public Boolean findIsSideTwoById(Operation operation) {
         UUID id = operation.getDevice().getSubtype().getId();
-        return deviceSubTypeRepository.findIsSideTwoByIdAndNotDeleted(id);    }
+        return deviceSubTypeRepository.findIsSideTwoByIdAndNotDeleted(id);
+    }
 
     @Override
     @Async

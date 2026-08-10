@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.DIAGNOSTICIAN_TEST_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.DIAGNOSTICIAN_TEST_2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_TEST;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_TEST_2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_2;
@@ -30,10 +34,12 @@ import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.file.FileService;
+import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -42,50 +48,33 @@ public class TestController {
 
     private final AccountRepository accountRepository;
     private final OperationService operationService;
-    private final DeviceStatusService deviceStatusService;
     public final FileService fileService;
     private final DeviceSubTypeService deviceSubTypeService;
-
-
+    private final OperationQueryService operationQueryService;
 
     public TestController(AccountRepository accountRepository, OperationService operationService,
-                          DeviceStatusService deviceStatusService, FileService fileService, DeviceSubTypeService deviceSubTypeService) {
+                          FileService fileService, DeviceSubTypeService deviceSubTypeService,
+                          OperationQueryService operationQueryService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
-        this.deviceStatusService = deviceStatusService;
         this.fileService = fileService;
         this.deviceSubTypeService = deviceSubTypeService;
+        this.operationQueryService = operationQueryService;
     }
 
     @GetMapping("/test-board")
     public String showTestDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> operations = new ArrayList<>();
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_2, QUALITY_CHECK_2_1, QUALITY_CHECK_3,
+                        DIAGNOSTICIAN_TEST_1, TECHNICAL));
 
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(QUALITY_CHECK_2).getId()
-        ));
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(QUALITY_CHECK_2_1).getId()
-        ));
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(QUALITY_CHECK_3).getId()
-        ));
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(TECHNICAL).getId()
-        ));
-
-
-        model.addAttribute("devices", operations);
+        model.addAttribute("devices", devices);
         Account account =
                 accountRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException(
                         "Пользователь не найден"));
 
         model.addAttribute("currentUser", account);
-
 
         return "operation/test/test-board";
     }
@@ -114,10 +103,11 @@ public class TestController {
                     device.getDescription());
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        Operation operationNew =
+                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
         if (!isTestOne && !"failed".equals(action)) {
-            operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account,
+            operationIdTech = operationService.completeOperationWithoutDescription(operationIdTech, account,
                     TECHNICAL2);
         }
 
@@ -128,20 +118,11 @@ public class TestController {
     @GetMapping("/test-board-two")
     public String showTestTwoDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> operations = new ArrayList<>();
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_4, QUALITY_CHECK_4_1, DIAGNOSTICIAN_TEST_2,
+                        QUALITY_CHECK_4_2));
 
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(QUALITY_CHECK_4).getId()
-        ));
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(QUALITY_CHECK_4_1).getId()
-        ));
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(QUALITY_CHECK_4_2).getId()
-        ));
-        model.addAttribute("devices", operations);
+        model.addAttribute("devices", devices);
 
         Account account =
                 accountRepository.findByUsername(authentication.getName())
@@ -178,11 +159,12 @@ public class TestController {
                     device.getDescription());
         }
 
-        if(!isTestTwoById) {
+        if (!isTestTwoById) {
             operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL2);
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        Operation operationNew =
+                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
 
         return ResponseEntity.ok().build();

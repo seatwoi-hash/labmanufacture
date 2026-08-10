@@ -1,5 +1,9 @@
 package ru.polymetal.labManufacture.controller.devicetype;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -25,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Controller
+@Slf4j
 @RequestMapping("/devicetype")
 public class DeviceTypeController {
 
@@ -38,7 +43,7 @@ public class DeviceTypeController {
         this.accountRepository = accountRepository;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @GetMapping("/add")
     public String showCreateDeviceForm(Model model, Authentication authentication) {
 
@@ -56,7 +61,7 @@ public class DeviceTypeController {
         return "usermenu/add-type-devices";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PostMapping("/add")
     public String addType(   @RequestParam String name,
                              @RequestParam String description,
@@ -65,7 +70,8 @@ public class DeviceTypeController {
                              @RequestParam(required = false, defaultValue = "false") Boolean isInstallationOne,
                              @RequestParam(required = false, defaultValue = "false") Boolean isTestTwo,
                              @RequestParam(required = false, defaultValue = "false") Boolean isSideTwo,
-                             @RequestParam(value = "file", required = false) MultipartFile file) {
+                             @RequestParam(value = "file", required = false) MultipartFile file,
+                             @RequestParam(value = "zip", required = false) MultipartFile zip) {
 
         DeviceSubTypeDto deviceSubTypeDto = DeviceSubTypeDto.builder()
                 .name(name)
@@ -78,18 +84,22 @@ public class DeviceTypeController {
                 build();
 
         try {
-            deviceSubTypeService.save(deviceSubTypeDto, file);
+            deviceSubTypeService.save(deviceSubTypeDto, file, zip);
 
         } catch (RuntimeException e) {
+            log.error("Ошибка сохранения DeviceSubType", e);
+
             return "usermenu/add-type-devices";
         } catch (IOException e) {
+            log.error("Ошибка сохранения DeviceSubType", e);
+
             throw new RuntimeException(e);
         }
 
         return "redirect:/devicetype/add";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @DeleteMapping("/delete/{id}")
     public String deleteType(@PathVariable UUID id)
     {
@@ -100,7 +110,7 @@ public class DeviceTypeController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @GetMapping("/edite/{id}")
     public String showEditeDeviceForm(Model model, Authentication authentication, @PathVariable UUID id) {
 
@@ -117,16 +127,40 @@ public class DeviceTypeController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PatchMapping("/edite/{id}")
     public String editeType(DeviceSubTypeDto deviceSubTypeDto,
                             @PathVariable UUID id,
-                            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+                            @RequestParam(value = "file", required = false) MultipartFile file,
+                            @RequestParam(value = "zip", required = false) MultipartFile zip) throws IOException {
 
-
-        deviceSubTypeService.edite(deviceSubTypeDto, id, file);
-
+        deviceSubTypeService.edite(deviceSubTypeDto, id, file, zip);
+        log.info("после");
         return "redirect:/devicetype/add";
+    }
+
+
+
+    @GetMapping("/{id}/download")
+    public ResponseEntity<byte[]> download(@PathVariable UUID id) {
+
+        DeviceSubType deviceSubType =
+                deviceSubTypeService.findById(id).orElseThrow(DeviceTypeNotFoundException::new);
+
+        byte[] data = deviceSubType.getData();
+
+        if (data == null || data.length == 0) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"altium-" + deviceSubType.getName() + ".zip\""
+                )
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(data.length)
+                .body(data);
     }
 
 }

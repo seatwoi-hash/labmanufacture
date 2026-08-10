@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5_1_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_6;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST_2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
@@ -21,9 +24,11 @@ import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
+import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,30 +39,20 @@ public class WashingController {
 
     private final AccountRepository accountRepository;
     private final OperationService operationService;
-    private final DeviceStatusService deviceStatusService;
+    private final OperationQueryService operationQueryService;
 
     public WashingController(AccountRepository accountRepository, OperationService operationService,
-                             DeviceStatusService deviceStatusService) {
+                             OperationQueryService operationQueryService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
-        this.deviceStatusService = deviceStatusService;
+        this.operationQueryService = operationQueryService;
     }
     @GetMapping("/washing1-board")
     public String showWashingOneDeviceForm(Model model, Authentication authentication) {
 
-
-
-        List<Operation> operations = new ArrayList<>();
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(TEST_2).getId()
-        ));
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(TECHNICAL2).getId()
-        ));
-
-        model.addAttribute("devices", operations);
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(TEST_2, TECHNICAL2));
+        model.addAttribute("devices", devices);
 
         Account account =
                 accountRepository.findByUsername(authentication.getName())
@@ -84,20 +79,16 @@ public class WashingController {
         operationService.completeOperationWithDescription(deviceId, account, WASHING1 ,device.getDescription());
 
         return ResponseEntity.ok().build();
-
     }
 
     @GetMapping("/washing2-board")
     public String showWashingTwoDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = Stream.concat(
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(QUALITY_CHECK_5_1).getId()
-                ).stream(),
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(FAIL_QUALITY_CHECK_5_1_1).getId()
-                ).stream()
-        ).collect(Collectors.toList());
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_5_1, FAIL_QUALITY_CHECK_5_1_1));
+
+        model.addAttribute("devices", devices);
+
 
         model.addAttribute("devices", devices);
 
@@ -126,6 +117,5 @@ public class WashingController {
         operationService.completeOperationWithDescription(deviceId, account, WASHING2, device.getDescription());
 
         return ResponseEntity.ok().build();
-
     }
 }

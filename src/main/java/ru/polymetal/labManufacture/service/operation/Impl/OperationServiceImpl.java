@@ -34,6 +34,8 @@ public class  OperationServiceImpl implements OperationService {
 
     private static final Map<String, List<String>> ROLE_STATUS_MAPPING = Map.of(
             "operator", Arrays.asList(CREATE, SIDE1),
+            "diagnostician", Arrays.asList(FAIL_TEST, FAIL_TEST_2),
+
             "quality", Arrays.asList(SIDE2, REPAIR1, REPAIR2, REPAIR3, REPAIR4, REPAIR5, INSTALLATION, INSTALLATION2,
                     REPAIR6,
                     WASHING1,
@@ -75,6 +77,11 @@ public class  OperationServiceImpl implements OperationService {
             Map.entry(QUALITY_CHECK_4_1, "Тестировка №2"),
             Map.entry(FAIL_QUALITY_CHECK_4_1, "Ремонт №4"),
             Map.entry(REPAIR4, "ОТК №4.1"),
+            Map.entry(DIAGNOSTICIAN_REPAIR_1, "Ремонт №3"),
+            Map.entry(DIAGNOSTICIAN_REPAIR_2, "Ремонт №5"),
+            Map.entry(DIAGNOSTICIAN_TEST_1, "Тестировка"),
+            Map.entry(DIAGNOSTICIAN_TEST_2, "Тестировка №2"),
+
 
             Map.entry(TEST_2, "Отмывка №1"),
             Map.entry(FAIL_TEST_2, "Ремонт №5"),

@@ -57,39 +57,29 @@
             padding: 1rem;
             vertical-align: middle;
         }
-        .btn-passed {
-            background: linear-gradient(135deg, #28a745, #20c997);
+        .btn-repair {
+            background: linear-gradient(135deg, #8d4d4d, #cc8686);
             border: none;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 6px;
             transition: all 0.3s ease;
         }
-        .btn-failed {
-            background: linear-gradient(135deg, #dc3545, #e83e8c);
+        .btn-test {
+            background: linear-gradient(135deg, #e72534, #da6f8a);
             border: none;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 6px;
             transition: all 0.3s ease;
         }
-        .btn-passed:hover {
+        .btn-repair:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+            box-shadow: 0 4px 8px rgb(201, 106, 106);
         }
-        .btn-failed:hover {
+        .btn-test:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-        }
-        .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .status-created {
-            background-color: #e3f2fd;
-            color: #1976d2;
+            box-shadow: 0 4px 8px rgba(243, 44, 62, 0.3);
         }
         .empty-state {
             text-align: center;
@@ -114,11 +104,11 @@
             display: flex;
             gap: 0.5rem;
         }
-        .modal-passed .modal-header {
-            background: linear-gradient(135deg, #28a745, #20c997);
+        .modal-repair .modal-header {
+            background: linear-gradient(135deg, #8d3f3f, #dc9a9a);
         }
-        .modal-failed .modal-header {
-            background: linear-gradient(135deg, #dc3545, #e83e8c);
+        .modal-test .modal-header {
+            background: linear-gradient(135deg, #f32020, #f3a1a1);
         }
     </style>
 </head>
@@ -132,7 +122,7 @@
     <!-- Шапка -->
     <header class="page-header">
         <div class="header-content">
-            <h1><i class="fas fa-microchip me-2"></i>Тест</h1>
+            <h1><i class="fas fa-microchip me-2"></i>Диагностика №1</h1>
             <div class="header-actions">
                     <span class="badge bg-primary fs-6 mb-3">
                         Устройств: <span th:text="${devices.size()}">0</span>
@@ -163,7 +153,7 @@
                 <div class="table-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1">Устройства для Теста</h4>
+                            <h4 class="mb-1">Устройства для диагностики</h4>
                         </div>
                         <div class="text-end">
                                 <span class="badge bg-light text-dark fs-6">
@@ -215,17 +205,17 @@
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn btn-passed"
+                                    <button class="btn btn-repair"
                                             th:attr="data-device-id=${operation.id}"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#confirmPassedModal">
-                                        Пройдено
+                                            data-bs-target="#confirmRepairModal">
+                                        Ремонт
                                     </button>
-                                    <button class="btn btn-failed"
+                                    <button class="btn btn-test"
                                             th:attr="data-device-id=${operation.id}"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#confirmFailedModal">
-                                        Не пройдено
+                                            data-bs-target="#confirmTestModal">
+                                        Тест
                                     </button>
                                 </div>
                             </td>
@@ -266,30 +256,32 @@
     </main>
 </div>
 
-<!-- Модальное окно подтверждения для "Пройдено" -->
-<div class="modal fade confirm-modal modal-passed" id="confirmPassedModal" tabindex="-1" aria-hidden="true">
+<!-- Модальное окно подтверждения для "Ремонт" -->
+<div class="modal fade confirm-modal modal-repair" id="confirmRepairModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-check-circle me-2"></i>Подтверждение успешного прохождения контроля
+                    <i class="fas fa-circle-left me-2"></i>Подтверждение отправления на ремонт
+                    <!--                    <i class="fas fa-exclamation-circle me-2">-->
                 </h5>
+
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="text-center mb-4">
-                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                    <h5>Подтвердите успешный Тест</h5>
-                    <p class="text-muted">Устройство будет перемещено на следующий этап</p>
+                    <i class="fas fa-circle-left  fa-3x text-success mb-3"></i>
+                    <h5>Подтвердите отправку изделия в ремонт</h5>
+                    <p class="text-muted">Устройство будет перемещено в ремонт</p>
                 </div>
-                <div class="device-info alert alert-success mb-3">
+                <div class="device-info alert alert-danger mb-3">
                     <strong>Серийный номер:</strong>
-                    <span id="modalPassedDeviceSn" class="device-sn"></span>
+                    <span id="modalRepairDeviceSn" class="device-sn"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label for="passedDescription" class="form-label">Комментарий (опционально):</label>
-                    <textarea class="form-control" id="passedDescription" rows="3"
+                    <label for="repairDescription" class="form-label">Комментарий:</label>
+                    <textarea class="form-control" id="repairDescription" rows="3"
                               placeholder="Добавьте комментарий при необходимости..."></textarea>
                 </div>
             </div>
@@ -297,8 +289,8 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Отмена
                 </button>
-                <button type="button" class="btn btn-success" id="confirmPassed">
-                    <i class="fas fa-check me-2"></i>Да, тест успешен
+                <button type="button" class="btn btn-danger" id="confirmRepair">
+                    <i class="fas fa-check me-2"></i>Да, отправить устройство в ремонт
                 </button>
             </div>
         </div>
@@ -306,39 +298,39 @@
 </div>
 
 <!-- Модальное окно подтверждения для "Не пройдено" -->
-<div class="modal fade confirm-modal modal-failed" id="confirmFailedModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade confirm-modal modal-test" id="confirmTestModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-exclamation-circle me-2"></i>Подтверждение проблем с Тестом
+                    <i class="fas fa-circle-right me-2"></i>Подтверждение возврата на тест
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="text-center mb-4">
-                    <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
-                    <h5>Подтвердите проблемы с Тестом</h5>
-                    <p class="text-muted">Устройство будет направлено в ремонт</p>
+                    <i class="fas fa-circle-right fa-3x text-danger mb-3"></i>
+                    <h5>Подтверждение возвращения на тест</h5>
+                    <p class="text-muted">Устройство будет возвращено на тест</p>
                 </div>
                 <div class="device-info alert alert-danger mb-3">
                     <strong>Серийный номер:</strong>
-                    <span id="modalFailedDeviceSn" class="device-sn"></span>
+                    <span id="modalTestDeviceSn" class="device-sn"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label for="failedDescription" class="form-label">Причина отказа <span class="text-danger">*</span>:</label>
-                    <textarea class="form-control" id="failedDescription" rows="3"
-                              placeholder="Опишите причину, из за которой плата не прошла тест..." required></textarea>
-                    <div class="invalid-feedback">Пожалуйста, укажите причину отказа.</div>
+                    <label for="testDescription" class="form-label">Причина возврата <span class="text-danger">*</span>:</label>
+                    <textarea class="form-control" id="testDescription" rows="3"
+                              placeholder="Опишите причину, из за которой плата возвращается на тест..." required></textarea>
+                    <div class="invalid-feedback">Пожалуйста, укажите причину возврата на тест.</div>
                 </div>
             </div>
             <div class="modal-footer justify-content-center">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Отмена
                 </button>
-                <button type="button" class="btn btn-danger" id="confirmFailed">
-                    <i class="fas fa-times me-2"></i>Да, Тест не прошел
+                <button type="button" class="btn btn-danger" id="confirmTest">
+                    <i class="fas fa-times me-2"></i>Да, возврат на тест
                 </button>
             </div>
         </div>
@@ -353,7 +345,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         let currentDeviceId = null;
         let currentDeviceSn = null;
-        let currentAction = null; // 'passed' или 'failed'
+        let currentAction = null; // 'repair' или 'test'
 
         // Инициализация tooltips
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -362,39 +354,39 @@
         });
 
         // Обработчик клика по кнопке "Пройдено"
-        document.querySelectorAll('.btn-passed').forEach(button => {
+        document.querySelectorAll('.btn-repair').forEach(button => {
             button.addEventListener('click', function() {
                 currentDeviceId = this.getAttribute('data-device-id');
                 currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
-                currentAction = 'passed';
+                currentAction = 'repair';
 
-                document.getElementById('modalPassedDeviceSn').textContent = currentDeviceSn;
-                document.getElementById('passedDescription').value = '';
+                document.getElementById('modalRepairDeviceSn').textContent = currentDeviceSn;
+                document.getElementById('repairDescription').value = '';
             });
         });
 
         // Обработчик клика по кнопке "Не пройдено"
-        document.querySelectorAll('.btn-failed').forEach(button => {
+        document.querySelectorAll('.btn-test').forEach(button => {
             button.addEventListener('click', function() {
                 currentDeviceId = this.getAttribute('data-device-id');
                 currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
-                currentAction = 'failed';
+                currentAction = 'test';
 
-                document.getElementById('modalFailedDeviceSn').textContent = currentDeviceSn;
-                document.getElementById('failedDescription').value = '';
+                document.getElementById('modalTestDeviceSn').textContent = currentDeviceSn;
+                document.getElementById('testDescription').value = '';
 
                 // Сбрасываем валидацию
-                document.getElementById('failedDescription').classList.remove('is-invalid');
+                document.getElementById('testDescription').classList.remove('is-invalid');
             });
         });
 
         // Обработчик подтверждения для "Пройдено"
-        document.getElementById('confirmPassed').addEventListener('click', function() {
-            if (!currentDeviceId || currentAction !== 'passed') return;
+        document.getElementById('confirmRepair').addEventListener('click', function() {
+            if (!currentDeviceId || currentAction !== 'repair') return;
 
             const button = this;
             const originalText = button.innerHTML;
-            const description = document.getElementById('passedDescription').value;
+            const description = document.getElementById('repairDescription').value;
 
 
             // Показываем индикатор загрузки
@@ -402,14 +394,14 @@
             button.disabled = true;
 
             // Отправляем запрос на сервер
-            sendCompletionRequest('passed', description, button, originalText);
+            sendCompletionRequest('repair', description, button, originalText);
         });
 
         // Обработчик подтверждения для "Не пройдено"
-        document.getElementById('confirmFailed').addEventListener('click', function() {
-            if (!currentDeviceId || currentAction !== 'failed') return;
+        document.getElementById('confirmTest').addEventListener('click', function() {
+            if (!currentDeviceId || currentAction !== 'test') return;
 
-            const descriptionField = document.getElementById('failedDescription');
+            const descriptionField = document.getElementById('testDescription');
             const description = descriptionField.value.trim();
 
             // Валидация обязательного поля
@@ -427,7 +419,7 @@
             button.disabled = true;
 
             // Отправляем запрос на сервер
-            sendCompletionRequest('failed', description, button, originalText);
+            sendCompletionRequest('test', description, button, originalText);
         });
 
         // Функция отправки запроса на сервер
@@ -438,20 +430,20 @@
             formData.append('action', action);
 
 
-            fetch('/device/test-board/complete', {
+            fetch('/device/diagnostician-two/complete', {
                 method: 'POST',
                 body: formData
             })
                 .then(response => {
                     if (response.ok) {
                         // Показываем сообщение об успехе
-                        const message = action === 'passed'
+                        const message = action === 'repair'
                             ? 'Успех! Устройство перемещено на следующий этап.'
                             : 'Устройство отправлено в ремонт.';
                         showAlert(message, 'success');
 
                         // Закрываем модальное окно
-                        const modalId = action === 'passed' ? 'confirmPassedModal' : 'confirmFailedModal';
+                        const modalId = action === 'repair' ? 'confirmRepairModal' : 'confirmTestModal';
                         const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
                         modal.hide();
 
@@ -493,29 +485,29 @@
         }
 
         // Очистка при закрытии модальных окон
-        document.getElementById('confirmPassedModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('confirmRepairModal').addEventListener('hidden.bs.modal', function () {
             currentDeviceId = null;
             currentDeviceSn = null;
             currentAction = null;
 
             // Восстанавливаем кнопку подтверждения
-            const confirmButton = document.getElementById('confirmPassed');
-            confirmButton.innerHTML = '<i class="fas fa-check me-2"></i>Да, Тест прошел успешено';
+            const confirmButton = document.getElementById('confirmRepair');
+            confirmButton.innerHTML = '<i class="fas fa-check me-2"></i>Да, отправить в ремонт';
             confirmButton.disabled = false;
         });
 
-        document.getElementById('confirmFailedModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('confirmTestModal').addEventListener('hidden.bs.modal', function () {
             currentDeviceId = null;
             currentDeviceSn = null;
             currentAction = null;
 
             // Восстанавливаем кнопку подтверждения
-            const confirmButton = document.getElementById('confirmFailed');
-            confirmButton.innerHTML = '<i class="fas fa-times me-2"></i>Да, Тест не прошел';
+            const confirmButton = document.getElementById('confirmTest');
+            confirmButton.innerHTML = '<i class="fas fa-times me-2"></i>Да, вернуть на тест';
             confirmButton.disabled = false;
 
             // Сбрасываем валидацию
-            document.getElementById('failedDescription').classList.remove('is-invalid');
+            document.getElementById('testDescription').classList.remove('is-invalid');
         });
     });
 
