@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -63,6 +65,10 @@ public class DeviceSubType {
 
     @Column(name = "url_pdf")
     private String urlPDF;
+
+    @JdbcTypeCode(SqlTypes.BINARY)
+    @Column(name = "data")
+    private byte[] data;
 
 
 }

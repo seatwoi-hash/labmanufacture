@@ -17,11 +17,11 @@ public interface DeviceSubTypeService {
 
     List<DeviceSubType> findAll();
 
-    void save(DeviceSubTypeDto deviceSubTypeDto, MultipartFile file) throws IOException;
+    void save(DeviceSubTypeDto deviceSubTypeDto, MultipartFile file, MultipartFile zip) throws IOException;
 
     void delete(UUID id);
 
-    void edite(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file) throws IOException;
+    void edite(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file, MultipartFile zip) throws IOException;
 
     Boolean findIsInstallationOneById(Operation operation);
 
