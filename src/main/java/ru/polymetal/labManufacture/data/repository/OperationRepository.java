@@ -88,4 +88,8 @@ public interface OperationRepository extends JpaRepository<Operation, UUID> {
 
     List<Operation> findByDevice_SerialNumber(String serialNumber);
 
+    Optional<Operation> findByDeviceSerialNumberAndStatusName(
+            String serialNumber,
+            String statusName
+    );
 }

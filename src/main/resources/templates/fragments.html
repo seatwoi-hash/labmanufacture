@@ -47,7 +47,7 @@
             <li sec:authorize="hasAuthority('ROLE_ADMIN')">
                 <a class="dropdown-item-user" href="/employee"><i class="fas fa-circle-user"></i> Редактирование сотрудников</a>
             </li>
-            <li sec:authorize="hasAuthority('ROLE_ADMIN')">
+            <li sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_DEVELOPER')">
                 <a class="dropdown-item-user" href="/devicetype/add"><i class="fa-solid fa-bacon"></i> Тип платы</a>
             </li>
             <li><hr class="dropdown-divider"></li>
@@ -80,7 +80,7 @@
             <div class="section-content platy-section active">
 
             <button class="side-btn"
-                         sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN')"
+                         sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN', 'ROLE_DEVELOPER')"
                          onclick="window.location.href='/device/create-board'">
                      Создать новую плату
                  </button>

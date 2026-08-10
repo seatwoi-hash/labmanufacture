@@ -38,7 +38,7 @@ public class DeviceTypeController {
         this.accountRepository = accountRepository;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @GetMapping("/add")
     public String showCreateDeviceForm(Model model, Authentication authentication) {
 
@@ -56,7 +56,7 @@ public class DeviceTypeController {
         return "usermenu/add-type-devices";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PostMapping("/add")
     public String addType(   @RequestParam String name,
                              @RequestParam String description,
@@ -89,7 +89,7 @@ public class DeviceTypeController {
         return "redirect:/devicetype/add";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @DeleteMapping("/delete/{id}")
     public String deleteType(@PathVariable UUID id)
     {
@@ -100,7 +100,7 @@ public class DeviceTypeController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @GetMapping("/edite/{id}")
     public String showEditeDeviceForm(Model model, Authentication authentication, @PathVariable UUID id) {
 
@@ -117,7 +117,7 @@ public class DeviceTypeController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PatchMapping("/edite/{id}")
     public String editeType(DeviceSubTypeDto deviceSubTypeDto,
                             @PathVariable UUID id,
