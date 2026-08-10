@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/v1.5/add_new_value_role_table.sql
+  - include:
+      file: db/changelog/v1.5/delete_table_operation_types.sql
+  - include:
+      file: db/changelog/v1.5/add_new_value_operation_statuses.sql
+  - include:
+      file: db/changelog/v1.5/add_new_value_role_table2.sql

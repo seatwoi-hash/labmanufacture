@@ -17,6 +17,7 @@ import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.device.DeviceService;
+import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +49,9 @@ public class DiffControllerUnitTest {
     @Mock
     private DeviceStatusService deviceStatusService;
 
+    @Mock
+    private OperationQueryService operationQueryService;
+
 
     @BeforeMethod
     public void setUp() {
@@ -58,7 +62,8 @@ public class DiffControllerUnitTest {
                 operationService,
                 deviceStatusService,
                 deviceSubTypeService,
-                deviceService
+                deviceService,
+                operationQueryService
         );
 
         mockMvc = MockMvcBuilders
@@ -88,10 +93,7 @@ public class DiffControllerUnitTest {
         Account account = new Account();
         account.setUsername("operatorTestMVC");
 
-        when(deviceStatusService.findByName(DeviceStatusCodes.CREATE))
-                .thenReturn(operationStatus);
-
-        when(operationService.findByStatusIdAndIsDelete(operationStatus.getId()))
+        when(operationQueryService.findOperationsByStatusNames(Set.of("CREATE")))
                 .thenReturn(operations);
 
         when(accountRepository.findByUsername("operatorTestMVC"))
@@ -105,9 +107,6 @@ public class DiffControllerUnitTest {
                         )))
                 .andExpect(status().isOk())
                 .andExpect(view().name("operation/board/mone-board"));
-
-        verify(deviceStatusService)
-                .findByName(DeviceStatusCodes.CREATE);
 
         verify(accountRepository)
                 .findByUsername("operatorTestMVC");

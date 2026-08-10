@@ -1,6 +1,7 @@
 package ru.polymetal.labManufacture.integration.controller.operation;
 
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -9,24 +10,35 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.CREATE;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.models.DeviceType;
+import ru.polymetal.labManufacture.data.models.Operation;
+import ru.polymetal.labManufacture.data.models.OperationStatus;
 import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceSubTypeRepository;
 import ru.polymetal.labManufacture.data.repository.DeviceTypeRepository;
+import ru.polymetal.labManufacture.data.repository.OperationRepository;
+import ru.polymetal.labManufacture.data.repository.OperationStatusRepository;
 import ru.polymetal.labManufacture.data.repository.RoleRepository;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.testng.Assert.assertTrue;
 import ru.polymetal.labManufacture.integration.testdata.AccountTestData;
 import ru.polymetal.labManufacture.integration.testdata.DeviceSubTypeData;
 import ru.polymetal.labManufacture.integration.testdata.DeviceTestData;
+import java.util.List;
+import java.util.UUID;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,6 +58,12 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     protected DeviceRepository deviceRepository;
+
+    @Autowired
+    protected OperationRepository operationRepository;
+
+    @Autowired
+    protected OperationStatusRepository operationStatusRepository;
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
@@ -74,6 +92,12 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
     @AfterClass
     public void deleteUser() {
 
+        List<Operation> operations =
+                operationRepository.findByAccountId(accountRepository.findByUsername("operatorTestMVC")
+                        .orElseThrow(() -> new RuntimeException("Пользователь не найден")).getId());
+
+        operationRepository.deleteAll(operations);
+
         accountRepository.findByUsername("operatorTestMVC")
                 .ifPresent(accountRepository::delete);
 
@@ -94,7 +118,29 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
     }
 
     @Test
-    public void completeMOne() {
+    @Transactional
+    public void completeMOne() throws Exception {
+
+        OperationStatus operationStatus = operationStatusRepository.findByName(CREATE)
+                .orElseThrow(() -> new RuntimeException("Статус не найден"));
+
+        Operation operation = operationRepository.findByStatusIdAndDeletedWithFetch(operationStatus.getId()).get(0);
+        // UUID
+
+        mockMvc.perform(post("/device/mone-board/complete")
+                        .with(user("operatorTestMVC"))
+                        .param("deviceId", operation.getId().toString()))
+                .andExpect(status().isOk());
+
+        List<Operation> operations =
+                operationRepository.findByAccountId(accountRepository.findByUsername("operatorTestMVC")
+                        .orElseThrow(() -> new RuntimeException("Пользователь не найден")).getId());
+
+        assertTrue(
+                operations.stream()
+                        .anyMatch(o -> SIDE1.equals(o.getStatus().getName())),
+                "Не найдена операция со статусом SIDE1"
+        );
     }
 
     @Test
@@ -107,7 +153,29 @@ public class DiffControllerTest extends AbstractTestNGSpringContextTests {
     }
 
     @Test
-    void completeMTwo() {
+    @Transactional
+    void completeMTwo() throws Exception {
+
+        OperationStatus operationStatus = operationStatusRepository.findByName(CREATE)
+                .orElseThrow(() -> new RuntimeException("Статус не найден"));
+
+        Operation operation = operationRepository.findByStatusIdAndDeletedWithFetch(operationStatus.getId()).get(0);
+        // UUID
+
+        mockMvc.perform(post("/device/mtwo-board/complete")
+                        .with(user("operatorTestMVC"))
+                        .param("deviceId", operation.getId().toString()))
+                .andExpect(status().isOk());
+
+        List<Operation> operations =
+                operationRepository.findByAccountId(accountRepository.findByUsername("operatorTestMVC")
+                        .orElseThrow(() -> new RuntimeException("Пользователь не найден")).getId());
+
+        assertTrue(
+                operations.stream()
+                        .anyMatch(o -> SIDE2.equals(o.getStatus().getName())),
+                "Не найдена операция со статусом SIDE2"
+        );
     }
 
     @Test

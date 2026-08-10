@@ -22,6 +22,7 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALIT
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5_1_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_6;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_TEST_2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_1;
@@ -57,10 +58,12 @@ import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.file.FileService;
+import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,46 +74,32 @@ public class OtkController {
 
     private final AccountRepository accountRepository;
     private final OperationService operationService;
-    private final DeviceStatusService deviceStatusService;
     private final DeviceSubTypeService deviceSubTypeService;
     public final FileService fileService;
+    private final OperationQueryService operationQueryService;
 
     public OtkController(AccountRepository accountRepository, OperationService operationService,
-                         DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, FileService fileService) {
+                            DeviceSubTypeService deviceSubTypeService,
+                         FileService fileService, OperationQueryService operationQueryService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
-        this.deviceStatusService = deviceStatusService;
         this.deviceSubTypeService = deviceSubTypeService;
         this.fileService = fileService;
+        this.operationQueryService = operationQueryService;
     }
 
     @GetMapping("/otk1-board")
     public String showOtkOneDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = new ArrayList<>();
-
-        devices.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(SIDE2).getId()
-        ));
-
-        devices.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(REPAIR1).getId()
-        ));
-
-        devices.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(TECHNICAL3).getId()
-        ));
-
-
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(SIDE2, REPAIR1, TECHNICAL3));
 
         model.addAttribute("devices", devices);
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
 
-
         Account account =
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
 
         model.addAttribute("currentUser", account);
 
@@ -145,17 +134,19 @@ public class OtkController {
             }
         } else if ("failed".equals(action)) {
             if (operation.getStatus().getName().equals(SIDE2) || operation.getStatus().getName().equals(TECHNICAL3)) {
-                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR1)) {
-                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_1_1,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
+                        FAIL_QUALITY_CHECK_1_1,
                         device.getDescription());
             }
         }
 
 
         if (!isInstallation && !"failed".equals(action)) {
-          operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL);
+            operationIdTech = operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL);
         }
 
         return ResponseEntity.ok().build();
@@ -164,14 +155,8 @@ public class OtkController {
     @GetMapping("/otk2-board")
     public String showOtkTwoDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = Stream.concat(
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(INSTALLATION).getId()
-                ).stream(),
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(REPAIR2).getId()
-                ).stream()
-        ).collect(Collectors.toList());
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(INSTALLATION, REPAIR2));
 
         model.addAttribute("devices", devices);
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
@@ -222,7 +207,8 @@ public class OtkController {
             }
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        Operation operationNew =
+                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
 
         return ResponseEntity.ok().build();
@@ -232,8 +218,8 @@ public class OtkController {
     @GetMapping("/otk3-board")
     public String showOtkThreeDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = operationService.findByStatusIdAndIsDelete(deviceStatusService
-                .findByName(REPAIR3).getId());
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(REPAIR3));
 
         model.addAttribute("devices", devices);
 
@@ -268,7 +254,8 @@ public class OtkController {
                     device.getDescription());
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        Operation operationNew =
+                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
 
         return ResponseEntity.ok().build();
@@ -278,21 +265,10 @@ public class OtkController {
     @GetMapping("/otk4-board")
     public String showOtkFourDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> operations = new ArrayList<>();
+        List<Operation> devices =
+                operationQueryService.findOperationsByStatusNames(Set.of(INSTALLATION2, REPAIR4, REPAIR5));
 
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(INSTALLATION2).getId()
-        ));
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(REPAIR4).getId()
-        ));
-
-        operations.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(REPAIR5).getId()
-        ));
-
-        model.addAttribute("devices", operations);
+        model.addAttribute("devices", devices);
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
 
         Account account =
@@ -338,7 +314,7 @@ public class OtkController {
                         FAIL_QUALITY_CHECK_4,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR4)) {
-                operationIdTech =  operationService.completeOperationWithDescription(deviceId, account,
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
                         FAIL_QUALITY_CHECK_4_1,
                         device.getDescription());
             } else if (operation.getStatus().getName().equals(REPAIR5)) {
@@ -348,7 +324,8 @@ public class OtkController {
             }
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        Operation operationNew =
+                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
         return ResponseEntity.ok().build();
     }
@@ -356,19 +333,8 @@ public class OtkController {
     @GetMapping("/otk5-board")
     public String showOtkFiveDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = new ArrayList<>();
-
-        devices.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(WASHING1).getId()
-        ));
-
-        devices.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(REPAIR6).getId()
-        ));
-
-        devices.addAll(operationService.findByStatusIdAndIsDelete(
-                deviceStatusService.findByName(WASHING2).getId()
-        ));
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(WASHING1, REPAIR6, WASHING2));
 
 
         model.addAttribute("devices", devices);
@@ -435,7 +401,8 @@ public class OtkController {
             }
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        Operation operationNew =
+                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
         return ResponseEntity.ok().build();
     }
@@ -443,10 +410,8 @@ public class OtkController {
     @GetMapping("/otk6-board")
     public String showOtkSixDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = operationService.findByStatusIdAndIsDelete(deviceStatusService
-                .findByName(VARNISH).getId());
-
-
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(VARNISH));
         model.addAttribute("devices", devices);
 
         Account account =
@@ -472,7 +437,6 @@ public class OtkController {
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
 
-
         if ("passed".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_6,
                     device.getDescription());
@@ -483,7 +447,8 @@ public class OtkController {
                     device.getDescription());
         }
 
-        Operation operationNew = operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        Operation operationNew =
+                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
 
 
         return ResponseEntity.ok().build();

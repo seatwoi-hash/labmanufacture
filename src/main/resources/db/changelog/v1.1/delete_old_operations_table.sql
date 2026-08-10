@@ -10,8 +10,6 @@ ALTER TABLE IF EXISTS operations RENAME TO old_operations;
 DROP TABLE IF EXISTS old_operations CASCADE;
 
 --rollback
---rollback -- Создать таблицу с данными невозможно без backup
---rollback -- Можно только создать пустую таблицу
 --rollback CREATE TABLE operations (
 --rollback     id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 --rollback     sn           VARCHAR(100) NOT NULL,

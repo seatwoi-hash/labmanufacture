@@ -22,8 +22,10 @@ import ru.polymetal.labManufacture.exception.OperationNotFoundException;
 import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,29 +36,23 @@ public class InstallationController {
 
     private final AccountRepository accountRepository;
     private final OperationService operationService;
-    private final DeviceStatusService deviceStatusService;
     private final DeviceSubTypeService deviceSubTypeService;
+    private final OperationQueryService operationQueryService;
 
 
     public InstallationController(AccountRepository accountRepository, OperationService operationService,
-                                  DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService) {
+                                  DeviceSubTypeService deviceSubTypeService, OperationQueryService operationQueryService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
-        this.deviceStatusService = deviceStatusService;
         this.deviceSubTypeService = deviceSubTypeService;
+        this.operationQueryService = operationQueryService;
     }
 
     @GetMapping("/installation-board")
     public String showInstallationDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = Stream.concat(
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(QUALITY_CHECK_1).getId()
-                ).stream(),
-                operationService.findByStatusIdAndIsDelete(
-                        deviceStatusService.findByName(QUALITY_CHECK_1_1).getId()
-                ).stream()
-        ).collect(Collectors.toList());
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_1, QUALITY_CHECK_1_1));
 
         model.addAttribute("devices", devices);
 
@@ -90,8 +86,8 @@ public class InstallationController {
     @GetMapping("/installation-board-two")
     public String showInstallationTwoDeviceForm(Model model, Authentication authentication) {
 
-        List<Operation> devices = operationService.findByStatusIdAndIsDelete(deviceStatusService
-                .findByName(TEST).getId());
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(TEST));
 
         model.addAttribute("devices", devices);
 

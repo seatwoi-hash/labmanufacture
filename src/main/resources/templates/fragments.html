@@ -134,6 +134,11 @@
                     Тестировка
                 </button>
                 <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_DIAGNOSTICIAN', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/diagnostician-one'">
+                    Диагностика №1
+                </button>
+                <button class="side-btn"
                         sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"
                         onclick="window.location.href='/device/repair3-board'">
                     Ремонт №3
@@ -162,6 +167,11 @@
                         sec:authorize="hasAnyAuthority('ROLE_TESTERB', 'ROLE_ADMIN')"
                         onclick="window.location.href='/device/test-board-two'">
                     Тестировка №2
+                </button>
+                <button class="side-btn"
+                        sec:authorize="hasAnyAuthority('ROLE_DIAGNOSTICIAN', 'ROLE_ADMIN')"
+                        onclick="window.location.href='/device/diagnostician-two'">
+                    Диагностика №2
                 </button>
                 <button class="side-btn"
                         sec:authorize="hasAnyAuthority('ROLE_REPAIRMAN', 'ROLE_ADMIN')"

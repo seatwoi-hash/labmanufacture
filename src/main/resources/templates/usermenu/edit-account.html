@@ -459,6 +459,18 @@
                             <i class="fas fa-soap role-icon"></i> Мойщик
                         </label>
 
+                        <input type="checkbox" id="role_diagnostician" name="roles[]" value="diagnostician" class="role-checkbox"
+                               th:checked="${user?.roles != null and user.roles.contains('diagnostician')}">
+                        <label for="role_diagnostician" class="role-label">
+                            <i class="fas fa-stethoscope role-icon"></i> Диагностик
+                        </label>
+
+                        <input type="checkbox" id="role_developer" name="roles[]" value="developer" class="role-checkbox"
+                               th:checked="${user?.roles != null and user.roles.contains('developer')}">
+                        <label for="role_developer" class="role-label">
+                            <i class="fas fa-laptop-code role-icon"></i> Разработчик
+                        </label>
+
                         <input type="checkbox" id="role_user" name="roles[]" value="user" class="role-checkbox" checked
                                th:checked="${user?.roles != null and user.roles.contains('user')}">
                         <label for="role_user" class="role-label">
