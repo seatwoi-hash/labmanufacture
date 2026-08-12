@@ -58,7 +58,6 @@ public class FileData {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

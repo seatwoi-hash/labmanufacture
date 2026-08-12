@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .sessionManagement(session -> session
+                        .invalidSessionUrl("/login?expired")
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
                 )
@@ -54,7 +55,5 @@ public class SecurityConfig {
 
         return new BCryptPasswordEncoder();
     }
-
-
 
 }
