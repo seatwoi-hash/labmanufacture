@@ -136,74 +136,78 @@
                 </div>
             </div>
 
-            <!-- Карточка с таблицей -->
-            <div class="device-table" th:if="${devices != null and not devices.empty}">
-                <div class="table-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="mb-1">Список готовых плат</h4>
-                            <p class="mb-0">Все платы со статусом "Готов"</p>
-                        </div>
-                        <div class="text-end">
+            <div id="deviceTableContainer">
+
+                <!-- Карточка с таблицей -->
+                <div id="deviceTable" class="device-table" th:if="${devices != null and not devices.empty}">
+                    <div class="table-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-1">Список готовых плат</h4>
+                                <p class="mb-0">Все платы со статусом "Готов"</p>
+                            </div>
+                            <div class="text-end">
                             <span class="badge bg-light text-dark fs-6">
                                 <i class="fas fa-list me-1"></i>
                                 <span id="visibleCount" th:text="${devices.size()}">0</span> из <span th:text="${devices.size()}">0</span> устройств
                             </span>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
+                                    Серийный номер
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
+                                    Тип платы
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th>Завершающее ОТК</th>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
+                                    Дата создания
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="operation : ${devices}">
+                                <td>
+                                    <a th:href="@{/device/operation-board/{sn}(sn=${operation.device.getSerialNumber()})}"
+                                       style="text-decoration: none; color: inherit;">
+                                        <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
+                                    </a>
+                                </td>
+                                <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
+                                <td th:text="${operation.getAccount()?.lastName} ?: 'Не указан'">Фамилия</td>
+                                <td>
+                                        <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                        </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Сообщение при отсутствии результатов -->
+                    <div id="noResults" class="no-results">
+                        <i class="fas fa-search fa-2x mb-3"></i>
+                        <h5>Ничего не найдено</h5>
+                        <p class="text-muted">Попробуйте изменить параметры поиска</p>
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                        <tr>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
-                                Серийный номер
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
-                                Тип платы
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th>Завершающее ОТК</th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
-                                Дата создания
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="operation : ${devices}">
-                            <td>
-                                <a th:href="@{/device/operation-board/{sn}(sn=${operation.device.getSerialNumber()})}"
-                                   style="text-decoration: none; color: inherit;">
-                                    <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
-                                </a>
-                            </td>
-                            <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
-                            <td th:text="${operation.getAccount()?.lastName} ?: 'Не указан'">Фамилия</td>
-                            <td>
-                                        <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
-                                        </span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <!-- Состояние пустого списка -->
+                <div th:if="${devices == null or devices.empty}" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h4>Нет готовых плат</h4>
+                    <p class="text-muted">Все устройства находятся на других этапах производства</p>
                 </div>
 
-                <!-- Сообщение при отсутствии результатов -->
-                <div id="noResults" class="no-results">
-                    <i class="fas fa-search fa-2x mb-3"></i>
-                    <h5>Ничего не найдено</h5>
-                    <p class="text-muted">Попробуйте изменить параметры поиска</p>
-                </div>
-            </div>
-
-            <!-- Состояние пустого списка -->
-            <div th:if="${devices == null or devices.empty}" class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h4>Нет готовых плат</h4>
-                <p class="text-muted">Все устройства находятся на других этапах производства</p>
             </div>
         </div>
     </main>
@@ -214,167 +218,602 @@
 
 <!-- Специфичные скрипты для этой страницы -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
-        const visibleCount = document.getElementById('visibleCount');
-        const noResults = document.getElementById('noResults');
 
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            let visibleRows = 0;
+    let currentSortColumn = 3;
+    let sortDirection = 'desc';
 
-            tableRows.forEach(row => {
-                const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
 
-                if (serialNumber.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleRows++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+    document.addEventListener('DOMContentLoaded', function () {
 
-            // Обновляем счетчик видимых строк
-            visibleCount.textContent = visibleRows;
+        loadSortState();
 
-            // Показываем/скрываем сообщение "Ничего не найдено"
-            if (visibleRows === 0 && searchTerm !== '') {
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
-            }
-        });
+        initSearch();
+        initSort();
+
+        applySavedSort();
+
+        startAutoRefresh();
     });
 
 
+    // =========================================================
+    // ПОИСК
+    // =========================================================
 
-    //сортировка...
-    document.addEventListener('DOMContentLoaded', function() {
-        const table = document.querySelector('.table');
-        const tbody = table.querySelector('tbody');
-        const headers = table.querySelectorAll('thead th');
+    function initSearch() {
 
-        // Инициализируем состояние сортировки
-        let currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
-        let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
+        const searchInput =
+            document.getElementById(
+                'searchInput'
+            );
 
-        // Устанавливаем иконку для столбца по умолчанию
-        updateSortIcons();
+        if (!searchInput) {
+            return;
+        }
 
-        // Добавляем обработчики кликов на заголовки
-        headers.forEach((header, index) => {
-            if (header.hasAttribute('onclick')) {
-                // Удаляем inline onclick и добавляем обработчик
-                header.removeAttribute('onclick');
-                header.style.cursor = 'pointer';
-                header.addEventListener('click', () => sortTable(index));
+        searchInput.addEventListener(
+            'input',
+            applySearch
+        );
+    }
+
+
+    function applySearch() {
+
+        const searchInput =
+            document.getElementById(
+                'searchInput'
+            );
+
+        if (!searchInput) {
+            return;
+        }
+
+        const searchTerm =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+        const rows =
+            document.querySelectorAll(
+                '#deviceTable tbody tr'
+            );
+
+        let visibleRows = 0;
+
+        rows.forEach(row => {
+
+            const serialElement =
+                row.querySelector(
+                    '.device-sn'
+                );
+
+            if (!serialElement) {
+                return;
+            }
+
+            const serialNumber =
+                serialElement
+                    .textContent
+                    .toLowerCase();
+
+            const visible =
+                serialNumber.includes(
+                    searchTerm
+                );
+
+            row.style.display =
+                visible
+                    ? ''
+                    : 'none';
+
+            if (visible) {
+                visibleRows++;
             }
         });
 
-        function sortTable(columnIndex) {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
 
-            // Если кликаем по той же колонке, меняем направление
-            if (columnIndex === currentSortColumn) {
-                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
-                currentSortColumn = columnIndex;
-                sortDirection = 'asc';
+        const visibleCount =
+            document.getElementById(
+                'visibleCount'
+            );
+
+        if (visibleCount) {
+            visibleCount.textContent =
+                visibleRows;
+        }
+
+
+        const noResults =
+            document.getElementById(
+                'noResults'
+            );
+
+        if (noResults) {
+
+            noResults.style.display =
+                visibleRows === 0 &&
+                searchTerm !== ''
+                    ? 'block'
+                    : 'none';
+        }
+    }
+
+
+    // =========================================================
+    // СОРТИРОВКА
+    // =========================================================
+
+    function initSort() {
+
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
+
+        if (!table) {
+            return;
+        }
+
+        const headers =
+            table.querySelectorAll(
+                'thead th'
+            );
+
+        headers.forEach(
+            (header, index) => {
+
+                if (
+                    index !== 0 &&
+                    index !== 1 &&
+                    index !== 3
+                ) {
+                    return;
+                }
+
+                header.removeAttribute(
+                    'onclick'
+                );
+
+                header.style.cursor =
+                    'pointer';
+
+                header.addEventListener(
+                    'click',
+                    function () {
+
+                        sortTable(
+                            index
+                        );
+                    }
+                );
             }
+        );
 
-            // Сортируем строки
-            rows.sort((a, b) => {
-                const aCell = a.cells[columnIndex];
-                const bCell = b.cells[columnIndex];
+        updateSortIcons();
+    }
 
-                // Получаем текстовое содержимое ячеек
-                let aValue = aCell.textContent.trim();
-                let bValue = bCell.textContent.trim();
 
-                // Для столбца с датой (индекс 4)
-                if (columnIndex === 4) {
-                    aValue = parseDateString(aValue);
-                    bValue = parseDateString(bValue);
+    function sortTable(
+        columnIndex
+    ) {
+
+        if (
+            columnIndex ===
+            currentSortColumn
+        ) {
+
+            sortDirection =
+                sortDirection === 'asc'
+                    ? 'desc'
+                    : 'asc';
+
+        } else {
+
+            currentSortColumn =
+                columnIndex;
+
+            sortDirection =
+                'asc';
+        }
+
+        saveSortState();
+
+        applySavedSort();
+    }
+
+
+    function applySavedSort() {
+
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
+
+        if (!table) {
+            return;
+        }
+
+        const tbody =
+            table.querySelector(
+                'tbody'
+            );
+
+        if (!tbody) {
+            return;
+        }
+
+        const rows =
+            Array.from(
+                tbody.querySelectorAll(
+                    'tr'
+                )
+            );
+
+        rows.sort(
+            (a, b) => {
+
+                const aCell =
+                    a.cells[
+                        currentSortColumn
+                        ];
+
+                const bCell =
+                    b.cells[
+                        currentSortColumn
+                        ];
+
+                if (
+                    !aCell ||
+                    !bCell
+                ) {
+                    return 0;
+                }
+
+                let aValue =
+                    aCell
+                        .textContent
+                        .trim();
+
+                let bValue =
+                    bCell
+                        .textContent
+                        .trim();
+
+
+                if (
+                    currentSortColumn === 3
+                ) {
+
+                    aValue =
+                        parseDateString(
+                            aValue
+                        );
+
+                    bValue =
+                        parseDateString(
+                            bValue
+                        );
+
                     return sortDirection === 'asc'
                         ? aValue - bValue
                         : bValue - aValue;
                 }
 
-                // Для остальных столбцов - текстовое сравнение
+
                 return sortDirection === 'asc'
-                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
-                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
-            });
 
-            // Удаляем все строки из tbody
-            while (tbody.firstChild) {
-                tbody.removeChild(tbody.firstChild);
+                    ? aValue.localeCompare(
+                        bValue,
+                        'ru',
+                        {
+                            sensitivity:
+                                'base'
+                        }
+                    )
+
+                    : bValue.localeCompare(
+                        aValue,
+                        'ru',
+                        {
+                            sensitivity:
+                                'base'
+                        }
+                    );
             }
+        );
 
-            // Добавляем отсортированные строки обратно
-            rows.forEach(row => tbody.appendChild(row));
 
-            // Обновляем иконки сортировки
-            updateSortIcons();
+        rows.forEach(
+            row => {
+
+                tbody.appendChild(
+                    row
+                );
+            }
+        );
+
+        updateSortIcons();
+    }
+
+
+    function parseDateString(
+        dateString
+    ) {
+
+        try {
+
+            const [
+                datePart,
+                timePart
+            ] =
+                dateString.split(
+                    ' '
+                );
+
+            const [
+                day,
+                month,
+                year
+            ] =
+                datePart.split(
+                    '.'
+                );
+
+            const [
+                hours,
+                minutes
+            ] =
+                timePart.split(
+                    ':'
+                );
+
+            return new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day),
+                Number(hours),
+                Number(minutes)
+            ).getTime();
+
+        } catch (error) {
+
+            return 0;
+        }
+    }
+
+
+    // =========================================================
+    // СОХРАНЕНИЕ СОРТИРОВКИ
+    // =========================================================
+
+    function saveSortState() {
+
+        localStorage.setItem(
+            'tableSortReadyBoards',
+            JSON.stringify({
+
+                column:
+                currentSortColumn,
+
+                direction:
+                sortDirection
+            })
+        );
+    }
+
+
+    function loadSortState() {
+
+        const savedSort =
+            localStorage.getItem(
+                'tableSortReadyBoards'
+            );
+
+        if (!savedSort) {
+            return;
         }
 
-        function parseDateString(dateString) {
-            try {
-                // Парсим дату в формате "dd.MM.yyyy HH:mm"
-                const [datePart, timePart] = dateString.split(' ');
-                const [day, month, year] = datePart.split('.');
-                const [hours, minutes] = timePart.split(':');
+        try {
 
-                return new Date(year, month - 1, day, hours, minutes).getTime();
-            } catch (e) {
-                return 0; // В случае ошибки возвращаем 0
-            }
+            const sort =
+                JSON.parse(
+                    savedSort
+                );
+
+            currentSortColumn =
+                sort.column;
+
+            sortDirection =
+                sort.direction;
+
+        } catch (error) {
+
+            console.error(
+                'Ошибка чтения сортировки:',
+                error
+            );
+        }
+    }
+
+
+    function updateSortIcons() {
+
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
+
+        if (!table) {
+            return;
         }
 
-        function updateSortIcons() {
-            headers.forEach((header, index) => {
-                const icon = header.querySelector('i');
-                if (icon) {
-                    if (index === currentSortColumn) {
-                        icon.className = sortDirection === 'asc'
-                            ? 'fas fa-sort-up float-end mt-1'
-                            : 'fas fa-sort-down float-end mt-1';
-                    } else {
-                        icon.className = 'fas fa-sort float-end mt-1';
-                    }
+        const headers =
+            table.querySelectorAll(
+                'thead th'
+            );
+
+        headers.forEach(
+            (header, index) => {
+
+                const icon =
+                    header.querySelector(
+                        'i'
+                    );
+
+                if (!icon) {
+                    return;
                 }
-            });
-        }
 
-        // // Функция для поиска (если нужно сохранить)
-        // const searchInput = document.getElementById('searchInput');
-        // if (searchInput) {
-        //     searchInput.addEventListener('input', function() {
-        //         const searchTerm = this.value.toLowerCase().trim();
-        //         const rows = table.querySelectorAll('tbody tr');
-        //         let visibleRows = 0;
-        //
-        //         rows.forEach(row => {
-        //             const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
-        //
-        //             if (serialNumber.includes(searchTerm)) {
-        //                 row.style.display = '';
-        //                 visibleRows++;
-        //             } else {
-        //                 row.style.display = 'none';
-        //             }
-        //         });
-        //
-        //         // Можно добавить обновление счетчика видимых строк
-        //         const counter = document.querySelector('.badge.bg-light .me-1');
-        //         if (counter) {
-        //             counter.textContent = visibleRows;
-        //         }
-        //     });
-        // }
-    });
+                if (
+                    index ===
+                    currentSortColumn
+                ) {
+
+                    icon.className =
+                        sortDirection === 'asc'
+
+                            ? 'fas fa-sort-up float-end mt-1'
+
+                            : 'fas fa-sort-down float-end mt-1';
+
+                } else {
+
+                    icon.className =
+                        'fas fa-sort float-end mt-1';
+                }
+            }
+        );
+    }
+
+
+    // =========================================================
+    // АВТООБНОВЛЕНИЕ КАЖДЫЕ 5 СЕКУНД
+    // =========================================================
+
+    function startAutoRefresh() {
+
+        setInterval(
+            refreshTable,
+            5000
+        );
+    }
+
+
+    // =========================================================
+    // ОБНОВЛЕНИЕ ТАБЛИЦЫ
+    // =========================================================
+
+    function refreshTable() {
+
+        return fetch(
+            window.location.href,
+            {
+                method:
+                    'GET',
+
+                headers: {
+                    'X-Requested-With':
+                        'XMLHttpRequest'
+                },
+
+                cache:
+                    'no-store'
+            }
+        )
+
+            .then(
+                response => {
+
+                    if (
+                        !response.ok
+                    ) {
+
+                        throw new Error(
+                            'HTTP ' +
+                            response.status
+                        );
+                    }
+
+                    return response.text();
+                }
+            )
+
+            .then(
+                html => {
+
+                    const parser =
+                        new DOMParser();
+
+                    const newDocument =
+                        parser.parseFromString(
+                            html,
+                            'text/html'
+                        );
+
+                    const newContainer =
+                        newDocument.getElementById(
+                            'deviceTableContainer'
+                        );
+
+                    const currentContainer =
+                        document.getElementById(
+                            'deviceTableContainer'
+                        );
+
+                    if (
+                        !newContainer ||
+                        !currentContainer
+                    ) {
+
+                        return;
+                    }
+
+
+                    currentContainer.innerHTML =
+                        newContainer.innerHTML;
+
+
+                    // Обновляем счетчик плат в шапке
+                    const newDeviceCount =
+                        newDocument.getElementById(
+                            'deviceCount'
+                        );
+
+                    const currentDeviceCount =
+                        document.getElementById(
+                            'deviceCount'
+                        );
+
+                    if (
+                        newDeviceCount &&
+                        currentDeviceCount
+                    ) {
+
+                        currentDeviceCount.textContent =
+                            newDeviceCount.textContent;
+                    }
+
+
+                    initSort();
+
+                    applySavedSort();
+
+                    applySearch();
+                }
+            )
+
+            .catch(
+                error => {
+
+                    console.error(
+                        'Ошибка обновления таблицы:',
+                        error
+                    );
+                }
+            );
+    }
+
 </script>
 </body>
 </html>
