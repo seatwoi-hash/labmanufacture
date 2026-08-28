@@ -149,80 +149,94 @@
                 </div>
             </div>
 
-            <!-- Карточка с таблицей -->
-            <div class="device-table" th:if="${not devices.empty}">
-                <div class="table-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="mb-1">Устройства для монтажа</h4>
-                            <p class="mb-0">Устройства готовые к монтажу стороны 1</p>
-                        </div>
-                        <div class="text-end">
+            <div id="deviceTableContainer">
+
+                <!-- Карточка с таблицей -->
+                <div id="deviceTable" class="device-table" th:if="${not devices.empty}">
+                    <div class="table-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-1">Устройства для монтажа</h4>
+                                <p class="mb-0">Устройства готовые к монтажу стороны 1</p>
+                            </div>
+                            <div class="text-end">
                                 <span class="badge bg-light text-dark fs-6">
                                     <i class="fas fa-list me-1"></i>
                                     <span th:text="${devices.size()}">0</span> устройств
                                 </span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                        <tr>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
-                                Серийный номер
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
-                                Тип платы
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th>Описание</th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
-                                Дата создания
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th>Действия</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="operation : ${devices}">
-                            <td>
-                                <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
-                            </td>
-                            <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
-                            <td>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
+                                    <span class="sort-header">
+                                        Серийный номер
+                                        <i class="fas fa-sort"></i>
+                                    </span>
+                                </th>
+
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
+                                    <span class="sort-header">
+                                        Тип платы
+                                        <i class="fas fa-sort"></i>
+                                    </span>
+                                </th>
+                                <th>Описание</th>
+
+                                <th style="width: 20%; cursor: pointer;" onclick="sortTable(3)">
+                                    <span class="sort-header">
+                                        Дата создания
+                                        <i class="fas fa-sort"></i>
+                                    </span>
+                                </th>
+
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="operation : ${devices}">
+                                <td>
+                                    <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
+                                </td>
+                                <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
+                                <td>
                                         <span th:if="${operation.description}"
                                               th:text="${#strings.abbreviate(operation.description, 50)}"
                                               data-bs-toggle="tooltip"
                                               th:attr="data-bs-title=${operation.description}">
                                         </span>
-                                <span th:unless="${operation.description}" class="text-muted">—</span>
-                            </td>
-                            <td>
+                                    <span th:unless="${operation.description}" class="text-muted">—</span>
+                                </td>
+                                <td>
                                         <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
                                         </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-complete"
-                                        th:attr="data-device-id=${operation.id}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal">
-                                    Сделано
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                                </td>
+                                <td>
+                                    <button class="btn btn-complete"
+                                            th:attr="data-device-id=${operation.id}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmModal">
+                                        Сделано
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Состояние пустого списка -->
-            <div th:if="${devices.empty}" class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h4>Нет устройств для монтажа</h4>
-                <p class="text-muted">Все устройства уже обработаны или находятся на других этапах</p>
+                <!-- Состояние пустого списка -->
+                <div th:if="${devices.empty}" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h4>Нет устройств для монтажа</h4>
+                    <p class="text-muted">Все устройства уже обработаны или находятся на других этапах</p>
+                </div>
+
             </div>
         </div>
     </main>
@@ -268,439 +282,805 @@
 
 <!-- Специфичные скрипты для этой страницы -->
 <script>
+
+    let currentDeviceId = null;
+    let currentDeviceSn = null;
+
+    let currentSortColumn = 3;
+    let sortDirection = 'desc';
+
+
     document.addEventListener('DOMContentLoaded', function () {
-        let currentDeviceId = null;
-        let currentDeviceSn = null;
 
-        // Инициализация tooltips
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
+        loadSortState();
 
-        // Обработчик клика по кнопке "Сделано"
-        document.querySelectorAll('.btn-complete').forEach(button => {
-            button.addEventListener('click', function () {
-                currentDeviceId = this.getAttribute('data-device-id');
-                currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
+        initTooltips();
+        initCompleteButtons();
+        initConfirmButton();
+        initModal();
+        initSearch();
+        initSort();
 
-                document.getElementById('modalDeviceSn').textContent = currentDeviceSn;
+        applySavedSort();
+
+        startAutoRefresh();
+    });
+
+    // =========================================================
+    // TOOLTIPS
+    // =========================================================
+
+    function initTooltips() {
+
+        document
+            .querySelectorAll('[data-bs-toggle="tooltip"]')
+            .forEach(element => {
+
+                // Если tooltip уже существует — не создаём второй
+                if (!bootstrap.Tooltip.getInstance(element)) {
+                    new bootstrap.Tooltip(element);
+                }
             });
-        });
+    }
 
-        // Обработчик подтверждения
-        document.getElementById('confirmComplete').addEventListener('click', function () {
-            if (!currentDeviceId) return;
+
+    // =========================================================
+    // КНОПКА "СДЕЛАНО"
+    // =========================================================
+
+    function initCompleteButtons() {
+
+        /*
+         * Используем делегирование событий.
+         *
+         * Обработчик висит на document,
+         * поэтому после обновления таблицы новые кнопки
+         * .btn-complete тоже будут работать.
+         */
+
+        document.addEventListener('click', function (event) {
+
+            const button = event.target.closest('.btn-complete');
+
+            if (!button) {
+                return;
+            }
+
+            currentDeviceId =
+                button.getAttribute('data-device-id');
+
+            const row =
+                button.closest('tr');
+
+            const serialElement =
+                row.querySelector('.device-sn');
+
+            if (serialElement) {
+                currentDeviceSn =
+                    serialElement.textContent.trim();
+            }
+
+            const modalDeviceSn =
+                document.getElementById('modalDeviceSn');
+
+            if (modalDeviceSn) {
+                modalDeviceSn.textContent =
+                    currentDeviceSn;
+            }
+        });
+    }
+
+    // =========================================================
+    // ПОДТВЕРЖДЕНИЕ "ДА, ЗАВЕРШИТЬ"
+    // =========================================================
+
+    function initConfirmButton() {
+
+        const confirmButton =
+            document.getElementById('confirmComplete');
+
+        if (!confirmButton) {
+            return;
+        }
+
+        confirmButton.addEventListener('click', function () {
+
+            if (!currentDeviceId) {
+                return;
+            }
 
             const button = this;
-            const originalText = button.innerHTML;
 
-            // Показываем индикатор загрузки
-            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
+            const originalText =
+                button.innerHTML;
+
+            button.innerHTML =
+                '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
+
             button.disabled = true;
 
-            // Отправляем запрос на сервер
+
+            const csrfInput =
+                document.querySelector('input[name="_csrf"]');
+
+            const headers = {
+                'Content-Type':
+                    'application/x-www-form-urlencoded'
+            };
+
+            if (csrfInput) {
+                headers['X-CSRF-TOKEN'] =
+                    csrfInput.value;
+            }
+
+
             fetch('/device/mone-board/complete', {
+
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
-                },
-                body: 'deviceId=' + currentDeviceId
+
+                headers: headers,
+
+                body:
+                    'deviceId=' +
+                    encodeURIComponent(currentDeviceId)
+
             })
                 .then(response => {
-                    if (response.ok) {
-                        // Показываем сообщение об успехе
-                        showAlert('Успех! Устройство перемещено на следующий этап.', 'success');
 
-                        // Закрываем модальное окно
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
-                        modal.hide();
+                    if (!response.ok) {
 
-                        // Обновляем страницу через секунду
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        return response.text().then(text => {
-                            throw new Error(text)
-                        });
+                        return response
+                            .text()
+                            .then(text => {
+
+                                throw new Error(
+                                    text || 'Ошибка выполнения операции'
+                                );
+                            });
                     }
+
+                    showAlert(
+                        'Успех! Устройство перемещено на следующий этап.',
+                        'success'
+                    );
+
+
+                    // Закрываем модальное окно
+
+                    const modalElement =
+                        document.getElementById('confirmModal');
+
+                    const modal =
+                        bootstrap.Modal.getInstance(modalElement);
+
+                    if (modal) {
+                        modal.hide();
+                    }
+
+
+                    // Сразу обновляем таблицу,
+                    // а не перезагружаем всю страницу
+
+                    return refreshTable();
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('Ошибка: ' + error.message, 'danger');
 
-                    // Восстанавливаем кнопку
-                    button.innerHTML = originalText;
-                    button.disabled = false;
+                    console.error(
+                        'Ошибка:',
+                        error
+                    );
+
+                    showAlert(
+                        'Ошибка: ' + error.message,
+                        'danger'
+                    );
+                })
+                .finally(() => {
+
+                    button.innerHTML =
+                        originalText;
+
+                    button.disabled =
+                        false;
                 });
         });
+    }
 
-        // Функция показа уведомлений
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-            alertDiv.innerHTML = `
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-            document.body.appendChild(alertDiv);
+    // =========================================================
+    // МОДАЛЬНОЕ ОКНО
+    // =========================================================
 
-            // Автоматическое скрытие через 5 секунд
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.parentNode.removeChild(alertDiv);
-                }
-            }, 5000);
+    function initModal() {
+
+        const modal =
+            document.getElementById('confirmModal');
+
+        if (!modal) {
+            return;
         }
 
-        // Очистка при закрытии модального окна
-        document.getElementById('confirmModal').addEventListener('hidden.bs.modal', function () {
-            currentDeviceId = null;
-            currentDeviceSn = null;
+        modal.addEventListener(
+            'hidden.bs.modal',
+            function () {
 
-            // Восстанавливаем кнопку подтверждения
-            const confirmButton = document.getElementById('confirmComplete');
-            confirmButton.innerHTML = '<i class="fas fa-check me-2"></i>Да, завершить';
-            confirmButton.disabled = false;
-        });
-    });
+                currentDeviceId = null;
+                currentDeviceSn = null;
 
+                const confirmButton =
+                    document.getElementById(
+                        'confirmComplete'
+                    );
 
+                if (confirmButton) {
 
-//поиск....
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
-        const visibleCount = document.getElementById('visibleCount');
-        const noResults = document.getElementById('noResults');
+                    confirmButton.innerHTML =
+                        '<i class="fas fa-check me-2"></i>Да, завершить';
 
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            let visibleRows = 0;
-
-            tableRows.forEach(row => {
-                const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
-
-                if (serialNumber.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleRows++;
-                } else {
-                    row.style.display = 'none';
+                    confirmButton.disabled =
+                        false;
                 }
-            });
+            }
+        );
+    }
 
-            // Обновляем счетчик видимых строк
-            visibleCount.textContent = visibleRows;
 
-            // Показываем/скрываем сообщение "Ничего не найдено"
-            if (visibleRows === 0 && searchTerm !== '') {
-                noResults.style.display = 'block';
+    // =========================================================
+    // УВЕДОМЛЕНИЯ
+    // =========================================================
+
+    function showAlert(message, type) {
+
+        const alertDiv =
+            document.createElement('div');
+
+        alertDiv.className =
+            `alert alert-${type} alert-dismissible fade show position-fixed`;
+
+        alertDiv.style.cssText =
+            'top: 20px;' +
+            'right: 20px;' +
+            'z-index: 9999;' +
+            'min-width: 300px;';
+
+        alertDiv.innerHTML = `
+            ${message}
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+
+        setTimeout(() => {
+
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+
+        }, 5000);
+    }
+
+    // =========================================================
+    // ПОИСК
+    // =========================================================
+
+    function initSearch() {
+
+        const searchInput =
+            document.getElementById('searchInput');
+
+        if (!searchInput) {
+            return;
+        }
+
+        searchInput.addEventListener(
+            'input',
+            function () {
+
+                applySearch();
+            }
+        );
+    }
+
+
+    function applySearch() {
+
+        const searchInput =
+            document.getElementById('searchInput');
+
+        if (!searchInput) {
+            return;
+        }
+
+        const searchTerm =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+
+        const rows =
+            document.querySelectorAll(
+                '#deviceTable tbody tr'
+            );
+
+
+        rows.forEach(row => {
+
+            const serialElement =
+                row.querySelector('.device-sn');
+
+            if (!serialElement) {
+                return;
+            }
+
+
+            const serialNumber =
+                serialElement
+                    .textContent
+                    .toLowerCase();
+
+
+            if (
+                serialNumber.includes(searchTerm)
+            ) {
+
+                row.style.display = '';
+
             } else {
-                noResults.style.display = 'none';
+
+                row.style.display = 'none';
             }
         });
-    });
+    }
 
+    // =========================================================
+    // СОРТИРОВКА
+    // =========================================================
 
-    //сортировка...
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     const table = document.querySelector('.table');
-    //     const tbody = table.querySelector('tbody');
-    //     const headers = table.querySelectorAll('thead th');
-    //
-    //     // Инициализируем состояние сортировки
-    //     let currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
-    //     let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
-    //
-    //     // Устанавливаем иконку для столбца по умолчанию
-    //     updateSortIcons();
-    //
-    //     // Добавляем обработчики кликов на заголовки
-    //     headers.forEach((header, index) => {
-    //         if (header.hasAttribute('onclick')) {
-    //             // Удаляем inline onclick и добавляем обработчик
-    //             header.removeAttribute('onclick');
-    //             header.style.cursor = 'pointer';
-    //             header.addEventListener('click', () => sortTable(index));
-    //         }
-    //     });
-    //
-    //
-    //
-    //     function saveSortState(columnIndex, direction) {
-    //         localStorage.setItem('tableSort', JSON.stringify({
-    //             column: columnIndex,
-    //             direction: direction
-    //         }));
-    //     }
-    //
-    //     function loadSortState() {
-    //         const savedSort = localStorage.getItem('tableSort');
-    //         if (savedSort) {
-    //             try {
-    //                 return JSON.parse(savedSort);
-    //             } catch(e) {
-    //                 return null;
-    //             }
-    //         }
-    //         return null;
-    //     }
-    //
-    //     const savedSort = loadSortState();
-    //
-    //
-    //     function sortTable(columnIndex) {
-    //         const rows = Array.from(tbody.querySelectorAll('tr'));
-    //
-    //         // Если кликаем по той же колонке, меняем направление
-    //         if (columnIndex === currentSortColumn) {
-    //             sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    //         } else {
-    //             // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
-    //             currentSortColumn = columnIndex;
-    //             sortDirection = 'asc';
-    //         }
-    //
-    //         saveSortState(currentSortColumn, sortDirection);
-    //
-    //         // Сортируем строки
-    //         rows.sort((a, b) => {
-    //             const aCell = a.cells[columnIndex];
-    //             const bCell = b.cells[columnIndex];
-    //
-    //             // Получаем текстовое содержимое ячеек
-    //             let aValue = aCell.textContent.trim();
-    //             let bValue = bCell.textContent.trim();
-    //
-    //             // Для столбца с датой (индекс 4)
-    //             if (columnIndex === 4) {
-    //                 aValue = parseDateString(aValue);
-    //                 bValue = parseDateString(bValue);
-    //                 return sortDirection === 'asc'
-    //                     ? aValue - bValue
-    //                     : bValue - aValue;
-    //             }
-    //
-    //             // Для остальных столбцов - текстовое сравнение
-    //             return sortDirection === 'asc'
-    //                 ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
-    //                 : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
-    //         });
-    //
-    //         // Удаляем все строки из tbody
-    //         while (tbody.firstChild) {
-    //             tbody.removeChild(tbody.firstChild);
-    //         }
-    //
-    //         // Добавляем отсортированные строки обратно
-    //         rows.forEach(row => tbody.appendChild(row));
-    //
-    //         // Обновляем иконки сортировки
-    //         updateSortIcons();
-    //     }
-    //
-    //     function parseDateString(dateString) {
-    //         try {
-    //             // Парсим дату в формате "dd.MM.yyyy HH:mm"
-    //             const [datePart, timePart] = dateString.split(' ');
-    //             const [day, month, year] = datePart.split('.');
-    //             const [hours, minutes] = timePart.split(':');
-    //
-    //             return new Date(year, month - 1, day, hours, minutes).getTime();
-    //         } catch (e) {
-    //             return 0; // В случае ошибки возвращаем 0
-    //         }
-    //     }
-    //
-    //     function updateSortIcons() {
-    //         headers.forEach((header, index) => {
-    //             const icon = header.querySelector('i');
-    //             if (icon) {
-    //                 if (index === currentSortColumn) {
-    //                     icon.className = sortDirection === 'asc'
-    //                         ? 'fas fa-sort-up float-end mt-1'
-    //                         : 'fas fa-sort-down float-end mt-1';
-    //                 } else {
-    //                     icon.className = 'fas fa-sort float-end mt-1';
-    //                 }
-    //             }
-    //         });
-    //     }
-    // });
+    function initSort() {
 
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
 
-    //сортировка...
-    document.addEventListener('DOMContentLoaded', function() {
-        const table = document.querySelector('.table');
-        const tbody = table.querySelector('tbody');
-        const headers = table.querySelectorAll('thead th');
-
-        // Функции для работы с localStorage
-        function saveSortState(columnIndex, direction) {
-            localStorage.setItem('tableSort', JSON.stringify({
-                column: columnIndex,
-                direction: direction
-            }));
+        if (!table) {
+            return;
         }
 
-        function loadSortState() {
-            const savedSort = localStorage.getItem('tableSort');
-            if (savedSort) {
-                try {
-                    return JSON.parse(savedSort);
-                } catch(e) {
-                    return null;
-                }
-            }
-            return null;
-        }
 
-        // ЗАГРУЖАЕМ СОХРАНЕННУЮ СОРТИРОВКУ
-        const savedSort = loadSortState();
+        const headers =
+            table.querySelectorAll(
+                'thead th'
+            );
 
-        // Инициализируем состояние сортировки
-        let currentSortColumn;
-        let sortDirection;
 
-        if (savedSort) {
-            // Используем сохраненные значения
-            currentSortColumn = savedSort.column;
-            sortDirection = savedSort.direction;
-        } else {
-            // Значения по умолчанию
-            currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
-            sortDirection = 'desc'; // По умолчанию сортировка по убыванию
-        }
+        headers.forEach(
+            (header, index) => {
 
-        // ПРИМЕНЯЕМ СОХРАНЕННУЮ СОРТИРОВКУ
-        function applySavedSort() {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
+                /*
+                 * Сортируем только колонки,
+                 * у которых изначально был onclick.
+                 *
+                 * У тебя это:
+                 *
+                 * 0 — серийный номер
+                 * 1 — тип платы
+                 * 3 — дата
+                 */
 
-            rows.sort((a, b) => {
-                const aCell = a.cells[currentSortColumn];
-                const bCell = b.cells[currentSortColumn];
-
-                let aValue = aCell.textContent.trim();
-                let bValue = bCell.textContent.trim();
-
-                // Для столбца с датой (индекс 4)
-                if (currentSortColumn === 4) {
-                    aValue = parseDateString(aValue);
-                    bValue = parseDateString(bValue);
-                    return sortDirection === 'asc'
-                        ? aValue - bValue
-                        : bValue - aValue;
+                if (
+                    index !== 0 &&
+                    index !== 1 &&
+                    index !== 3
+                ) {
+                    return;
                 }
 
-                // Для остальных столбцов
-                return sortDirection === 'asc'
-                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
-                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
-            });
 
-            // Обновляем DOM
-            while (tbody.firstChild) {
-                tbody.removeChild(tbody.firstChild);
-            }
-            rows.forEach(row => tbody.appendChild(row));
-        }
+                header.removeAttribute(
+                    'onclick'
+                );
 
-        // Применяем сохраненную сортировку (если есть)
-        if (savedSort && tbody.querySelectorAll('tr').length > 0) {
-            applySavedSort();
-        }
+                header.style.cursor =
+                    'pointer';
 
-        // Устанавливаем иконку для столбца
-        updateSortIcons();
 
-        // Добавляем обработчики кликов на заголовки
-        headers.forEach((header, index) => {
-            if (header.hasAttribute('onclick')) {
-                header.removeAttribute('onclick');
-                header.style.cursor = 'pointer';
-                header.addEventListener('click', () => sortTable(index));
-            }
-        });
+                header.addEventListener(
+                    'click',
+                    function () {
 
-        function sortTable(columnIndex) {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-
-            // Если кликаем по той же колонке, меняем направление
-            if (columnIndex === currentSortColumn) {
-                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
-                currentSortColumn = columnIndex;
-                sortDirection = 'asc';
-            }
-
-            // Сохраняем состояние
-            saveSortState(currentSortColumn, sortDirection);
-
-            // Сортируем строки
-            rows.sort((a, b) => {
-                const aCell = a.cells[columnIndex];
-                const bCell = b.cells[columnIndex];
-
-                let aValue = aCell.textContent.trim();
-                let bValue = bCell.textContent.trim();
-
-                // Для столбца с датой (индекс 4)
-                if (columnIndex === 4) {
-                    aValue = parseDateString(aValue);
-                    bValue = parseDateString(bValue);
-                    return sortDirection === 'asc'
-                        ? aValue - bValue
-                        : bValue - aValue;
-                }
-
-                // Для остальных столбцов - текстовое сравнение
-                return sortDirection === 'asc'
-                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
-                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
-            });
-
-            // Обновляем DOM
-            while (tbody.firstChild) {
-                tbody.removeChild(tbody.firstChild);
-            }
-            rows.forEach(row => tbody.appendChild(row));
-
-            // Обновляем иконки сортировки
-            updateSortIcons();
-        }
-
-        function parseDateString(dateString) {
-            try {
-                // Парсим дату в формате "dd.MM.yyyy HH:mm"
-                const [datePart, timePart] = dateString.split(' ');
-                const [day, month, year] = datePart.split('.');
-                const [hours, minutes] = timePart.split(':');
-
-                return new Date(year, month - 1, day, hours, minutes).getTime();
-            } catch (e) {
-                return 0; // В случае ошибки возвращаем 0
-            }
-        }
-
-        function updateSortIcons() {
-            headers.forEach((header, index) => {
-                const icon = header.querySelector('i');
-                if (icon) {
-                    if (index === currentSortColumn) {
-                        icon.className = sortDirection === 'asc'
-                            ? 'fas fa-sort-up float-end mt-1'
-                            : 'fas fa-sort-down float-end mt-1';
-                    } else {
-                        icon.className = 'fas fa-sort float-end mt-1';
+                        sortTable(index);
                     }
-                }
-            });
+                );
+            }
+        );
+
+
+        updateSortIcons();
+    }
+    function sortTable(columnIndex) {
+
+        if (
+            columnIndex === currentSortColumn
+        ) {
+
+            sortDirection =
+                sortDirection === 'asc'
+                    ? 'desc'
+                    : 'asc';
+
+        } else {
+
+            currentSortColumn =
+                columnIndex;
+
+            sortDirection =
+                'asc';
         }
-    });
+
+
+        saveSortState();
+
+        applySavedSort();
+    }
+
+
+    function applySavedSort() {
+
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
+
+        if (!table) {
+            return;
+        }
+
+
+        const tbody =
+            table.querySelector('tbody');
+
+        if (!tbody) {
+            return;
+        }
+
+
+        const rows =
+            Array.from(
+                tbody.querySelectorAll('tr')
+            );
+
+
+        rows.sort((a, b) => {
+
+            const aCell =
+                a.cells[currentSortColumn];
+
+            const bCell =
+                b.cells[currentSortColumn];
+
+
+            if (!aCell || !bCell) {
+                return 0;
+            }
+
+
+            let aValue =
+                aCell.textContent.trim();
+
+            let bValue =
+                bCell.textContent.trim();
+
+
+            // Колонка 3 — дата создания
+
+            if (
+                currentSortColumn === 3
+            ) {
+
+                aValue =
+                    parseDateString(aValue);
+
+                bValue =
+                    parseDateString(bValue);
+
+
+                return sortDirection === 'asc'
+
+                    ? aValue - bValue
+
+                    : bValue - aValue;
+            }
+
+
+            // Обычная текстовая сортировка
+
+            return sortDirection === 'asc'
+
+                ? aValue.localeCompare(
+                    bValue,
+                    'ru',
+                    {
+                        sensitivity: 'base'
+                    }
+                )
+
+                : bValue.localeCompare(
+                    aValue,
+                    'ru',
+                    {
+                        sensitivity: 'base'
+                    }
+                );
+        });
+
+
+        rows.forEach(row => {
+
+            tbody.appendChild(row);
+        });
+
+
+        updateSortIcons();
+    }
+
+
+    function parseDateString(dateString) {
+
+        try {
+
+            const [
+                datePart,
+                timePart
+            ] =
+                dateString.split(' ');
+
+
+            const [
+                day,
+                month,
+                year
+            ] =
+                datePart.split('.');
+
+
+            const [
+                hours,
+                minutes
+            ] =
+                timePart.split(':');
+
+
+            return new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day),
+                Number(hours),
+                Number(minutes)
+            ).getTime();
+
+        } catch (error) {
+
+            return 0;
+        }
+    }
+
+
+    function saveSortState() {
+
+        localStorage.setItem(
+            'tableSort',
+            JSON.stringify({
+
+                column:
+                currentSortColumn,
+
+                direction:
+                sortDirection
+            })
+        );
+    }
+
+
+    function loadSortState() {
+
+        const savedSort =
+            localStorage.getItem(
+                'tableSort'
+            );
+
+
+        if (!savedSort) {
+            return;
+        }
+
+
+        try {
+
+            const sort =
+                JSON.parse(savedSort);
+
+
+            currentSortColumn =
+                sort.column;
+
+            sortDirection =
+                sort.direction;
+
+        } catch (error) {
+
+            console.error(
+                'Ошибка чтения сортировки:',
+                error
+            );
+        }
+    }
+
+
+    function updateSortIcons() {
+
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
+
+        if (!table) {
+            return;
+        }
+
+
+        const headers =
+            table.querySelectorAll(
+                'thead th'
+            );
+
+
+        headers.forEach(
+            (header, index) => {
+
+                const icon =
+                    header.querySelector('i');
+
+
+                if (!icon) {
+                    return;
+                }
+
+
+                if (
+                    index === currentSortColumn
+                ) {
+
+                    icon.className =
+                        sortDirection === 'asc'
+
+                            ? 'fas fa-sort-up float-end mt-1'
+
+                            : 'fas fa-sort-down float-end mt-1';
+
+                } else {
+
+                    icon.className =
+                        'fas fa-sort float-end mt-1';
+                }
+            }
+        );
+    }
+
+    // =========================================================
+    // АВТООБНОВЛЕНИЕ ТАБЛИЦЫ
+    // =========================================================
+
+    function startAutoRefresh() {
+
+        setInterval(
+            refreshTable,
+            5000
+        );
+    }
+
+
+    function refreshTable() {
+
+        return fetch(
+            window.location.href,
+            {
+                method: 'GET',
+
+                headers: {
+                    'X-Requested-With':
+                        'XMLHttpRequest'
+                },
+
+                cache: 'no-store'
+            }
+        )
+            .then(response => {
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        'HTTP ' +
+                        response.status
+                    );
+                }
+
+                return response.text();
+            })
+            .then(html => {
+
+                const parser =
+                    new DOMParser();
+
+
+                const newDocument =
+                    parser.parseFromString(
+                        html,
+                        'text/html'
+                    );
+
+
+                const newContainer =
+                    newDocument.getElementById(
+                        'deviceTableContainer'
+                    );
+
+
+                const currentContainer =
+                    document.getElementById(
+                        'deviceTableContainer'
+                    );
+
+
+                if (
+                    !newContainer ||
+                    !currentContainer
+                ) {
+
+                    return;
+                }
+
+
+                /*
+                 * Меняем таблицу вместе с пустым состоянием.
+                 * Поэтому корректно работает и переход
+                 * от 1 устройства к 0 устройств.
+                 */
+
+                currentContainer.innerHTML =
+                    newContainer.innerHTML;
+
+
+                /*
+                 * После обновления таблицы:
+                 *
+                 * 1. заново создаём tooltips
+                 * 2. заново подключаем сортировку заголовков
+                 * 3. применяем текущую сортировку
+                 * 4. применяем текущий поиск
+                 */
+
+                initTooltips();
+
+                initSort();
+
+                applySavedSort();
+
+                applySearch();
+            })
+            .catch(error => {
+
+                console.error(
+                    'Ошибка обновления таблицы:',
+                    error
+                );
+            });
+    }
+
 </script>
 </body>
 </html>

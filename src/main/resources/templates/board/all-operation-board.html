@@ -152,158 +152,161 @@
                     </div>
                 </div>
             </div>
-            <!-- Карточка с таблицей -->
-            <div class="device-table" th:if="${not operations.empty}">
-                <div class="table-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="mb-1">Все операции</h4>
+            <div id="operationsTableContainer">
+
+                <!-- Карточка с таблицей -->
+                <div id="operationsTable" class="device-table" th:if="${not operations.empty}">
+                    <div class="table-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-1">Все операции</h4>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                        <tr>
-                            <th>
-                                Серийный номер
-                            </th>
-                            <th>Описание</th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
-                                Операции
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(4)">
-                                Дата операции
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th>Фамилия</th>
-                        </tr>
-                        </thead>
-                        <tbody>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Серийный номер
+                                </th>
+                                <th>Описание</th>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
+                                    Операции
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(4)">
+                                    Дата операции
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th>Фамилия</th>
+                            </tr>
+                            </thead>
+                            <tbody>
 
-                        <tr th:each="operation : ${operations}"
-                            th:classappend="${#strings.containsIgnoreCase(operation.status.name, 'Fail')} ? ' table-fail' : ''">
-                            <td>
-                                <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
-                            </td>
-                            <td>
+                            <tr th:each="operation : ${operations}"
+                                th:classappend="${#strings.containsIgnoreCase(operation.status.name, 'Fail')} ? ' table-fail' : ''">
+                                <td>
+                                    <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
+                                </td>
+                                <td>
                                         <span th:if="${operation.description}"
                                               th:text="${#strings.abbreviate(operation.description, 50)}"
                                               data-bs-toggle="tooltip"
                                               th:attr="data-bs-title=${operation.description}">
                                         </span>
-                                <span th:unless="${operation.description}" class="text-muted">—</span>
-                            </td>
-                            <td>
+                                    <span th:unless="${operation.description}" class="text-muted">—</span>
+                                </td>
+                                <td>
                                 <span class="device-sn"
                                       th:text="${operation.status.description}">
                                 </span>
-                            </td>
+                                </td>
 
-                            <td>
+                                <td>
                                         <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
                                         </span>
-                            </td>
-                            <td>
-                                <span class="device-sn" th:text="${operation.account.lastName}"></span>
-                            </td>
-
-                        </tr>
-
-
-
-
-
-                        <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
-
-                            <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
-                                class="table-active">
-                                <td colspan="5">
-                                    <div class="ms-3">
-                                        <!-- PDF ссылка - используем firstDevice -->
-                                        <a th:if="${firstDevice != null && firstDevice.getUrlPDF() != null && !firstDevice.getUrlPDF().isEmpty()}"
-                                           th:href="${firstDevice.getUrlPDF()}"
-                                           class="btn btn-sm btn-success ms-2"
-                                           target="_blank">
-                                            <i class="fas fa-file-pdf"></i> PDF
-                                        </a>
-                                        <span th:unless="${firstDevice != null && firstDevice.getUrlPDF() != null && !firstDevice.getUrlPDF().isEmpty()}"
-                                              class="text-muted ms-2">
-                PDF нет
-            </span>
-
-                                        <!-- TXT ссылка - используем firstDevice -->
-                                        <a th:if="${firstDevice != null && firstDevice.getUrlTXT() != null && !firstDevice.getUrlTXT().isEmpty()}"
-                                           th:href="${firstDevice.getUrlTXT()}"
-                                           class="btn btn-sm btn-info ms-2"
-                                           target="_blank">
-                                            <i class="fas fa-file-alt"></i> TXT
-                                        </a>
-                                        <span th:unless="${firstDevice != null && firstDevice.getUrlTXT() != null && !firstDevice.getUrlTXT().isEmpty()}"
-                                              class="text-muted ms-2">
-                TXT нет
-            </span>
-
-                                        <!-- Добавим отображение серийного номера для ясности -->
-                                        <small class="text-muted ms-3">
-                                            (Устройство: <span th:text="${firstDevice.getSerialNumber()}"></span>)
-                                        </small>
-                                    </div>
                                 </td>
+                                <td>
+                                    <span class="device-sn" th:text="${operation.account.lastName}"></span>
+                                </td>
+
                             </tr>
 
 
-                        </th:block>
 
-                        <th:block sec:authorize="hasAuthority('ROLE_QUALITY')">
 
-                            <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
-                                class="table-active">
-                                <td colspan="5">
-                                    <div class="ms-3">
-                                        <!-- PDF ссылка - используем firstDevice -->
-                                        <a th:if="${firstDevice != null && firstDevice.getUrlPDFRead() != null && !firstDevice.getUrlPDFRead().isEmpty()}"
-                                           th:href="${firstDevice.getUrlPDFRead()}"
-                                           class="btn btn-sm btn-success ms-2"
-                                           target="_blank">
-                                            <i class="fas fa-file-pdf"></i> PDF
-                                        </a>
-                                        <span th:unless="${firstDevice != null && firstDevice.getUrlPDFRead() != null && !firstDevice.getUrlPDFRead().isEmpty()}"
-                                              class="text-muted ms-2">
+
+                            <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+
+                                <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
+                                    class="table-active">
+                                    <td colspan="5">
+                                        <div class="ms-3">
+                                            <!-- PDF ссылка - используем firstDevice -->
+                                            <a th:if="${firstDevice != null && firstDevice.getUrlPDF() != null && !firstDevice.getUrlPDF().isEmpty()}"
+                                               th:href="${firstDevice.getUrlPDF()}"
+                                               class="btn btn-sm btn-success ms-2"
+                                               target="_blank">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </a>
+                                            <span th:unless="${firstDevice != null && firstDevice.getUrlPDF() != null && !firstDevice.getUrlPDF().isEmpty()}"
+                                                  class="text-muted ms-2">
                 PDF нет
             </span>
 
-                                        <!-- TXT ссылка - используем firstDevice -->
-                                        <a th:if="${firstDevice != null && firstDevice.getUrlTXTRead() != null && !firstDevice.getUrlTXTRead().isEmpty()}"
-                                           th:href="${firstDevice.getUrlTXTRead()}"
-                                           class="btn btn-sm btn-info ms-2"
-                                           target="_blank">
-                                            <i class="fas fa-file-alt"></i> TXT
-                                        </a>
-                                        <span th:unless="${firstDevice != null && firstDevice.getUrlTXTRead() != null && !firstDevice.getUrlTXTRead().isEmpty()}"
-                                              class="text-muted ms-2">
+                                            <!-- TXT ссылка - используем firstDevice -->
+                                            <a th:if="${firstDevice != null && firstDevice.getUrlTXT() != null && !firstDevice.getUrlTXT().isEmpty()}"
+                                               th:href="${firstDevice.getUrlTXT()}"
+                                               class="btn btn-sm btn-info ms-2"
+                                               target="_blank">
+                                                <i class="fas fa-file-alt"></i> TXT
+                                            </a>
+                                            <span th:unless="${firstDevice != null && firstDevice.getUrlTXT() != null && !firstDevice.getUrlTXT().isEmpty()}"
+                                                  class="text-muted ms-2">
                 TXT нет
             </span>
 
-                                        <!-- Добавим отображение серийного номера для ясности -->
-                                        <small class="text-muted ms-3">
-                                            (Устройство: <span th:text="${firstDevice.getSerialNumber()}"></span>)
-                                        </small>
-                                    </div>
-                                </td>
-                            </tr>
+                                            <!-- Добавим отображение серийного номера для ясности -->
+                                            <small class="text-muted ms-3">
+                                                (Устройство: <span th:text="${firstDevice.getSerialNumber()}"></span>)
+                                            </small>
+                                        </div>
+                                    </td>
+                                </tr>
 
 
-                        </th:block>
+                            </th:block>
 
-                        </tbody>
-                    </table>
+                            <th:block sec:authorize="hasAuthority('ROLE_QUALITY')">
 
+                                <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
+                                    class="table-active">
+                                    <td colspan="5">
+                                        <div class="ms-3">
+                                            <!-- PDF ссылка - используем firstDevice -->
+                                            <a th:if="${firstDevice != null && firstDevice.getUrlPDFRead() != null && !firstDevice.getUrlPDFRead().isEmpty()}"
+                                               th:href="${firstDevice.getUrlPDFRead()}"
+                                               class="btn btn-sm btn-success ms-2"
+                                               target="_blank">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </a>
+                                            <span th:unless="${firstDevice != null && firstDevice.getUrlPDFRead() != null && !firstDevice.getUrlPDFRead().isEmpty()}"
+                                                  class="text-muted ms-2">
+                PDF нет
+            </span>
+
+                                            <!-- TXT ссылка - используем firstDevice -->
+                                            <a th:if="${firstDevice != null && firstDevice.getUrlTXTRead() != null && !firstDevice.getUrlTXTRead().isEmpty()}"
+                                               th:href="${firstDevice.getUrlTXTRead()}"
+                                               class="btn btn-sm btn-info ms-2"
+                                               target="_blank">
+                                                <i class="fas fa-file-alt"></i> TXT
+                                            </a>
+                                            <span th:unless="${firstDevice != null && firstDevice.getUrlTXTRead() != null && !firstDevice.getUrlTXTRead().isEmpty()}"
+                                                  class="text-muted ms-2">
+                TXT нет
+            </span>
+
+                                            <!-- Добавим отображение серийного номера для ясности -->
+                                            <small class="text-muted ms-3">
+                                                (Устройство: <span th:text="${firstDevice.getSerialNumber()}"></span>)
+                                            </small>
+                                        </div>
+                                    </td>
+                                </tr>
+
+
+                            </th:block>
+
+                            </tbody>
+                        </table>
+
+                    </div>
                 </div>
-            </div>
 
+            </div>
 
         </div>
     </main>
@@ -312,166 +315,117 @@
 
 
 <script>
+    let currentSortColumn = 3;
+    let sortDirection = 'desc';
+
     document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
-        const visibleCount = document.getElementById('visibleCount');
-        const noResults = document.getElementById('noResults');
-
-        searchInput.addEventListener('input', function () {
-            const searchTerm = this.value.toLowerCase().trim();
-            let visibleRows = 0;
-
-            tableRows.forEach(row => {
-                const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
-
-                if (serialNumber.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleRows++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // Обновляем счетчик видимых строк
-            visibleCount.textContent = visibleRows;
-
-            // Показываем/скрываем сообщение "Ничего не найдено"
-            if (visibleRows === 0 && searchTerm !== '') {
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
-            }
-        });
+        loadSortState();
+        initTooltips();
+        initSearch();
+        initSort();
+        applySavedSort();
+        startAutoRefresh();
     });
 
+    function initTooltips() {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(element => {
+            if (!bootstrap.Tooltip.getInstance(element)) new bootstrap.Tooltip(element);
+        });
+    }
 
-    //сортировка...
-    document.addEventListener('DOMContentLoaded', function () {
-        const table = document.querySelector('.table');
-        const tbody = table.querySelector('tbody');
-        const headers = table.querySelectorAll('thead th');
+    function initSearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+        searchInput.addEventListener('input', applySearch);
+    }
 
-        // Инициализируем состояние сортировки
-        let currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
-        let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
+    function applySearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        document.querySelectorAll('#operationsTable tbody tr').forEach(row => {
+            if (row.classList.contains('table-active')) { row.style.display=''; return; }
+            const serialElement = row.querySelector('.device-sn');
+            if (!serialElement) return;
+            row.style.display = serialElement.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+        });
+    }
 
-        // Устанавливаем иконку для столбца по умолчанию
+    function initSort() {
+        const table = document.querySelector('#operationsTable .table');
+        if (!table) return;
+        table.querySelectorAll('thead th').forEach((header,index) => {
+            if (index !== 2 && index !== 3) return;
+            header.removeAttribute('onclick');
+            header.style.cursor='pointer';
+            header.addEventListener('click', () => sortTable(index));
+        });
         updateSortIcons();
+    }
 
-        // Добавляем обработчики кликов на заголовки
-        headers.forEach((header, index) => {
-            if (header.hasAttribute('onclick')) {
-                // Удаляем inline onclick и добавляем обработчик
-                header.removeAttribute('onclick');
-                header.style.cursor = 'pointer';
-                header.addEventListener('click', () => sortTable(index));
-            }
+    function sortTable(columnIndex) {
+        if (columnIndex === currentSortColumn) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        else { currentSortColumn = columnIndex; sortDirection = 'asc'; }
+        saveSortState();
+        applySavedSort();
+    }
+
+    function applySavedSort() {
+        const table = document.querySelector('#operationsTable .table');
+        if (!table) return;
+        const tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        const allRows = Array.from(tbody.querySelectorAll('tr'));
+        const operationRows = allRows.filter(r => !r.classList.contains('table-active'));
+        const serviceRows = allRows.filter(r => r.classList.contains('table-active'));
+        operationRows.sort((a,b) => {
+            const aCell=a.cells[currentSortColumn], bCell=b.cells[currentSortColumn];
+            if (!aCell || !bCell) return 0;
+            let av=aCell.textContent.trim(), bv=bCell.textContent.trim();
+            if (currentSortColumn===3) { av=parseDateString(av); bv=parseDateString(bv); return sortDirection==='asc'?av-bv:bv-av; }
+            return sortDirection==='asc' ? av.localeCompare(bv,'ru',{sensitivity:'base'}) : bv.localeCompare(av,'ru',{sensitivity:'base'});
         });
+        operationRows.forEach(r => tbody.appendChild(r));
+        serviceRows.forEach(r => tbody.appendChild(r));
+        updateSortIcons();
+    }
 
-        function sortTable(columnIndex) {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
+    function parseDateString(s) {
+        try { const [d,t]=s.split(' '); const [day,month,year]=d.split('.'); const [h,m]=t.split(':'); return new Date(+year,+month-1,+day,+h,+m).getTime(); } catch(e){ return 0; }
+    }
 
-            // Если кликаем по той же колонке, меняем направление
-            if (columnIndex === currentSortColumn) {
-                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
-                currentSortColumn = columnIndex;
-                sortDirection = 'asc';
-            }
+    function saveSortState() {
+        localStorage.setItem('tableSortAllOperations', JSON.stringify({column:currentSortColumn,direction:sortDirection}));
+    }
+    function loadSortState() {
+        const s=localStorage.getItem('tableSortAllOperations');
+        if (!s) return;
+        try { const v=JSON.parse(s); currentSortColumn=v.column; sortDirection=v.direction; } catch(e) {}
+    }
+    function updateSortIcons() {
+        const table=document.querySelector('#operationsTable .table');
+        if (!table) return;
+        table.querySelectorAll('thead th').forEach((h,i)=>{ const icon=h.querySelector('i'); if(!icon) return; icon.className = i===currentSortColumn ? (sortDirection==='asc'?'fas fa-sort-up float-end mt-1':'fas fa-sort-down float-end mt-1') : 'fas fa-sort float-end mt-1'; });
+    }
 
-            // Сортируем строки
-            rows.sort((a, b) => {
-                const aCell = a.cells[columnIndex];
-                const bCell = b.cells[columnIndex];
+    function startAutoRefresh() { setInterval(refreshTable, 5000); }
 
-                // Получаем текстовое содержимое ячеек
-                let aValue = aCell.textContent.trim();
-                let bValue = bCell.textContent.trim();
-
-                // Для столбца с датой (индекс 4)
-                if (columnIndex === 4) {
-                    aValue = parseDateString(aValue);
-                    bValue = parseDateString(bValue);
-                    return sortDirection === 'asc'
-                        ? aValue - bValue
-                        : bValue - aValue;
-                }
-
-                // Для остальных столбцов - текстовое сравнение
-                return sortDirection === 'asc'
-                    ? aValue.localeCompare(bValue, 'ru', {sensitivity: 'base'})
-                    : bValue.localeCompare(aValue, 'ru', {sensitivity: 'base'});
-            });
-
-            // Удаляем все строки из tbody
-            while (tbody.firstChild) {
-                tbody.removeChild(tbody.firstChild);
-            }
-
-            // Добавляем отсортированные строки обратно
-            rows.forEach(row => tbody.appendChild(row));
-
-            // Обновляем иконки сортировки
-            updateSortIcons();
-        }
-
-        function parseDateString(dateString) {
-            try {
-                // Парсим дату в формате "dd.MM.yyyy HH:mm"
-                const [datePart, timePart] = dateString.split(' ');
-                const [day, month, year] = datePart.split('.');
-                const [hours, minutes] = timePart.split(':');
-
-                return new Date(year, month - 1, day, hours, minutes).getTime();
-            } catch (e) {
-                return 0; // В случае ошибки возвращаем 0
-            }
-        }
-
-        function updateSortIcons() {
-            headers.forEach((header, index) => {
-                const icon = header.querySelector('i');
-                if (icon) {
-                    if (index === currentSortColumn) {
-                        icon.className = sortDirection === 'asc'
-                            ? 'fas fa-sort-up float-end mt-1'
-                            : 'fas fa-sort-down float-end mt-1';
-                    } else {
-                        icon.className = 'fas fa-sort float-end mt-1';
-                    }
-                }
-            });
-        }
-
-        // Функция для поиска (если нужно сохранить)
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
-                const searchTerm = this.value.toLowerCase().trim();
-                const rows = table.querySelectorAll('tbody tr');
-                let visibleRows = 0;
-
-                rows.forEach(row => {
-                    const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
-
-                    if (serialNumber.includes(searchTerm)) {
-                        row.style.display = '';
-                        visibleRows++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                // Можно добавить обновление счетчика видимых строк
-                const counter = document.querySelector('.badge.bg-light .me-1');
-                if (counter) {
-                    counter.textContent = visibleRows;
-                }
-            });
-        }
-    });
+    function refreshTable() {
+        return fetch(window.location.href,{method:'GET',headers:{'X-Requested-With':'XMLHttpRequest'},cache:'no-store'})
+            .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+            .then(html=>{
+                const doc=new DOMParser().parseFromString(html,'text/html');
+                const newContainer=doc.getElementById('operationsTableContainer');
+                const currentContainer=document.getElementById('operationsTableContainer');
+                if(!newContainer || !currentContainer) return;
+                currentContainer.innerHTML=newContainer.innerHTML;
+                initTooltips();
+                initSort();
+                applySavedSort();
+                applySearch();
+            })
+            .catch(e=>console.error('Ошибка обновления операций:',e));
+    }
 </script>
 </body>
 </html>

@@ -156,127 +156,131 @@
                     </div>
                 </div>
             </div>
-            <!-- Карточка с таблицей -->
-            <div class="device-table" th:if="${not devices.empty}">
-                <div class="table-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="mb-1">Устройства для ремонта №5</h4>
-                            <p class="mb-0">Устройства готовые к ремонту №5</p>
-                        </div>
-                        <div class="text-end">
+            <div id="deviceTableContainer">
+
+                <!-- Карточка с таблицей -->
+                <div id="deviceTable" class="device-table" th:if="${not devices.empty}">
+                    <div class="table-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-1">Устройства для ремонта №5</h4>
+                                <p class="mb-0">Устройства готовые к ремонту №5</p>
+                            </div>
+                            <div class="text-end">
                                 <span class="badge bg-light text-dark fs-6">
                                     <i class="fas fa-list me-1"></i>
                                     <span th:text="${devices.size()}">0</span> устройств
                                 </span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                        <tr>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
-                                Серийный номер
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
-                                Тип платы
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th>Описание ошибок теста №2</th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
-                                Дата создания
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th>Действия</th>
-                            <th>Файлы</th>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
+                                    Серийный номер
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
+                                    Тип платы
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th>Описание ошибок теста №2</th>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
+                                    Дата создания
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th>Действия</th>
+                                <th>Файлы</th>
 
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="operation : ${devices}">
-                            <td>
-                                <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
-                            </td>
-                            <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
-                            <td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="operation : ${devices}">
+                                <td>
+                                    <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
+                                </td>
+                                <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
+                                <td>
                                         <span th:if="${operation.description}"
                                               th:text="${#strings.abbreviate(operation.description, 50)}"
                                               data-bs-toggle="tooltip"
                                               th:attr="data-bs-title=${operation.description}">
                                         </span>
-                                <span th:unless="${operation.description}" class="text-muted">—</span>
-                                <span th:unless="${operation.description}" class="text-muted">—</span>
+                                    <span th:unless="${operation.description}" class="text-muted">—</span>
+                                    <span th:unless="${operation.description}" class="text-muted">—</span>
 
-                                <!-- Кнопка копирования -->
-                                <button class="btn btn-sm btn-outline-secondary ms-2 copy-btn"
-                                        th:if="${operation.description}"
-                                        th:attr="data-text=${operation.description}"
-                                        data-bs-toggle="tooltip"
-                                        title="Скопировать полный текст">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </td>
-                            <td>
+                                    <!-- Кнопка копирования -->
+                                    <button class="btn btn-sm btn-outline-secondary ms-2 copy-btn"
+                                            th:if="${operation.description}"
+                                            th:attr="data-text=${operation.description}"
+                                            data-bs-toggle="tooltip"
+                                            title="Скопировать полный текст">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
+                                <td>
                                         <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
                                         </span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-complete"
-                                            th:attr="data-device-id=${operation.id}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmPassedModal">
-                                        Сделано
-                                    </button>
-                                </div>
-                            </td>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-complete"
+                                                th:attr="data-device-id=${operation.id}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#confirmPassedModal">
+                                            Сделано
+                                        </button>
+                                    </div>
+                                </td>
 
 
 
 
-                            <td class="text-center">
-                                <!-- Проверяем наличие файла и URL -->
-                                <th:block th:with="hasFile=${operation.getDevice().getUrlPDF() != null && !operation.getDevice().getUrlPDF().isEmpty()}">
-                                    <a th:if="${hasFile}"
-                                       th:href="${operation.getDevice().getUrlPDF()}"
-                                       class="btn btn-sm btn-success ms-2"
-                                       target="_blank"
-                                       data-bs-toggle="tooltip"
-                                       th:attr="data-bs-title='Открыть файл: ' + ${operation.getDevice().getSerialNumber()}">
-                                        <i class="fas fa-file-pdf"></i> PDF
-                                    </a>
-                                    <span th:unless="${hasFile}" class="text-muted">
+                                <td class="text-center">
+                                    <!-- Проверяем наличие файла и URL -->
+                                    <th:block th:with="hasFile=${operation.getDevice().getUrlPDF() != null && !operation.getDevice().getUrlPDF().isEmpty()}">
+                                        <a th:if="${hasFile}"
+                                           th:href="${operation.getDevice().getUrlPDF()}"
+                                           class="btn btn-sm btn-success ms-2"
+                                           target="_blank"
+                                           data-bs-toggle="tooltip"
+                                           th:attr="data-bs-title='Открыть файл: ' + ${operation.getDevice().getSerialNumber()}">
+                                            <i class="fas fa-file-pdf"></i> PDF
+                                        </a>
+                                        <span th:unless="${hasFile}" class="text-muted">
             <i class="fas fa-times-circle fa-lg" data-bs-toggle="tooltip" title="Файл не загружен"></i>
         </span>
-                                </th:block>
-                                <th:block th:with="hasFile=${operation.getDevice().getUrlTXT() != null && !operation.getDevice().getUrlTXT().isEmpty()}">
-                                    <a th:if="${hasFile}"
-                                       th:href="${operation.getDevice().getUrlTXT()}"
-                                       class="btn btn-sm btn-info ms-2"
-                                       target="_blank"
-                                       data-bs-toggle="tooltip"
-                                       th:attr="data-bs-title='Открыть файл: ' + ${operation.getDevice().getSerialNumber()}">
-                                        <i class="fas fa-file-alt"></i> TXT                                    </a>
-                                    <span th:unless="${hasFile}" class="text-muted">
+                                    </th:block>
+                                    <th:block th:with="hasFile=${operation.getDevice().getUrlTXT() != null && !operation.getDevice().getUrlTXT().isEmpty()}">
+                                        <a th:if="${hasFile}"
+                                           th:href="${operation.getDevice().getUrlTXT()}"
+                                           class="btn btn-sm btn-info ms-2"
+                                           target="_blank"
+                                           data-bs-toggle="tooltip"
+                                           th:attr="data-bs-title='Открыть файл: ' + ${operation.getDevice().getSerialNumber()}">
+                                            <i class="fas fa-file-alt"></i> TXT                                    </a>
+                                        <span th:unless="${hasFile}" class="text-muted">
             <i class="fas fa-times-circle fa-lg" data-bs-toggle="tooltip" title="Файл не загружен"></i>
         </span>
-                                </th:block>
-                            </td>
+                                    </th:block>
+                                </td>
 
-                        </tr>
-                        </tbody>
-                    </table>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Состояние пустого списка -->
-            <div th:if="${devices.empty}" class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h4>Нет устройств для ремонта №5</h4>
-                <p class="text-muted">Все устройства уже обработаны или находятся на других этапах</p>
+                <!-- Состояние пустого списка -->
+                <div th:if="${devices.empty}" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h4>Нет устройств для ремонта №5</h4>
+                    <p class="text-muted">Все устройства уже обработаны или находятся на других этапах</p>
+                </div>
+
             </div>
         </div>
     </main>
@@ -326,404 +330,988 @@
 
 <!-- Специфичные скрипты для этой страницы -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let currentDeviceId = null;
-        let currentDeviceSn = null;
 
-        // Инициализация tooltips
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
+    let currentDeviceId = null;
+    let currentDeviceSn = null;
 
-        // Инициализация кнопок копирования
+    let currentSortColumn = 3;
+    let sortDirection = 'desc';
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        loadSortState();
+
+        initTooltips();
+        initCompleteButtons();
+        initConfirmPassed();
+        initModal();
         initCopyButtons();
+        initSearch();
+        initSort();
 
-        document.querySelectorAll('.btn-complete').forEach(button => {
-            button.addEventListener('click', function() {
-                currentDeviceId = this.getAttribute('data-device-id');
-                currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
+        applySavedSort();
 
-                document.getElementById('modalPassedDeviceSn').textContent = currentDeviceSn;
-                document.getElementById('passedDescription').value = '';
+        startAutoRefresh();
+    });
 
-                // Сбрасываем состояние валидации
-                const textarea = document.getElementById('passedDescription');
-                textarea.classList.remove('is-invalid');
+
+    // =========================================================
+    // TOOLTIPS
+    // =========================================================
+
+    function initTooltips() {
+
+        document
+            .querySelectorAll('[data-bs-toggle="tooltip"]')
+            .forEach(element => {
+
+                if (!bootstrap.Tooltip.getInstance(element)) {
+                    new bootstrap.Tooltip(element);
+                }
             });
-        });
+    }
 
-        // Валидация при вводе текста
-        document.getElementById('passedDescription').addEventListener('input', function() {
-            if (this.value.trim()) {
-                this.classList.remove('is-invalid');
+
+    // =========================================================
+    // КНОПКА "СДЕЛАНО"
+    // =========================================================
+
+    function initCompleteButtons() {
+
+        document.addEventListener('click', function (event) {
+
+            const button =
+                event.target.closest('.btn-complete');
+
+            if (!button) {
+                return;
+            }
+
+            currentDeviceId =
+                button.getAttribute('data-device-id');
+
+            const row =
+                button.closest('tr');
+
+            const serialElement =
+                row.querySelector('.device-sn');
+
+            if (serialElement) {
+                currentDeviceSn =
+                    serialElement.textContent.trim();
+            }
+
+            const modalPassedDeviceSn =
+                document.getElementById('modalPassedDeviceSn');
+
+            if (modalPassedDeviceSn) {
+                modalPassedDeviceSn.textContent =
+                    currentDeviceSn;
+            }
+
+            const textarea =
+                document.getElementById('passedDescription');
+
+            if (textarea) {
+                textarea.value = '';
+                textarea.classList.remove('is-invalid');
             }
         });
+    }
 
-        // Обработчик подтверждения для "Пройдено"
-        document.getElementById('confirmPassed').addEventListener('click', function() {
-            if (!currentDeviceId) return;
 
-            const description = document.getElementById('passedDescription').value.trim();
-            const textarea = document.getElementById('passedDescription');
+    // =========================================================
+    // КНОПКА "ДА, РЕМОНТ УСПЕШЕН"
+    // =========================================================
 
-            // Валидация комментария
+    function initConfirmPassed() {
+
+        const textarea =
+            document.getElementById('passedDescription');
+
+        if (textarea) {
+            textarea.addEventListener('input', function () {
+
+                if (this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        }
+
+        const confirmButton =
+            document.getElementById('confirmPassed');
+
+        if (!confirmButton) {
+            return;
+        }
+
+        confirmButton.addEventListener('click', function () {
+
+            if (!currentDeviceId) {
+                return;
+            }
+
+            const description =
+                document.getElementById('passedDescription')
+                    .value
+                    .trim();
+
+            const textarea =
+                document.getElementById('passedDescription');
+
             if (!description) {
                 textarea.classList.add('is-invalid');
                 textarea.focus();
                 return;
             }
 
-            // Убираем ошибку если все ок
             textarea.classList.remove('is-invalid');
 
             const button = this;
             const originalText = button.innerHTML;
 
-            // Показываем индикатор загрузки
-            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
+            button.innerHTML =
+                '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
+
             button.disabled = true;
 
-            // Отправляем запрос на сервер
-            sendCompletionRequest('passed', description, button, originalText);
-        });
+            const formData =
+                new URLSearchParams();
 
-        // Функция отправки запроса на сервер
-        function sendCompletionRequest(action, description, button, originalText) {
-            const formData = new URLSearchParams();
             formData.append('deviceId', currentDeviceId);
             formData.append('description', description);
-            formData.append('action', action);
+            formData.append('action', 'passed');
+
+            const csrfInput =
+                document.querySelector('input[name="_csrf"]');
+
+            const headers = {
+                'Content-Type':
+                    'application/x-www-form-urlencoded'
+            };
+
+            if (csrfInput) {
+                headers['X-CSRF-TOKEN'] =
+                    csrfInput.value;
+            }
 
             fetch('/device/repair5-board/complete', {
+
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
-                },
+
+                headers: headers,
+
                 body: formData
             })
+
                 .then(response => {
-                    if (response.ok) {
-                        // Показываем сообщение об успехе
-                        showAlert('Успех! Устройство перемещено на следующий этап.', 'success');
 
-                        // Закрываем модальное окно
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmPassedModal'));
-                        modal.hide();
+                    if (!response.ok) {
 
-                        // Обновляем страницу через секунду
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        return response.text().then(text => { throw new Error(text) });
+                        return response
+                            .text()
+                            .then(text => {
+
+                                throw new Error(
+                                    text || 'Ошибка выполнения операции'
+                                );
+                            });
                     }
+
+                    showAlert(
+                        'Успех! Устройство перемещено на следующий этап.',
+                        'success'
+                    );
+
+                    const modalElement =
+                        document.getElementById(
+                            'confirmPassedModal'
+                        );
+
+                    const modal =
+                        bootstrap.Modal.getInstance(
+                            modalElement
+                        );
+
+                    if (modal) {
+                        modal.hide();
+                    }
+
+                    return refreshTable();
                 })
+
                 .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('Ошибка: ' + error.message, 'danger');
 
-                    // Восстанавливаем кнопку
-                    button.innerHTML = originalText;
-                    button.disabled = false;
+                    console.error(
+                        'Ошибка:',
+                        error
+                    );
+
+                    showAlert(
+                        'Ошибка: ' + error.message,
+                        'danger'
+                    );
+                })
+
+                .finally(() => {
+
+                    button.innerHTML =
+                        originalText;
+
+                    button.disabled =
+                        false;
                 });
-        }
-
-        // Функция показа уведомлений
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-            alertDiv.innerHTML = `
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-            document.body.appendChild(alertDiv);
-
-            // Автоматическое скрытие через 5 секунд
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.parentNode.removeChild(alertDiv);
-                }
-            }, 5000);
-        }
-
-        // Очистка при закрытии модального окна
-        document.getElementById('confirmPassedModal').addEventListener('hidden.bs.modal', function () {
-            currentDeviceId = null;
-            currentDeviceSn = null;
-
-            // Сбрасываем состояние валидации
-            const textarea = document.getElementById('passedDescription');
-            textarea.classList.remove('is-invalid');
-
-            // Восстанавливаем кнопку подтверждения
-            const confirmButton = document.getElementById('confirmPassed');
-            confirmButton.innerHTML = '<i class="fas fa-check me-2"></i>Да, ремонт успешен';
-            confirmButton.disabled = false;
         });
-    });
+    }
+
+
+    // =========================================================
+    // МОДАЛЬНОЕ ОКНО
+    // =========================================================
+
+    function initModal() {
+
+        const modal =
+            document.getElementById(
+                'confirmPassedModal'
+            );
+
+        if (!modal) {
+            return;
+        }
+
+        modal.addEventListener(
+            'hidden.bs.modal',
+            function () {
+
+                currentDeviceId = null;
+                currentDeviceSn = null;
+
+                const textarea =
+                    document.getElementById(
+                        'passedDescription'
+                    );
+
+                if (textarea) {
+                    textarea.classList.remove(
+                        'is-invalid'
+                    );
+                }
+
+                const confirmButton =
+                    document.getElementById(
+                        'confirmPassed'
+                    );
+
+                if (confirmButton) {
+
+                    confirmButton.innerHTML =
+                        '<i class="fas fa-check me-2"></i>Да, ремонт успешен';
+
+                    confirmButton.disabled =
+                        false;
+                }
+            }
+        );
+    }
+
+
+    // =========================================================
+    // УВЕДОМЛЕНИЯ
+    // =========================================================
+
+    function showAlert(message, type) {
+
+        const alertDiv =
+            document.createElement('div');
+
+        alertDiv.className =
+            `alert alert-${type} alert-dismissible fade show position-fixed`;
+
+        alertDiv.style.cssText =
+            'top:20px;' +
+            'right:20px;' +
+            'z-index:9999;' +
+            'min-width:300px;';
+
+        alertDiv.innerHTML = `
+            ${message}
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+
+        }, 5000);
+    }
+
+
+    // =========================================================
+    // КОПИРОВАНИЕ ТЕКСТА
+    // =========================================================
 
     function copyToClipboard(text) {
-        // Пробуем современный API
-        if (navigator.clipboard && window.isSecureContext) {
-            return navigator.clipboard.writeText(text);
-        } else {
-            // Старый метод для совместимости
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
 
-            return new Promise((resolve, reject) => {
+        if (
+            navigator.clipboard &&
+            window.isSecureContext
+        ) {
+            return navigator.clipboard.writeText(text);
+        }
+
+        const textArea =
+            document.createElement('textarea');
+
+        textArea.value = text;
+
+        textArea.style.position =
+            'fixed';
+
+        textArea.style.left =
+            '-999999px';
+
+        textArea.style.top =
+            '-999999px';
+
+        document.body.appendChild(
+            textArea
+        );
+
+        textArea.focus();
+        textArea.select();
+
+        return new Promise(
+            (resolve, reject) => {
+
                 try {
-                    const successful = document.execCommand('copy');
+
+                    const successful =
+                        document.execCommand(
+                            'copy'
+                        );
+
                     textArea.remove();
+
                     if (successful) {
                         resolve();
                     } else {
-                        reject(new Error('Не удалось скопировать текст'));
+                        reject(
+                            new Error(
+                                'Не удалось скопировать текст'
+                            )
+                        );
                     }
-                } catch (err) {
+
+                } catch (error) {
+
                     textArea.remove();
-                    reject(err);
+
+                    reject(error);
                 }
-            });
-        }
+            }
+        );
     }
 
-    // Инициализация кнопок копирования
-    function initCopyButtons() {
-        document.querySelectorAll('.copy-btn').forEach(button => {
-            button.addEventListener('click', async function() {
-                const textToCopy = this.getAttribute('data-text');
-                const originalInnerHTML = this.innerHTML;
-                const originalTitle = this.getAttribute('title');
 
-                if (!textToCopy) {
-                    console.error('Нет текста для копирования');
+    function initCopyButtons() {
+
+        document
+            .querySelectorAll('.copy-btn')
+            .forEach(button => {
+
+                // Чтобы после повторной инициализации
+                // не навешивать обработчик второй раз
+                if (button.dataset.copyInitialized === 'true') {
                     return;
                 }
 
-                try {
-                    await copyToClipboard(textToCopy);
+                button.dataset.copyInitialized =
+                    'true';
 
-                    // Визуальная обратная связь - успех
-                    this.innerHTML = '<i class="fas fa-check"></i>';
-                    this.classList.remove('btn-outline-secondary');
-                    this.classList.add('btn-success');
-                    this.setAttribute('title', 'Скопировано!');
+                button.addEventListener(
+                    'click',
+                    async function () {
 
-                    // Обновляем тултип
-                    const tooltip = bootstrap.Tooltip.getInstance(this);
-                    if (tooltip) {
-                        tooltip.setContent({ '.tooltip-inner': 'Скопировано!' });
-                    }
+                        const textToCopy =
+                            this.getAttribute(
+                                'data-text'
+                            );
 
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-copy"></i>';
-                        this.classList.remove('btn-success');
-                        this.classList.add('btn-outline-secondary');
-                        this.setAttribute('title', originalTitle);
+                        const originalInnerHTML =
+                            this.innerHTML;
 
-                        // Восстанавливаем оригинальный тултип
-                        if (tooltip) {
-                            tooltip.setContent({ '.tooltip-inner': originalTitle });
+                        const originalTitle =
+                            this.getAttribute(
+                                'title'
+                            );
+
+                        if (!textToCopy) {
+                            return;
                         }
-                    }, 500);
 
-                } catch (err) {
-                    console.error('Ошибка при копировании: ', err);
+                        try {
 
-                    // Визуальная обратная связь - ошибка
-                    this.innerHTML = '<i class="fas fa-times"></i>';
-                    this.classList.remove('btn-outline-secondary');
-                    this.classList.add('btn-danger');
-                    this.setAttribute('title', 'Ошибка копирования');
+                            await copyToClipboard(
+                                textToCopy
+                            );
 
-                    // Восстанавливаем исходное состояние через 2 секунды
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-copy"></i>';
-                        this.classList.remove('btn-danger');
-                        this.classList.add('btn-outline-secondary');
-                        this.setAttribute('title', originalTitle);
-                    }, 500);
-                }
+                            this.innerHTML =
+                                '<i class="fas fa-check"></i>';
+
+                            this.classList.remove(
+                                'btn-outline-secondary'
+                            );
+
+                            this.classList.add(
+                                'btn-success'
+                            );
+
+                            this.setAttribute(
+                                'title',
+                                'Скопировано!'
+                            );
+
+                            setTimeout(() => {
+
+                                this.innerHTML =
+                                    originalInnerHTML;
+
+                                this.classList.remove(
+                                    'btn-success'
+                                );
+
+                                this.classList.add(
+                                    'btn-outline-secondary'
+                                );
+
+                                this.setAttribute(
+                                    'title',
+                                    originalTitle
+                                );
+
+                            }, 500);
+
+                        } catch (error) {
+
+                            console.error(
+                                'Ошибка копирования:',
+                                error
+                            );
+
+                            this.innerHTML =
+                                '<i class="fas fa-times"></i>';
+
+                            this.classList.remove(
+                                'btn-outline-secondary'
+                            );
+
+                            this.classList.add(
+                                'btn-danger'
+                            );
+
+                            setTimeout(() => {
+
+                                this.innerHTML =
+                                    originalInnerHTML;
+
+                                this.classList.remove(
+                                    'btn-danger'
+                                );
+
+                                this.classList.add(
+                                    'btn-outline-secondary'
+                                );
+
+                                this.setAttribute(
+                                    'title',
+                                    originalTitle
+                                );
+
+                            }, 500);
+                        }
+                    }
+                );
             });
+    }
+
+
+    // =========================================================
+    // ПОИСК
+    // =========================================================
+
+    function initSearch() {
+
+        const searchInput =
+            document.getElementById(
+                'searchInput'
+            );
+
+        if (!searchInput) {
+            return;
+        }
+
+        searchInput.addEventListener(
+            'input',
+            applySearch
+        );
+    }
+
+
+    function applySearch() {
+
+        const searchInput =
+            document.getElementById(
+                'searchInput'
+            );
+
+        if (!searchInput) {
+            return;
+        }
+
+        const searchTerm =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+        const rows =
+            document.querySelectorAll(
+                '#deviceTable tbody tr'
+            );
+
+        rows.forEach(row => {
+
+            const serialElement =
+                row.querySelector(
+                    '.device-sn'
+                );
+
+            if (!serialElement) {
+                return;
+            }
+
+            const serialNumber =
+                serialElement
+                    .textContent
+                    .toLowerCase();
+
+            row.style.display =
+                serialNumber.includes(searchTerm)
+                    ? ''
+                    : 'none';
         });
     }
 
 
+    // =========================================================
+    // СОРТИРОВКА
+    // =========================================================
 
+    function initSort() {
 
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
 
-    //поиск....
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
-        const visibleCount = document.getElementById('visibleCount');
-        const noResults = document.getElementById('noResults');
+        if (!table) {
+            return;
+        }
 
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            let visibleRows = 0;
+        const headers =
+            table.querySelectorAll(
+                'thead th'
+            );
 
-            tableRows.forEach(row => {
-                const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+        headers.forEach(
+            (header, index) => {
 
-                if (serialNumber.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleRows++;
-                } else {
-                    row.style.display = 'none';
+                if (
+                    index !== 0 &&
+                    index !== 1 &&
+                    index !== 3
+                ) {
+                    return;
                 }
-            });
 
-            // Обновляем счетчик видимых строк
-            visibleCount.textContent = visibleRows;
+                header.removeAttribute(
+                    'onclick'
+                );
 
-            // Показываем/скрываем сообщение "Ничего не найдено"
-            if (visibleRows === 0 && searchTerm !== '') {
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
+                header.style.cursor =
+                    'pointer';
+
+                header.addEventListener(
+                    'click',
+                    function () {
+
+                        sortTable(index);
+                    }
+                );
             }
+        );
+
+        updateSortIcons();
+    }
+
+
+    function sortTable(columnIndex) {
+
+        if (
+            columnIndex === currentSortColumn
+        ) {
+
+            sortDirection =
+                sortDirection === 'asc'
+                    ? 'desc'
+                    : 'asc';
+
+        } else {
+
+            currentSortColumn =
+                columnIndex;
+
+            sortDirection =
+                'asc';
+        }
+
+        saveSortState();
+
+        applySavedSort();
+    }
+
+
+    function applySavedSort() {
+
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
+
+        if (!table) {
+            return;
+        }
+
+        const tbody =
+            table.querySelector('tbody');
+
+        if (!tbody) {
+            return;
+        }
+
+        const rows =
+            Array.from(
+                tbody.querySelectorAll('tr')
+            );
+
+        rows.sort((a, b) => {
+
+            const aCell =
+                a.cells[currentSortColumn];
+
+            const bCell =
+                b.cells[currentSortColumn];
+
+            if (!aCell || !bCell) {
+                return 0;
+            }
+
+            let aValue =
+                aCell.textContent.trim();
+
+            let bValue =
+                bCell.textContent.trim();
+
+            if (
+                currentSortColumn === 3
+            ) {
+
+                aValue =
+                    parseDateString(aValue);
+
+                bValue =
+                    parseDateString(bValue);
+
+                return sortDirection === 'asc'
+                    ? aValue - bValue
+                    : bValue - aValue;
+            }
+
+            return sortDirection === 'asc'
+
+                ? aValue.localeCompare(
+                    bValue,
+                    'ru',
+                    {
+                        sensitivity: 'base'
+                    }
+                )
+
+                : bValue.localeCompare(
+                    aValue,
+                    'ru',
+                    {
+                        sensitivity: 'base'
+                    }
+                );
         });
-    });
+
+        rows.forEach(row => {
+
+            tbody.appendChild(row);
+        });
+
+        updateSortIcons();
+    }
 
 
+    // =========================================================
+    // ПАРСИНГ ДАТЫ
+    // =========================================================
 
-    // //сортировка...
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     const table = document.querySelector('.table');
-    //     const tbody = table.querySelector('tbody');
-    //     const headers = table.querySelectorAll('thead th');
-    //
-    //     // Инициализируем состояние сортировки
-    //     let currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
-    //     let sortDirection = 'desc'; // По умолчанию сортировка по убыванию
-    //
-    //     // Устанавливаем иконку для столбца по умолчанию
-    //     updateSortIcons();
-    //
-    //     // Добавляем обработчики кликов на заголовки
-    //     headers.forEach((header, index) => {
-    //         if (header.hasAttribute('onclick')) {
-    //             // Удаляем inline onclick и добавляем обработчик
-    //             header.removeAttribute('onclick');
-    //             header.style.cursor = 'pointer';
-    //             header.addEventListener('click', () => sortTable(index));
-    //         }
-    //     });
-    //
-    //     function sortTable(columnIndex) {
-    //         const rows = Array.from(tbody.querySelectorAll('tr'));
-    //
-    //         // Если кликаем по той же колонке, меняем направление
-    //         if (columnIndex === currentSortColumn) {
-    //             sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    //         } else {
-    //             // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
-    //             currentSortColumn = columnIndex;
-    //             sortDirection = 'asc';
-    //         }
-    //
-    //         // Сортируем строки
-    //         rows.sort((a, b) => {
-    //             const aCell = a.cells[columnIndex];
-    //             const bCell = b.cells[columnIndex];
-    //
-    //             // Получаем текстовое содержимое ячеек
-    //             let aValue = aCell.textContent.trim();
-    //             let bValue = bCell.textContent.trim();
-    //
-    //             // Для столбца с датой (индекс 4)
-    //             if (columnIndex === 4) {
-    //                 aValue = parseDateString(aValue);
-    //                 bValue = parseDateString(bValue);
-    //                 return sortDirection === 'asc'
-    //                     ? aValue - bValue
-    //                     : bValue - aValue;
-    //             }
-    //
-    //             // Для остальных столбцов - текстовое сравнение
-    //             return sortDirection === 'asc'
-    //                 ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
-    //                 : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
-    //         });
-    //
-    //         // Удаляем все строки из tbody
-    //         while (tbody.firstChild) {
-    //             tbody.removeChild(tbody.firstChild);
-    //         }
-    //
-    //         // Добавляем отсортированные строки обратно
-    //         rows.forEach(row => tbody.appendChild(row));
-    //
-    //         // Обновляем иконки сортировки
-    //         updateSortIcons();
-    //     }
-    //
-    //     function parseDateString(dateString) {
-    //         try {
-    //             // Парсим дату в формате "dd.MM.yyyy HH:mm"
-    //             const [datePart, timePart] = dateString.split(' ');
-    //             const [day, month, year] = datePart.split('.');
-    //             const [hours, minutes] = timePart.split(':');
-    //
-    //             return new Date(year, month - 1, day, hours, minutes).getTime();
-    //         } catch (e) {
-    //             return 0; // В случае ошибки возвращаем 0
-    //         }
-    //     }
-    //
-    //     function updateSortIcons() {
-    //         headers.forEach((header, index) => {
-    //             const icon = header.querySelector('i');
-    //             if (icon) {
-    //                 if (index === currentSortColumn) {
-    //                     icon.className = sortDirection === 'asc'
-    //                         ? 'fas fa-sort-up float-end mt-1'
-    //                         : 'fas fa-sort-down float-end mt-1';
-    //                 } else {
-    //                     icon.className = 'fas fa-sort float-end mt-1';
-    //                 }
-    //             }
-    //         });
-    //     }
-    //
-    //     // // Функция для поиска (если нужно сохранить)
-    //     // const searchInput = document.getElementById('searchInput');
-    //     // if (searchInput) {
-    //     //     searchInput.addEventListener('input', function() {
-    //     //         const searchTerm = this.value.toLowerCase().trim();
-    //     //         const rows = table.querySelectorAll('tbody tr');
-    //     //         let visibleRows = 0;
-    //     //
-    //     //         rows.forEach(row => {
-    //     //             const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
-    //     //
-    //     //             if (serialNumber.includes(searchTerm)) {
-    //     //                 row.style.display = '';
-    //     //                 visibleRows++;
-    //     //             } else {
-    //     //                 row.style.display = 'none';
-    //     //             }
-    //     //         });
-    //     //
-    //     //         // Можно добавить обновление счетчика видимых строк
-    //     //         const counter = document.querySelector('.badge.bg-light .me-1');
-    //     //         if (counter) {
-    //     //             counter.textContent = visibleRows;
-    //     //         }
-    //     //     });
-    //     // }
-    // });
+    function parseDateString(dateString) {
+
+        try {
+
+            const [
+                datePart,
+                timePart
+            ] =
+                dateString.split(' ');
+
+            const [
+                day,
+                month,
+                year
+            ] =
+                datePart.split('.');
+
+            const [
+                hours,
+                minutes
+            ] =
+                timePart.split(':');
+
+            return new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day),
+                Number(hours),
+                Number(minutes)
+            ).getTime();
+
+        } catch (error) {
+
+            return 0;
+        }
+    }
+
+
+    // =========================================================
+    // СОХРАНЕНИЕ СОРТИРОВКИ
+    // =========================================================
+
+    function saveSortState() {
+
+        localStorage.setItem(
+            'tableSortRepair5',
+            JSON.stringify({
+
+                column:
+                currentSortColumn,
+
+                direction:
+                sortDirection
+            })
+        );
+    }
+
+
+    function loadSortState() {
+
+        const savedSort =
+            localStorage.getItem(
+                'tableSortRepair5'
+            );
+
+        if (!savedSort) {
+            return;
+        }
+
+        try {
+
+            const sort =
+                JSON.parse(savedSort);
+
+            currentSortColumn =
+                sort.column;
+
+            sortDirection =
+                sort.direction;
+
+        } catch (error) {
+
+            console.error(
+                'Ошибка чтения сортировки:',
+                error
+            );
+        }
+    }
+
+
+    // =========================================================
+    // ИКОНКИ СОРТИРОВКИ
+    // =========================================================
+
+    function updateSortIcons() {
+
+        const table =
+            document.querySelector(
+                '#deviceTable .table'
+            );
+
+        if (!table) {
+            return;
+        }
+
+        const headers =
+            table.querySelectorAll(
+                'thead th'
+            );
+
+        headers.forEach(
+            (header, index) => {
+
+                const icon =
+                    header.querySelector('i');
+
+                if (!icon) {
+                    return;
+                }
+
+                if (
+                    index === currentSortColumn
+                ) {
+
+                    icon.className =
+                        sortDirection === 'asc'
+
+                            ? 'fas fa-sort-up float-end mt-1'
+
+                            : 'fas fa-sort-down float-end mt-1';
+
+                } else {
+
+                    icon.className =
+                        'fas fa-sort float-end mt-1';
+                }
+            }
+        );
+    }
+
+
+    // =========================================================
+    // АВТООБНОВЛЕНИЕ
+    // =========================================================
+
+    function startAutoRefresh() {
+
+        setInterval(
+            refreshTable,
+            5000
+        );
+    }
+
+
+    // =========================================================
+    // ОБНОВЛЕНИЕ ТАБЛИЦЫ
+    // =========================================================
+
+    function refreshTable() {
+
+        return fetch(
+            window.location.href,
+            {
+                method: 'GET',
+
+                headers: {
+                    'X-Requested-With':
+                        'XMLHttpRequest'
+                },
+
+                cache: 'no-store'
+            }
+        )
+
+            .then(response => {
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        'HTTP ' +
+                        response.status
+                    );
+                }
+
+                return response.text();
+            })
+
+            .then(html => {
+
+                const parser =
+                    new DOMParser();
+
+                const newDocument =
+                    parser.parseFromString(
+                        html,
+                        'text/html'
+                    );
+
+                const newContainer =
+                    newDocument.getElementById(
+                        'deviceTableContainer'
+                    );
+
+                const currentContainer =
+                    document.getElementById(
+                        'deviceTableContainer'
+                    );
+
+                if (
+                    !newContainer ||
+                    !currentContainer
+                ) {
+                    return;
+                }
+
+                currentContainer.innerHTML =
+                    newContainer.innerHTML;
+
+                initTooltips();
+                initCopyButtons();
+                initSort();
+                applySavedSort();
+                applySearch();
+            })
+
+            .catch(error => {
+
+                console.error(
+                    'Ошибка обновления таблицы:',
+                    error
+                );
+            });
+    }
+
 </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест"</title>
+    <title>Тест</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/styles.css}">
@@ -158,109 +158,113 @@
                     </div>
                 </div>
             </div>
-            <!-- Карточка с таблицей -->
-            <div class="device-table" th:if="${not devices.empty}">
-                <div class="table-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="mb-1">Устройства для Теста</h4>
-                        </div>
-                        <div class="text-end">
+            <div id="deviceTableContainer">
+
+                <!-- Карточка с таблицей -->
+                <div id="deviceTable" class="device-table" th:if="${not devices.empty}">
+                    <div class="table-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-1">Устройства для Теста</h4>
+                            </div>
+                            <div class="text-end">
                                 <span class="badge bg-light text-dark fs-6">
                                     <i class="fas fa-list me-1"></i>
                                     <span th:text="${devices.size()}">0</span> устройств
                                 </span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                        <tr>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
-                                Серийный номер
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
-                                Тип платы
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th>Описание</th>
-                            <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
-                                Дата создания
-                                <i class="fas fa-sort float-end mt-1"></i>
-                            </th>
-                            <th>Действия</th>
-                            <th>Файл</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="operation : ${devices}">
-                            <td>
-                                <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
-                            </td>
-                            <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
-                            <td>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
+                                    Серийный номер
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
+                                    Тип платы
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th>Описание</th>
+                                <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
+                                    Дата создания
+                                    <i class="fas fa-sort float-end mt-1"></i>
+                                </th>
+                                <th>Действия</th>
+                                <th>Файл</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="operation : ${devices}">
+                                <td>
+                                    <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
+                                </td>
+                                <td th:text="${operation.device.subtype?.name} ?: 'Не указан'">Тип</td>
+                                <td>
                                         <span th:if="${operation.description}"
                                               th:text="${#strings.abbreviate(operation.description, 50)}"
                                               data-bs-toggle="tooltip"
                                               th:attr="data-bs-title=${operation.description}">
                                         </span>
-                                <span th:unless="${operation.description}" class="text-muted">—</span>
-                            </td>
-                            <td>
+                                    <span th:unless="${operation.description}" class="text-muted">—</span>
+                                </td>
+                                <td>
                                         <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
                                         </span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-passed"
-                                            th:attr="data-device-id=${operation.id}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmPassedModal">
-                                        Пройдено
-                                    </button>
-                                    <button class="btn btn-failed"
-                                            th:attr="data-device-id=${operation.id}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmFailedModal">
-                                        Не пройдено
-                                    </button>
-                                </div>
-                            </td>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-passed"
+                                                th:attr="data-device-id=${operation.id}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#confirmPassedModal">
+                                            Пройдено
+                                        </button>
+                                        <button class="btn btn-failed"
+                                                th:attr="data-device-id=${operation.id}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#confirmFailedModal">
+                                            Не пройдено
+                                        </button>
+                                    </div>
+                                </td>
 
 
-                            <td class="text-center">
-                                <!-- Проверяем наличие файла и URL -->
-                                <th:block th:with="hasFile=${operation.getDevice().getUrlTXT() != null && !operation.getDevice().getUrlTXT().isEmpty()}">
-                                    <a th:if="${hasFile}"
-                                       th:href="${operation.getDevice().getUrlTXT()}"
-                                       class="text-success"
-                                       target="_blank"
-                                       data-bs-toggle="tooltip"
-                                       th:attr="data-bs-title='Открыть файл: ' + ${operation.getDevice().getSerialNumber()}">
-                                        <i class="fas fa-cloud-download-alt fa-lg"></i>
-                                    </a>
-                                    <span th:unless="${hasFile}" class="text-muted">
+                                <td class="text-center">
+                                    <!-- Проверяем наличие файла и URL -->
+                                    <th:block th:with="hasFile=${operation.getDevice().getUrlTXT() != null && !operation.getDevice().getUrlTXT().isEmpty()}">
+                                        <a th:if="${hasFile}"
+                                           th:href="${operation.getDevice().getUrlTXT()}"
+                                           class="text-success"
+                                           target="_blank"
+                                           data-bs-toggle="tooltip"
+                                           th:attr="data-bs-title='Открыть файл: ' + ${operation.getDevice().getSerialNumber()}">
+                                            <i class="fas fa-cloud-download-alt fa-lg"></i>
+                                        </a>
+                                        <span th:unless="${hasFile}" class="text-muted">
             <i class="fas fa-times-circle fa-lg" data-bs-toggle="tooltip" title="Файл не загружен"></i>
         </span>
-                                </th:block>
-                            </td>
+                                    </th:block>
+                                </td>
 
 
 
-                        </tr>
-                        </tbody>
-                    </table>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Состояние пустого списка -->
-            <div th:if="${devices.empty}" class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h4>Нет устройств для Теста</h4>
-                <p class="text-muted">Все устройства уже обработаны или находятся на других этапах</p>
+                <!-- Состояние пустого списка -->
+                <div th:if="${devices.empty}" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h4>Нет устройств для Теста</h4>
+                    <p class="text-muted">Все устройства уже обработаны или находятся на других этапах</p>
+                </div>
+
             </div>
         </div>
     </main>
@@ -350,383 +354,564 @@
 
 <!-- Специфичные скрипты для этой страницы -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let currentDeviceId = null;
-        let currentDeviceSn = null;
-        let currentAction = null; // 'passed' или 'failed'
+    let currentDeviceId = null;
+    let currentDeviceSn = null;
+    let currentAction = null;
 
-        // Инициализация tooltips
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+    let currentSortColumn = 3;
+    let sortDirection = 'desc';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadSortState();
+        initTooltips();
+        initActionButtons();
+        initConfirmButtons();
+        initModals();
+        initSearch();
+        initSort();
+        applySavedSort();
+        startAutoRefresh();
+    });
+
+    function initTooltips() {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(element => {
+            if (!bootstrap.Tooltip.getInstance(element)) {
+                new bootstrap.Tooltip(element);
+            }
         });
+    }
 
-        // Обработчик клика по кнопке "Пройдено"
-        document.querySelectorAll('.btn-passed').forEach(button => {
-            button.addEventListener('click', function() {
-                currentDeviceId = this.getAttribute('data-device-id');
-                currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
+    function initActionButtons() {
+        document.addEventListener('click', function (event) {
+            const passedButton = event.target.closest('.btn-passed');
+
+            if (passedButton) {
+                currentDeviceId = passedButton.getAttribute('data-device-id');
+                const row = passedButton.closest('tr');
+                const serialElement = row.querySelector('.device-sn');
+
+                currentDeviceSn = serialElement ? serialElement.textContent.trim() : '';
                 currentAction = 'passed';
 
-                document.getElementById('modalPassedDeviceSn').textContent = currentDeviceSn;
-                document.getElementById('passedDescription').value = '';
-            });
-        });
+                const modalSn = document.getElementById('modalPassedDeviceSn');
+                if (modalSn) {
+                    modalSn.textContent = currentDeviceSn;
+                }
 
-        // Обработчик клика по кнопке "Не пройдено"
-        document.querySelectorAll('.btn-failed').forEach(button => {
-            button.addEventListener('click', function() {
-                currentDeviceId = this.getAttribute('data-device-id');
-                currentDeviceSn = this.closest('tr').querySelector('.device-sn').textContent;
-                currentAction = 'failed';
+                const description = document.getElementById('passedDescription');
+                if (description) {
+                    description.value = '';
+                }
 
-                document.getElementById('modalFailedDeviceSn').textContent = currentDeviceSn;
-                document.getElementById('failedDescription').value = '';
-
-                // Сбрасываем валидацию
-                document.getElementById('failedDescription').classList.remove('is-invalid');
-            });
-        });
-
-        // Обработчик подтверждения для "Пройдено"
-        document.getElementById('confirmPassed').addEventListener('click', function() {
-            if (!currentDeviceId || currentAction !== 'passed') return;
-
-            const button = this;
-            const originalText = button.innerHTML;
-            const description = document.getElementById('passedDescription').value;
-
-
-            // Показываем индикатор загрузки
-            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
-            button.disabled = true;
-
-            // Отправляем запрос на сервер
-            sendCompletionRequest('passed', description, button, originalText);
-        });
-
-        // Обработчик подтверждения для "Не пройдено"
-        document.getElementById('confirmFailed').addEventListener('click', function() {
-            if (!currentDeviceId || currentAction !== 'failed') return;
-
-            const descriptionField = document.getElementById('failedDescription');
-            const description = descriptionField.value.trim();
-
-            // Валидация обязательного поля
-            if (!description) {
-                descriptionField.classList.add('is-invalid');
                 return;
             }
 
-            const button = this;
-            const originalText = button.innerHTML;
+            const failedButton = event.target.closest('.btn-failed');
 
+            if (failedButton) {
+                currentDeviceId = failedButton.getAttribute('data-device-id');
+                const row = failedButton.closest('tr');
+                const serialElement = row.querySelector('.device-sn');
 
-            // Показываем индикатор загрузки
-            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
-            button.disabled = true;
+                currentDeviceSn = serialElement ? serialElement.textContent.trim() : '';
+                currentAction = 'failed';
 
-            // Отправляем запрос на сервер
-            sendCompletionRequest('failed', description, button, originalText);
+                const modalSn = document.getElementById('modalFailedDeviceSn');
+                if (modalSn) {
+                    modalSn.textContent = currentDeviceSn;
+                }
+
+                const description = document.getElementById('failedDescription');
+                if (description) {
+                    description.value = '';
+                    description.classList.remove('is-invalid');
+                }
+            }
         });
+    }
 
-        // Функция отправки запроса на сервер
-        function sendCompletionRequest(action, description, file, button, originalText) {
-            const formData = new FormData();
-            formData.append('deviceId', currentDeviceId);
-            formData.append('description', description);
-            formData.append('action', action);
+    function initConfirmButtons() {
+        const passedButton = document.getElementById('confirmPassed');
 
+        if (passedButton) {
+            passedButton.addEventListener('click', function () {
+                if (!currentDeviceId || currentAction !== 'passed') {
+                    return;
+                }
 
-            fetch('/device/test-board/complete', {
-                method: 'POST',
-                body: formData
+                const description = document.getElementById('passedDescription').value.trim();
+
+                sendCompletionRequest(
+                    'passed',
+                    description,
+                    this
+                );
+            });
+        }
+
+        const failedDescription = document.getElementById('failedDescription');
+
+        if (failedDescription) {
+            failedDescription.addEventListener('input', function () {
+                if (this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        }
+
+        const failedButton = document.getElementById('confirmFailed');
+
+        if (failedButton) {
+            failedButton.addEventListener('click', function () {
+                if (!currentDeviceId || currentAction !== 'failed') {
+                    return;
+                }
+
+                const descriptionField = document.getElementById('failedDescription');
+                const description = descriptionField.value.trim();
+
+                if (!description) {
+                    descriptionField.classList.add('is-invalid');
+                    descriptionField.focus();
+                    return;
+                }
+
+                descriptionField.classList.remove('is-invalid');
+
+                sendCompletionRequest(
+                    'failed',
+                    description,
+                    this
+                );
+            });
+        }
+    }
+
+    function sendCompletionRequest(action, description, button) {
+        const originalText = button.innerHTML;
+
+        button.innerHTML =
+            '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
+
+        button.disabled = true;
+
+        const formData = new FormData();
+
+        formData.append('deviceId', currentDeviceId);
+        formData.append('description', description);
+        formData.append('action', action);
+
+        fetch('/device/test-board/complete', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(
+                            text || 'Ошибка выполнения операции'
+                        );
+                    });
+                }
+
+                const message =
+                    action === 'passed'
+                        ? 'Успех! Устройство перемещено на следующий этап.'
+                        : 'Устройство отправлено в ремонт.';
+
+                showAlert(message, 'success');
+
+                const modalId =
+                    action === 'passed'
+                        ? 'confirmPassedModal'
+                        : 'confirmFailedModal';
+
+                const modalElement = document.getElementById(modalId);
+                const modal = bootstrap.Modal.getInstance(modalElement);
+
+                if (modal) {
+                    modal.hide();
+                }
+
+                return refreshTable();
             })
-                .then(response => {
-                    if (response.ok) {
-                        // Показываем сообщение об успехе
-                        const message = action === 'passed'
-                            ? 'Успех! Устройство перемещено на следующий этап.'
-                            : 'Устройство отправлено в ремонт.';
-                        showAlert(message, 'success');
+            .catch(error => {
+                console.error('Ошибка:', error);
 
-                        // Закрываем модальное окно
-                        const modalId = action === 'passed' ? 'confirmPassedModal' : 'confirmFailedModal';
-                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                        modal.hide();
+                showAlert(
+                    'Ошибка: ' + error.message,
+                    'danger'
+                );
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+    }
 
-                        // Обновляем страницу через секунду
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        return response.text().then(text => { throw new Error(text) });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('Ошибка: ' + error.message, 'danger');
+    function initModals() {
+        const passedModal = document.getElementById('confirmPassedModal');
 
-                    // Восстанавливаем кнопку
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                });
-        }
+        if (passedModal) {
+            passedModal.addEventListener('hidden.bs.modal', function () {
+                resetCurrentDevice();
 
-        // Функция показа уведомлений
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-            alertDiv.innerHTML = `
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-            document.body.appendChild(alertDiv);
+                const confirmButton = document.getElementById('confirmPassed');
 
-            // Автоматическое скрытие через 5 секунд
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.parentNode.removeChild(alertDiv);
+                if (confirmButton) {
+                    confirmButton.innerHTML =
+                        '<i class="fas fa-check me-2"></i>Да, тест успешен';
+
+                    confirmButton.disabled = false;
                 }
-            }, 5000);
+            });
         }
 
-        // Очистка при закрытии модальных окон
-        document.getElementById('confirmPassedModal').addEventListener('hidden.bs.modal', function () {
-            currentDeviceId = null;
-            currentDeviceSn = null;
-            currentAction = null;
+        const failedModal = document.getElementById('confirmFailedModal');
 
-            // Восстанавливаем кнопку подтверждения
-            const confirmButton = document.getElementById('confirmPassed');
-            confirmButton.innerHTML = '<i class="fas fa-check me-2"></i>Да, Тест прошел успешено';
-            confirmButton.disabled = false;
-        });
+        if (failedModal) {
+            failedModal.addEventListener('hidden.bs.modal', function () {
+                resetCurrentDevice();
 
-        document.getElementById('confirmFailedModal').addEventListener('hidden.bs.modal', function () {
-            currentDeviceId = null;
-            currentDeviceSn = null;
-            currentAction = null;
+                const confirmButton = document.getElementById('confirmFailed');
 
-            // Восстанавливаем кнопку подтверждения
-            const confirmButton = document.getElementById('confirmFailed');
-            confirmButton.innerHTML = '<i class="fas fa-times me-2"></i>Да, Тест не прошел';
-            confirmButton.disabled = false;
+                if (confirmButton) {
+                    confirmButton.innerHTML =
+                        '<i class="fas fa-times me-2"></i>Да, Тест не прошел';
 
-            // Сбрасываем валидацию
-            document.getElementById('failedDescription').classList.remove('is-invalid');
-        });
-    });
+                    confirmButton.disabled = false;
+                }
 
+                const description = document.getElementById('failedDescription');
 
+                if (description) {
+                    description.classList.remove('is-invalid');
+                }
+            });
+        }
+    }
 
+    function resetCurrentDevice() {
+        currentDeviceId = null;
+        currentDeviceSn = null;
+        currentAction = null;
+    }
 
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
 
+        alertDiv.className =
+            `alert alert-${type} alert-dismissible fade show position-fixed`;
 
-    //поиск....
-    document.addEventListener('DOMContentLoaded', function() {
+        alertDiv.style.cssText =
+            'top:20px;right:20px;z-index:9999;min-width:300px;';
+
+        alertDiv.innerHTML = `
+        ${message}
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert">
+        </button>
+    `;
+
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+
+    function initSearch() {
         const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
-        const visibleCount = document.getElementById('visibleCount');
-        const noResults = document.getElementById('noResults');
 
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            let visibleRows = 0;
+        if (!searchInput) {
+            return;
+        }
 
-            tableRows.forEach(row => {
-                const serialNumber = row.querySelector('.device-sn').textContent.toLowerCase();
+        searchInput.addEventListener('input', applySearch);
+    }
 
-                if (serialNumber.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleRows++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+    function applySearch() {
+        const searchInput = document.getElementById('searchInput');
 
-            // Обновляем счетчик видимых строк
-            visibleCount.textContent = visibleRows;
+        if (!searchInput) {
+            return;
+        }
 
-            // Показываем/скрываем сообщение "Ничего не найдено"
-            if (visibleRows === 0 && searchTerm !== '') {
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
+        const searchTerm =
+            searchInput.value.toLowerCase().trim();
+
+        const rows =
+            document.querySelectorAll('#deviceTable tbody tr');
+
+        rows.forEach(row => {
+            const serialElement = row.querySelector('.device-sn');
+
+            if (!serialElement) {
+                return;
             }
+
+            const serialNumber =
+                serialElement.textContent.toLowerCase();
+
+            row.style.display =
+                serialNumber.includes(searchTerm)
+                    ? ''
+                    : 'none';
         });
-    });
+    }
 
-    //сортировка...
-    document.addEventListener('DOMContentLoaded', function() {
-        const table = document.querySelector('.table');
-        const tbody = table.querySelector('tbody');
-        const headers = table.querySelectorAll('thead th');
+    function initSort() {
+        const table =
+            document.querySelector('#deviceTable .table');
 
-        // Функции для работы с localStorage
-        function saveSortState(columnIndex, direction) {
-            localStorage.setItem('tableSort', JSON.stringify({
-                column: columnIndex,
-                direction: direction
-            }));
+        if (!table) {
+            return;
         }
 
-        function loadSortState() {
-            const savedSort = localStorage.getItem('tableSort');
-            if (savedSort) {
-                try {
-                    return JSON.parse(savedSort);
-                } catch(e) {
-                    return null;
-                }
-            }
-            return null;
-        }
+        const headers =
+            table.querySelectorAll('thead th');
 
-        // ЗАГРУЖАЕМ СОХРАНЕННУЮ СОРТИРОВКУ
-        const savedSort = loadSortState();
-
-        // Инициализируем состояние сортировки
-        let currentSortColumn;
-        let sortDirection;
-
-        if (savedSort) {
-            // Используем сохраненные значения
-            currentSortColumn = savedSort.column;
-            sortDirection = savedSort.direction;
-        } else {
-            // Значения по умолчанию
-            currentSortColumn = 3; // Индекс столбца с датой (по умолчанию)
-            sortDirection = 'desc'; // По умолчанию сортировка по убыванию
-        }
-
-        // ПРИМЕНЯЕМ СОХРАНЕННУЮ СОРТИРОВКУ
-        function applySavedSort() {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-
-            rows.sort((a, b) => {
-                const aCell = a.cells[currentSortColumn];
-                const bCell = b.cells[currentSortColumn];
-
-                let aValue = aCell.textContent.trim();
-                let bValue = bCell.textContent.trim();
-
-                // Для столбца с датой (индекс 4)
-                if (currentSortColumn === 4) {
-                    aValue = parseDateString(aValue);
-                    bValue = parseDateString(bValue);
-                    return sortDirection === 'asc'
-                        ? aValue - bValue
-                        : bValue - aValue;
-                }
-
-                // Для остальных столбцов
-                return sortDirection === 'asc'
-                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
-                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
-            });
-
-            // Обновляем DOM
-            while (tbody.firstChild) {
-                tbody.removeChild(tbody.firstChild);
-            }
-            rows.forEach(row => tbody.appendChild(row));
-        }
-
-        // Применяем сохраненную сортировку (если есть)
-        if (savedSort && tbody.querySelectorAll('tr').length > 0) {
-            applySavedSort();
-        }
-
-        // Устанавливаем иконку для столбца
-        updateSortIcons();
-
-        // Добавляем обработчики кликов на заголовки
         headers.forEach((header, index) => {
-            if (header.hasAttribute('onclick')) {
-                header.removeAttribute('onclick');
-                header.style.cursor = 'pointer';
-                header.addEventListener('click', () => sortTable(index));
+            if (
+                index !== 0 &&
+                index !== 1 &&
+                index !== 3
+            ) {
+                return;
             }
+
+            header.removeAttribute('onclick');
+            header.style.cursor = 'pointer';
+
+            header.addEventListener('click', function () {
+                sortTable(index);
+            });
         });
 
-        function sortTable(columnIndex) {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
+        updateSortIcons();
+    }
 
-            // Если кликаем по той же колонке, меняем направление
-            if (columnIndex === currentSortColumn) {
-                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                // Если кликаем по другой колонке, устанавливаем новую и сбрасываем направление
-                currentSortColumn = columnIndex;
-                sortDirection = 'asc';
+    function sortTable(columnIndex) {
+        if (columnIndex === currentSortColumn) {
+            sortDirection =
+                sortDirection === 'asc'
+                    ? 'desc'
+                    : 'asc';
+        } else {
+            currentSortColumn = columnIndex;
+            sortDirection = 'asc';
+        }
+
+        saveSortState();
+        applySavedSort();
+    }
+
+    function applySavedSort() {
+        const table =
+            document.querySelector('#deviceTable .table');
+
+        if (!table) {
+            return;
+        }
+
+        const tbody = table.querySelector('tbody');
+
+        if (!tbody) {
+            return;
+        }
+
+        const rows =
+            Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+            const aCell = a.cells[currentSortColumn];
+            const bCell = b.cells[currentSortColumn];
+
+            if (!aCell || !bCell) {
+                return 0;
             }
 
-            // Сохраняем состояние
-            saveSortState(currentSortColumn, sortDirection);
+            let aValue = aCell.textContent.trim();
+            let bValue = bCell.textContent.trim();
 
-            // Сортируем строки
-            rows.sort((a, b) => {
-                const aCell = a.cells[columnIndex];
-                const bCell = b.cells[columnIndex];
+            if (currentSortColumn === 3) {
+                aValue = parseDateString(aValue);
+                bValue = parseDateString(bValue);
 
-                let aValue = aCell.textContent.trim();
-                let bValue = bCell.textContent.trim();
-
-                // Для столбца с датой (индекс 4)
-                if (columnIndex === 4) {
-                    aValue = parseDateString(aValue);
-                    bValue = parseDateString(bValue);
-                    return sortDirection === 'asc'
-                        ? aValue - bValue
-                        : bValue - aValue;
-                }
-
-                // Для остальных столбцов - текстовое сравнение
                 return sortDirection === 'asc'
-                    ? aValue.localeCompare(bValue, 'ru', { sensitivity: 'base' })
-                    : bValue.localeCompare(aValue, 'ru', { sensitivity: 'base' });
-            });
-
-            // Обновляем DOM
-            while (tbody.firstChild) {
-                tbody.removeChild(tbody.firstChild);
+                    ? aValue - bValue
+                    : bValue - aValue;
             }
-            rows.forEach(row => tbody.appendChild(row));
 
-            // Обновляем иконки сортировки
-            updateSortIcons();
+            return sortDirection === 'asc'
+                ? aValue.localeCompare(
+                    bValue,
+                    'ru',
+                    { sensitivity: 'base' }
+                )
+                : bValue.localeCompare(
+                    aValue,
+                    'ru',
+                    { sensitivity: 'base' }
+                );
+        });
+
+        rows.forEach(row => {
+            tbody.appendChild(row);
+        });
+
+        updateSortIcons();
+    }
+
+    function parseDateString(dateString) {
+        try {
+            const [datePart, timePart] =
+                dateString.split(' ');
+
+            const [day, month, year] =
+                datePart.split('.');
+
+            const [hours, minutes] =
+                timePart.split(':');
+
+            return new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day),
+                Number(hours),
+                Number(minutes)
+            ).getTime();
+
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    function saveSortState() {
+        localStorage.setItem(
+            'tableSortTest',
+            JSON.stringify({
+                column: currentSortColumn,
+                direction: sortDirection
+            })
+        );
+    }
+
+    function loadSortState() {
+        const savedSort =
+            localStorage.getItem('tableSortTest');
+
+        if (!savedSort) {
+            return;
         }
 
-        function parseDateString(dateString) {
-            try {
-                // Парсим дату в формате "dd.MM.yyyy HH:mm"
-                const [datePart, timePart] = dateString.split(' ');
-                const [day, month, year] = datePart.split('.');
-                const [hours, minutes] = timePart.split(':');
+        try {
+            const sort = JSON.parse(savedSort);
 
-                return new Date(year, month - 1, day, hours, minutes).getTime();
-            } catch (e) {
-                return 0; // В случае ошибки возвращаем 0
-            }
+            currentSortColumn = sort.column;
+            sortDirection = sort.direction;
+
+        } catch (error) {
+            console.error(
+                'Ошибка чтения сортировки:',
+                error
+            );
+        }
+    }
+
+    function updateSortIcons() {
+        const table =
+            document.querySelector('#deviceTable .table');
+
+        if (!table) {
+            return;
         }
 
-        function updateSortIcons() {
-            headers.forEach((header, index) => {
-                const icon = header.querySelector('i');
-                if (icon) {
-                    if (index === currentSortColumn) {
-                        icon.className = sortDirection === 'asc'
-                            ? 'fas fa-sort-up float-end mt-1'
-                            : 'fas fa-sort-down float-end mt-1';
-                    } else {
-                        icon.className = 'fas fa-sort float-end mt-1';
-                    }
+        const headers =
+            table.querySelectorAll('thead th');
+
+        headers.forEach((header, index) => {
+            const icon = header.querySelector('i');
+
+            if (!icon) {
+                return;
+            }
+
+            if (index === currentSortColumn) {
+                icon.className =
+                    sortDirection === 'asc'
+                        ? 'fas fa-sort-up float-end mt-1'
+                        : 'fas fa-sort-down float-end mt-1';
+            } else {
+                icon.className =
+                    'fas fa-sort float-end mt-1';
+            }
+        });
+    }
+
+    function startAutoRefresh() {
+        setInterval(refreshTable, 5000);
+    }
+
+    function refreshTable() {
+        return fetch(window.location.href, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            cache: 'no-store'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(
+                        'HTTP ' + response.status
+                    );
                 }
+
+                return response.text();
+            })
+            .then(html => {
+                const parser = new DOMParser();
+
+                const newDocument =
+                    parser.parseFromString(
+                        html,
+                        'text/html'
+                    );
+
+                const newContainer =
+                    newDocument.getElementById(
+                        'deviceTableContainer'
+                    );
+
+                const currentContainer =
+                    document.getElementById(
+                        'deviceTableContainer'
+                    );
+
+                if (!newContainer || !currentContainer) {
+                    return;
+                }
+
+                currentContainer.innerHTML =
+                    newContainer.innerHTML;
+
+                initTooltips();
+                initSort();
+                applySavedSort();
+                applySearch();
+            })
+            .catch(error => {
+                console.error(
+                    'Ошибка обновления таблицы:',
+                    error
+                );
             });
-        }
-    });
+    }
 </script>
 </body>
 </html>
