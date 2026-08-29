@@ -6,12 +6,12 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.models.OperationStatus;
-import ru.polymetal.labManufacture.data.models.Role;
-import java.util.Collection;
+import ru.polymetal.labManufacture.data.models.DeviceSubType;
+import ru.polymetal.labManufacture.dto.DeviceDto;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -24,13 +24,6 @@ public interface OperationService {
     Optional<Operation> findById(UUID operationId);
 
     List<Operation> findDevicesForRole(Account account);
-
-    Set<String> collectStatusNamesForRoles(Set<Role> roles);
-
-    List<String> getAllStatusNames();
-
-    List<UUID> getStatusIdsByNames(Collection<String> statusNames);
-
 
     UUID completeOperationWithDescription(UUID deviceId, Account account,
                                           String targetStatus, String description);

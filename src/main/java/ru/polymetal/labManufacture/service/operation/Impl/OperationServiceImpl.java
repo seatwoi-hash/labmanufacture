@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import ru.polymetal.labManufacture.data.models.*;
 import ru.polymetal.labManufacture.data.repository.OperationRepository;
 import ru.polymetal.labManufacture.data.repository.OperationStatusRepository;
+import ru.polymetal.labManufacture.data.repository.RoleOperationStatusAccessRepository;
+import ru.polymetal.labManufacture.dto.DeviceDto;
 import ru.polymetal.labManufacture.service.*;
 
 import java.time.LocalDateTime;
@@ -35,26 +37,8 @@ public class  OperationServiceImpl implements OperationService {
     private final OperationRepository operationRepository;
     private final DeviceStatusService deviceStatusService;
     private final OperationStatusRepository deviceStatusRepository;
-    private final Clock clock;
+    private final RoleOperationStatusAccessRepository roleOperationStatusAccessRepository;
 
-    private static final Map<String, List<String>> ROLE_STATUS_MAPPING = Map.of(
-            "operator", Arrays.asList(CREATE.getCode(), SIDE1.getCode()),
-            "diagnostician", Arrays.asList(FAIL_TEST.getCode(), FAIL_TEST_2.getCode()),
-
-            "quality", Arrays.asList(SIDE2.getCode(), REPAIR1.getCode(), REPAIR2.getCode(), REPAIR3.getCode(), REPAIR4.getCode(), REPAIR5.getCode(), INSTALLATION.getCode(), INSTALLATION2.getCode(),
-                    REPAIR6.getCode(),
-                    WASHING1.getCode(),
-                    WASHING2.getCode(),
-                    VARNISH.getCode()),
-            "output", Arrays.asList(QUALITY_CHECK_1.getCode(), TEST.getCode(), QUALITY_CHECK_1_1.getCode()),
-            "repairman", Arrays.asList(FAIL_QUALITY_CHECK_1.getCode(),FAIL_QUALITY_CHECK_1_1.getCode(), FAIL_QUALITY_CHECK_2.getCode(),
-                    FAIL_QUALITY_CHECK_2_1.getCode(), FAIL_QUALITY_CHECK_3.getCode(), FAIL_QUALITY_CHECK_4.getCode(), FAIL_QUALITY_CHECK_4_1.getCode(),
-                    FAIL_TEST.getCode(), FAIL_TEST_2.getCode(), FAIL_QUALITY_CHECK_4_2.getCode(), FAIL_QUALITY_CHECK_5.getCode(), FAIL_QUALITY_CHECK_5_1.getCode()),
-            "washer", Arrays.asList(TEST_2.getCode(), QUALITY_CHECK_5_1.getCode(), TECHNICAL2.getCode(), FAIL_QUALITY_CHECK_5_1_1.getCode()),
-            "varnisher", Arrays.asList(QUALITY_CHECK_5.getCode(), FAIL_QUALITY_CHECK_6.getCode(), QUALITY_CHECK_5_1_1.getCode()),
-            "testerb", Arrays.asList(QUALITY_CHECK_2.getCode(), QUALITY_CHECK_2_1.getCode(), QUALITY_CHECK_4.getCode(), QUALITY_CHECK_3.getCode(), TECHNICAL.getCode(), QUALITY_CHECK_4_1.getCode(), QUALITY_CHECK_4_2.getCode()),
-            "user", Arrays.asList(CREATE.getCode())
-    );
 
     private static final Map<String, String> NEXT_STATUS_MAPPING = Map.ofEntries(
             Map.entry(CREATE.getCode(), "Монтаж \"Сторона 1\""),
@@ -124,56 +108,36 @@ public class  OperationServiceImpl implements OperationService {
     @Override
     @Transactional(readOnly = true)
     public List<Operation> findDevicesForRole(Account account) {
-        Set<String> statusNames = collectStatusNamesForRoles(account.getRoles());
-
-        if (statusNames.isEmpty()) {
+        Set<Role> roles = Optional.ofNullable(account.getRoles()).orElseGet(Collections::emptySet);
+        if (roles.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<UUID> statusIds = getStatusIdsByNames(statusNames);
+        boolean isAdmin = roles.stream()
+                .map(Role::getName)
+                .filter(Objects::nonNull)
+                .anyMatch("admin"::equalsIgnoreCase);
+
+        List<UUID> statusIds;
+        if (isAdmin) {
+            statusIds = deviceStatusRepository.findIdsByNameNot(READY.getCode());
+        } else {
+            List<UUID> roleIds = roles.stream()
+                    .map(Role::getId)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            if (roleIds.isEmpty()) {
+                return Collections.emptyList();
+            }
+            statusIds = roleOperationStatusAccessRepository.findOperationStatusIdsByRoleIds(roleIds);
+        }
 
         if (statusIds.isEmpty()) {
             return Collections.emptyList();
         }
 
         return operationRepository.findByStatusIdInAndIsDeletedWithFetch(statusIds, false);
-    }
-
-    @Override
-    public Set<String> collectStatusNamesForRoles(Set<Role> roles) {
-        Set<String> statusNames = new HashSet<>();
-
-        for (Role role : roles) {
-            String roleName = role.getName().toLowerCase();
-
-            if ("admin".equals(roleName)) {
-                return new HashSet<>(getAllStatusNames());
-            }
-
-            List<String> roleStatuses = ROLE_STATUS_MAPPING.get(roleName);
-            if (roleStatuses != null) {
-                statusNames.addAll(roleStatuses);
-            }
-        }
-
-        return statusNames;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<String> getAllStatusNames() {
-        return deviceStatusRepository.findAll().stream()
-                .map(OperationStatus::getName)
-                .filter(name -> !READY.getCode().equals(name))
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<UUID> getStatusIdsByNames(Collection<String> statusNames) {
-        return deviceStatusService.findByListName(new ArrayList<>(statusNames)).stream()
-                .map(OperationStatus::getId)
-                .toList();
     }
 
     @Override
