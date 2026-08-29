@@ -37,8 +37,14 @@ public class FileServiceImpl implements FileService {
     @Transactional
     public FileResponseDto uploadFile(MultipartFile file, FileUploadRequestDto request) throws IOException {
 
+        log.info("Начата загрузка файла: operationId={}, accountId={}, originalName={}, size={}, contentType={}",
+                request.getOperation().getId(), request.getAccount().getId(), file.getOriginalFilename(),
+                file.getSize(), file.getContentType());
+
         fileDataRepository.findByOperation(request.getOperation())
                 .ifPresent(existingFile -> {
+                    log.info("Замена существующего файла: fileId={}, operationId={}",
+                            existingFile.getId(), request.getOperation().getId());
                     fileDataRepository.delete(existingFile);
                     fileDataRepository.flush();
                 });
@@ -48,21 +54,24 @@ public class FileServiceImpl implements FileService {
         byte[] fileBytes = file.getBytes();
         FileData fileData = buildFileData(file, request, newFileName, fileBytes);
         fileDataRepository.insertFileData(fileData);
+        log.info("Файл загружен: fileId={}, operationId={}, storedName={}, size={}",
+                fileData.getId(), request.getOperation().getId(), newFileName, fileBytes.length);
         //fileDataRepository.save(fileData);
         return mapToResponse(fileData);
     }
 
     @Transactional(readOnly = true)
     public FileData getFile(UUID id) {
+        log.debug("Получение файла: fileId={}", id);
         return fileDataRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Файл не найден - id: " + id));
     }
 
     @Override
     public void delete(UUID id) {
-
+        log.info("Начато удаление файла: fileId={}", id);
         fileDataRepository.delete(fileDataRepository.getReferenceById(id));
-
+        log.info("Файл удалён: fileId={}", id);
     }
 
 

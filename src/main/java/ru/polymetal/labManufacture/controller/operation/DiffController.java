@@ -1,5 +1,6 @@
 package ru.polymetal.labManufacture.controller.operation;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/device")
+@Slf4j
 public class DiffController {
     private final AccountRepository accountRepository;
     private final OperationService operationService;
@@ -64,6 +66,8 @@ public class DiffController {
 
         List<Operation> devices = operationQueryService
                 .findOperationsByStatusNames(Set.of(CREATE));
+        log.debug("Подготовлена доска монтажа стороны 1: operationCount={}, user={}",
+                devices.size(), authentication.getName());
 
         model.addAttribute("devices", devices);
 
@@ -81,6 +85,9 @@ public class DiffController {
     public ResponseEntity<?> completeMOne(@RequestParam UUID deviceId,
                                           Authentication authentication) {
 
+        log.info("Получена команда завершения монтажа стороны 1: operationId={}, user={}",
+                deviceId, authentication.getName());
+
         Account account =
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
@@ -93,8 +100,13 @@ public class DiffController {
         operationIdTech = operationService.completeOperationWithoutDescription(deviceId, account, SIDE1);
 
         if (!isInstallation ) {
+            log.info("Для платы пропускается монтаж стороны 2: operationId={}, user={}",
+                    operationIdTech, account.getUsername());
             operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL3);
         }
+
+        log.info("Монтаж стороны 1 завершён: sourceOperationId={}, resultingOperationId={}, user={}",
+                deviceId, operationIdTech, account.getUsername());
 
         return ResponseEntity.ok().build();
     }
@@ -104,6 +116,8 @@ public class DiffController {
 
         List<Operation> devices = operationQueryService
                 .findOperationsByStatusNames(Set.of(SIDE1));
+        log.debug("Подготовлена доска монтажа стороны 2: operationCount={}, user={}",
+                devices.size(), authentication.getName());
 
         model.addAttribute("devices", devices);
 
@@ -121,11 +135,16 @@ public class DiffController {
     public ResponseEntity<?> completeMTwo(@RequestParam UUID deviceId,
                                           Authentication authentication) {
 
+        log.info("Получена команда завершения монтажа стороны 2: operationId={}, user={}",
+                deviceId, authentication.getName());
+
         Account account =
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         operationService.completeOperationWithoutDescription(deviceId, account, SIDE2);
+
+        log.info("Монтаж стороны 2 завершён: operationId={}, user={}", deviceId, account.getUsername());
 
         return ResponseEntity.ok().build();
     }

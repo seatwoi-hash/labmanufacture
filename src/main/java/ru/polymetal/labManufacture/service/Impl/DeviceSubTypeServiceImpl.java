@@ -64,7 +64,11 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     @Transactional
     public void save(DeviceSubTypeDto deviceSubTypeDto, MultipartFile file, MultipartFile zip) throws IOException {
 
+        log.info("Начато создание типа платы: name={}, pdfSize={}, archiveSize={}",
+                deviceSubTypeDto.name(), fileSize(file), fileSize(zip));
+
         if (deviceSubTypeRepository.findByNameAndIsDeletedFalse(deviceSubTypeDto.name().trim()).isPresent()) {
+            log.warn("Отклонено создание типа платы: имя уже существует, name={}", deviceSubTypeDto.name());
             throw new RuntimeException("Такой тип уже существует");
         }
 
@@ -84,6 +88,7 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         }
 
         DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);
+        log.info("Тип платы создан: subtypeId={}, name={}", saved.getId(), saved.getName());
 
         if (file != null && !file.isEmpty()) {
             String newName = UUID.randomUUID() + ".pdf";
@@ -96,20 +101,25 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     @Override
     @Transactional
     public void delete(UUID id) {
+        log.info("Начато удаление типа платы: subtypeId={}", id);
         DeviceSubType deviceSubType = deviceSubTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Тип платы не найден"));
 
         deviceSubType.setIsDeleted(true);
+        log.info("Тип платы помечен удалённым: subtypeId={}, name={}", id, deviceSubType.getName());
     }
 
     @Override
     @Transactional
     public void edit(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file, MultipartFile zip) throws IOException {
+        log.info("Начато редактирование типа платы: subtypeId={}, name={}, pdfSize={}, archiveSize={}",
+                id, deviceSubTypeDto.name(), fileSize(file), fileSize(zip));
         DeviceSubType deviceSubType = deviceSubTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Тип не найден"));
 
         String normalizedName = deviceSubTypeDto.name().trim();
         if (deviceSubTypeRepository.existsByNameAndIdNot(normalizedName, id)) {
+            log.warn("Отклонено редактирование типа платы: имя уже существует, subtypeId={}, name={}", id, normalizedName);
             throw new RuntimeException("Такой тип уже существует");
         }
 
@@ -126,6 +136,7 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         }
 
         DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);
+        log.info("Тип платы обновлён: subtypeId={}, name={}", saved.getId(), saved.getName());
 
         if (file != null && !file.isEmpty()) {
             String newName = UUID.randomUUID() + ".pdf";
@@ -158,8 +169,8 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void uploadFile(String newName, byte[] file, UUID deviceSubTypeID) throws IOException {
-
-
+        log.info("Начата загрузка PDF типа платы в Nextcloud: subtypeId={}, storedName={}, size={}",
+                deviceSubTypeID, newName, file.length);
         if (file.length > 0) {
             nextcloudService.uploadFile(newName, file);
 
@@ -171,9 +182,15 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
                     newName,
                     deviceSubType
             );
+            log.info("PDF типа платы загружен в Nextcloud: subtypeId={}, storedName={}", deviceSubTypeID, newName);
         } else {
+            log.warn("Отклонена загрузка пустого PDF: subtypeId={}, storedName={}", deviceSubTypeID, newName);
             throw new RuntimeException("Файл пустой " + newName);
         }
+    }
+
+    private long fileSize(MultipartFile file) {
+        return file == null ? 0 : file.getSize();
     }
 
 }

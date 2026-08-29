@@ -1,5 +1,6 @@
 package ru.polymetal.labManufacture.service.account.Impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import ru.polymetal.labManufacture.data.models.Account;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
@@ -20,7 +22,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void save(Account account) {
+        boolean creating = account.getId() == null;
         accountRepository.save(account);
+        log.info("Аккаунт сохранён: accountId={}, username={}, operation={}",
+                account.getId(), account.getUsername(), creating ? "create" : "update");
     }
 
     @Override
@@ -37,11 +42,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void updateUserStatus(UUID accountId, Boolean status) {
+        log.info("Изменение статуса аккаунта: accountId={}, active={}", accountId, status);
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException(  // создать исключение именное
                         "Пользователь не найден"));
         account.setActive(status);
         accountRepository.save(account);
+        log.info("Статус аккаунта изменён: accountId={}, active={}", accountId, status);
 
 
     }
@@ -64,10 +71,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void delete(UUID id) {
+        log.info("Начата деактивация аккаунта: accountId={}", id);
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Аккаунт не найден"));
 
         account.setActive(false);
+        log.info("Аккаунт деактивирован: accountId={}, username={}", id, account.getUsername());
     }
 
     @Transactional(readOnly = true)

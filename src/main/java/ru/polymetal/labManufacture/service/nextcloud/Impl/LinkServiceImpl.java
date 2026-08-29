@@ -86,9 +86,8 @@ public class LinkServiceImpl implements LinkService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-        log.debug("Creating share with params: {}", body);
         log.debug("URL: {}", apiUrl);
-        log.debug("Headers: {}", headers);
+        log.debug("Share request prepared: path={}, permissions={}", filePath, access);
 
         try {
             // Важно: используем FormHttpMessageConverter
@@ -102,7 +101,7 @@ public class LinkServiceImpl implements LinkService {
                     JsonNode.class
             );
 
-            log.debug("Response: {}", response.getBody());
+            log.debug("Share request completed: status={}", response.getStatusCode());
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 JsonNode responseBody = response.getBody();
@@ -306,9 +305,8 @@ public class LinkServiceImpl implements LinkService {
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-            log.debug("Creating share with params: {}", body);
             log.debug("URL: {}", apiUrl);
-            log.debug("Headers: {}", headers);
+            log.debug("Device subtype share request prepared: path={}", filePath);
 
             try {
                 // Важно: используем FormHttpMessageConverter
@@ -322,7 +320,7 @@ public class LinkServiceImpl implements LinkService {
                         JsonNode.class
                 );
 
-                log.debug("Response: {}", response.getBody());
+                log.debug("Device subtype share request completed: status={}", response.getStatusCode());
 
                 if (response.getStatusCode().is2xxSuccessful()) {
                     JsonNode responseBody = response.getBody();

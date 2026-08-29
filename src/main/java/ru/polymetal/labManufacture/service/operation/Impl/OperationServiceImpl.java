@@ -118,6 +118,7 @@ public class  OperationServiceImpl implements OperationService {
     @Override
     public void validateDeviceDto(DeviceDto deviceDto) {
         if (deviceDto.getSerialNumber() == null || deviceDto.getSerialNumber().isBlank()) {
+            log.warn("Отклонено создание операции: серийный номер отсутствует");
             throw new IllegalArgumentException("Серийный номер не может быть пустым");
         }
     }
@@ -146,6 +147,7 @@ public class  OperationServiceImpl implements OperationService {
         Set<String> statusNames = collectStatusNamesForRoles(account.getRoles());
 
         if (statusNames.isEmpty()) {
+            log.debug("Для пользователя {} не найдено доступных производственных статусов", account.getUsername());
             return Collections.emptyList();
         }
 
@@ -155,7 +157,9 @@ public class  OperationServiceImpl implements OperationService {
             return Collections.emptyList();
         }
 
-        return operationRepository.findByStatusIdInAndIsDeletedWithFetch(statusIds, false);
+        List<Operation> operations = operationRepository.findByStatusIdInAndIsDeletedWithFetch(statusIds, false);
+        log.debug("Для пользователя {} найдено операций: {}", account.getUsername(), operations.size());
+        return operations;
     }
 
     @Override
@@ -214,15 +218,20 @@ public class  OperationServiceImpl implements OperationService {
     public UUID performOperation(UUID operationId, Account account,
                                  String targetStatus, String description) {
 
+        log.info("Начат переход производственной операции: operationId={}, targetStatus={}, user={}",
+                operationId, targetStatus, account.getUsername());
+
         Operation operation = operationRepository.findByIdWithLock(operationId)
                 .orElseThrow(() -> new IllegalArgumentException("Операция по этому устройству не найдена"));
 
         OperationStatus newStatus = deviceStatusService.findByName(targetStatus);
         Operation newOperation = createNewDeviceVersion(operation, account, newStatus, description);
         markDeviceAsDeleted(operation);
-        operationRepository.save(newOperation);
-
-        return operationRepository.save(newOperation).getId();
+        Operation savedOperation = operationRepository.save(newOperation);
+        log.info("Завершён переход производственной операции: sourceOperationId={}, newOperationId={}, sn={}, status={}, user={}",
+                operationId, savedOperation.getId(), operation.getDevice().getSerialNumber(),
+                targetStatus, account.getUsername());
+        return savedOperation.getId();
     }
 
     @Override
@@ -242,6 +251,9 @@ public class  OperationServiceImpl implements OperationService {
 
         operationRepository.save(newOperation);
 
+        log.info("Создана начальная операция: operationId={}, deviceId={}, sn={}, user={}",
+                newOperation.getId(), device.getId(), device.getSerialNumber(), account.getUsername());
+
         return newOperation;
     }
 
@@ -251,6 +263,7 @@ public class  OperationServiceImpl implements OperationService {
         operation.setDeletedAt(LocalDateTime.now());
         operation.setIsDeleted(true);
         operationRepository.save(operation);
+        log.debug("Предыдущая версия операции помечена удалённой: operationId={}", operation.getId());
     }
 
     @Override

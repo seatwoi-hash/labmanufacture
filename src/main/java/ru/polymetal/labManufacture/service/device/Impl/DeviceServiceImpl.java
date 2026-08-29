@@ -51,7 +51,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     @Transactional
     public void createDevice(DeviceDto deviceDto, String username) throws IOException {
-        log.info("Создание устройства пользователем: {}", username);
+        log.info("Начато создание устройства: sn={}, user={}", deviceDto.getSerialNumber(), username);
 
         Account account = accountRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
@@ -62,6 +62,8 @@ public class DeviceServiceImpl implements DeviceService {
                 .orElseThrow(() -> new IllegalArgumentException("Подтип не найден"));
 
         if (existsSerialNumber(deviceDto.getSerialNumber())) {
+            log.warn("Отклонено создание устройства: серийный номер уже существует, sn={}, user={}",
+                    deviceDto.getSerialNumber(), username);
             throw new IllegalArgumentException(
                     String.format("Устройство с серийным номером '%s' уже существует", deviceDto.getSerialNumber()));
         }
@@ -70,7 +72,8 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.save(device);
 
         operationService.createNewOperation(device, account, deviceDto.getDescription());
-        log.info("Устройство успешно создано с ID: {}", device.getId());
+        log.info("Устройство создано: deviceId={}, sn={}, subtypeId={}, user={}",
+                device.getId(), device.getSerialNumber(), subtype.getId(), username);
     }
 
     @Override
@@ -82,6 +85,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public void validateDeviceDto(DeviceDto deviceDto) {
         if (deviceDto.getSerialNumber() == null || deviceDto.getSerialNumber().isBlank()) {
+            log.warn("Отклонена операция с устройством: серийный номер отсутствует");
             throw new IllegalArgumentException("Серийный номер не может быть пустым");
         }
     }
@@ -89,8 +93,10 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     @Transactional
     public void delete(UUID id) {
+        log.info("Начато удаление устройства: deviceId={}", id);
         Device device = deviceRepository.findById(id).orElseThrow(() -> new RuntimeException("Устройство не найдено"));
         deviceRepository.delete(device);
+        log.info("Устройство удалено: deviceId={}, sn={}", id, device.getSerialNumber());
     }
 
     @Override

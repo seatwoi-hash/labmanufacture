@@ -26,34 +26,44 @@ public class LinkServiceScheduler {
 
    @Scheduled(cron = "0 0 1,6 * * *")
    public void taskWithCron() throws IOException {
+        log.info("Запущена синхронизация файлов устройств с Nextcloud");
         List<Device> devices = deviceRepository.findAll();
+        int requested = 0;
 
         for(Device d: devices) {
             if(d.getUrlPDF() == null || d.getUrlPDF().isEmpty()) {
                 linkService.createFile(d.getSerialNumber());
+                requested++;
             }
         }
 
        for(Device d: devices) {
            if(d.getUrlTXT() == null || d.getUrlTXT().isEmpty()) {
                linkService.createFile(d.getSerialNumber());
+               requested++;
            }
        }
+       log.info("Синхронизация файлов устройств завершена: devices={}, requests={}", devices.size(), requested);
     }
 
 
     @Scheduled(cron = "0 0 2,7 * * *")
     public void taskWithCronTwo() throws IOException {
+        log.info("Запущена синхронизация публичных ссылок типов плат");
         List<DeviceSubType> deviceSubType = deviceSubTypeRepository.findAll();
+        int requested = 0;
 
 
         for(DeviceSubType dst: deviceSubType) {
             if(nextcloudService.fileExists(dst.getFileName())){
                 if(dst.getUrlPDF() == null || dst.getUrlPDF().isEmpty()) {
                     linkService.createPublicShareDeviceSubType(dst.getFileName(), dst);
+                    requested++;
                 }
             }
         }
+        log.info("Синхронизация ссылок типов плат завершена: subtypes={}, requests={}",
+                deviceSubType.size(), requested);
     }
 
 }
