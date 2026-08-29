@@ -21,7 +21,7 @@ import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.dto.AccountCreateFormDto;
 import ru.polymetal.labManufacture.dto.ProfileUpdateDto;
 import ru.polymetal.labManufacture.service.account.AccountService;
-import ru.polymetal.labManufacture.service.account.Impl.RoleServiceImpl;
+import ru.polymetal.labManufacture.service.account.RoleService;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -32,10 +32,10 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final PasswordEncoder passwordEncoder;
-    private final RoleServiceImpl roleService;
+    private final RoleService roleService;
     private final AccountService accountService;
 
-    public UserController(PasswordEncoder passwordEncoder, RoleServiceImpl roleService, AccountService accountService) {
+    public UserController(PasswordEncoder passwordEncoder, RoleService roleService, AccountService accountService) {
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
         this.accountService = accountService;

@@ -1,7 +1,6 @@
 package ru.polymetal.labManufacture.service.account.Impl;
 
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,12 +9,13 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.security.AccountDetails;
+import ru.polymetal.labManufacture.service.account.AccountDetailsService;
 import java.util.Set;
 
 
 @Service
 @Transactional
-public class AccountDetailsServiceImpl implements UserDetailsService {
+public class AccountDetailsServiceImpl implements AccountDetailsService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
