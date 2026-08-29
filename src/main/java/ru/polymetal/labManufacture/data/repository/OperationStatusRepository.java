@@ -31,6 +31,10 @@ public interface OperationStatusRepository extends JpaRepository<OperationStatus
 
     @Query("SELECT ds.id, ds.name FROM OperationStatus ds WHERE ds.name IN :names")
     List<Object[]> findIdAndNameByNames(@Param("names") Collection<String> names);
+
+    @Query("SELECT status.id FROM OperationStatus status WHERE status.name <> :excludedName")
+    List<UUID> findIdsByNameNot(@Param("excludedName") String excludedName);
+
     boolean existsByName(String name);
 
 }
