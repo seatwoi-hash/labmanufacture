@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.polymetal.labManufacture.data.models.*;
 import ru.polymetal.labManufacture.data.repository.OperationRepository;
 import ru.polymetal.labManufacture.data.repository.OperationStatusRepository;
+import ru.polymetal.labManufacture.data.repository.OperationStatusRouteRepository;
 import ru.polymetal.labManufacture.data.repository.RoleOperationStatusAccessRepository;
 import ru.polymetal.labManufacture.dto.DeviceDto;
 import ru.polymetal.labManufacture.service.*;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.Clock;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.*;
 import ru.polymetal.labManufacture.service.operation.OperationService;
@@ -38,67 +40,8 @@ public class  OperationServiceImpl implements OperationService {
     private final DeviceStatusService deviceStatusService;
     private final OperationStatusRepository deviceStatusRepository;
     private final RoleOperationStatusAccessRepository roleOperationStatusAccessRepository;
+    private final OperationStatusRouteRepository operationStatusRouteRepository;
     private final Clock clock;
-
-
-    private static final Map<String, String> NEXT_STATUS_MAPPING = Map.ofEntries(
-            Map.entry(CREATE.getCode(), "Монтаж \"Сторона 1\""),
-            Map.entry(SIDE1.getCode(), "Монтаж \"Сторона 2\""),
-            Map.entry(SIDE2.getCode(), "ОТК №1"),
-            Map.entry(QUALITY_CHECK_1.getCode(), "Выводной монтаж №1"),
-            Map.entry(FAIL_QUALITY_CHECK_1.getCode(), "Ремонт №1"),
-            Map.entry(REPAIR1.getCode(), "ОТК №1.1"),
-            Map.entry(QUALITY_CHECK_1_1.getCode(), "Выводной монтаж №1"),
-            Map.entry(FAIL_QUALITY_CHECK_1_1.getCode(), "Ремонт №1"),
-            Map.entry(INSTALLATION.getCode(), "ОТК №2"),
-            Map.entry(QUALITY_CHECK_2.getCode(), "Тестировка"),
-            Map.entry(FAIL_QUALITY_CHECK_2.getCode(), "Ремонт №2"),
-            Map.entry(QUALITY_CHECK_2_1.getCode(), "Тестировка"),
-            Map.entry(FAIL_QUALITY_CHECK_2_1.getCode(), "Ремонт №2"),
-            Map.entry(REPAIR2.getCode(), "ОТК №2.1"),
-            Map.entry(TEST.getCode(), "Выводной монтаж №2"),
-            Map.entry(FAIL_TEST.getCode(), "Ремонт №3"),
-            Map.entry(QUALITY_CHECK_3.getCode(), "Тестировка"),
-            Map.entry(FAIL_QUALITY_CHECK_3.getCode(), "Ремонт №3"),
-
-            Map.entry(INSTALLATION2.getCode(), "ОТК №4"),
-            Map.entry(QUALITY_CHECK_4.getCode(), "Тестировка №2"),
-            Map.entry(FAIL_QUALITY_CHECK_4.getCode(), "Ремонт №4"),
-            Map.entry(QUALITY_CHECK_4_1.getCode(), "Тестировка №2"),
-            Map.entry(FAIL_QUALITY_CHECK_4_1.getCode(), "Ремонт №4"),
-            Map.entry(REPAIR4.getCode(), "ОТК №4.1"),
-            Map.entry(DIAGNOSTICIAN_REPAIR_1.getCode(), "Ремонт №3"),
-            Map.entry(DIAGNOSTICIAN_REPAIR_2.getCode(), "Ремонт №5"),
-            Map.entry(DIAGNOSTICIAN_TEST_1.getCode(), "Тестировка"),
-            Map.entry(DIAGNOSTICIAN_TEST_2.getCode(), "Тестировка №2"),
-
-
-            Map.entry(TEST_2.getCode(), "Отмывка №1"),
-            Map.entry(FAIL_TEST_2.getCode(), "Ремонт №5"),
-            Map.entry(QUALITY_CHECK_4_2.getCode(), "Тестировка №2"),
-            Map.entry(FAIL_QUALITY_CHECK_4_2.getCode(), "Ремонт №5"),
-            Map.entry(REPAIR5.getCode(), "ОТК №4.2"),
-            Map.entry(QUALITY_CHECK_5_1.getCode(), "Отмывка №2"),
-            Map.entry(FAIL_QUALITY_CHECK_5_1.getCode(), "Ремонт №6"),
-
-
-            Map.entry(WASHING1.getCode(), "ОТК №5"),
-            Map.entry(REPAIR3.getCode(), "ОТК №3"),
-
-            Map.entry(QUALITY_CHECK_5.getCode(), "Нанесение компаунда"),
-            Map.entry(QUALITY_CHECK_5_1_1.getCode(), "Нанесение компаунда"),
-            Map.entry(FAIL_QUALITY_CHECK_5.getCode(), "Ремонт №6"),
-            Map.entry(FAIL_QUALITY_CHECK_5_1_1.getCode(), "Отмывка №2"),
-            Map.entry(WASHING2.getCode(), "ОТК №5"),
-            Map.entry(REPAIR6.getCode(), "ОТК №5.1"),
-            Map.entry(VARNISH.getCode(), "ОТК №6"),
-            Map.entry(QUALITY_CHECK_6.getCode(), "Готовые платы"),
-            Map.entry(FAIL_QUALITY_CHECK_6.getCode(), "Нанесение компаунда"),
-            Map.entry(TECHNICAL.getCode(), "Тестировка №1"),
-            Map.entry(TECHNICAL2.getCode(), "Отмывка №1"),
-            Map.entry(TECHNICAL3.getCode(), "ОТК №1")
-
-    );
 
     @Override
     @Transactional(readOnly = true)
@@ -206,8 +149,12 @@ public class  OperationServiceImpl implements OperationService {
 
     @Override
     public String getNextStatus(OperationStatus status) {
-
-        return NEXT_STATUS_MAPPING.getOrDefault(status.getName(), "Неизвестный следующий статус");
+        if (status == null || status.getName() == null) {
+            return "Неизвестный следующий статус";
+        }
+        return operationStatusRouteRepository.findFirstByCurrentStatus_NameOrderById(status.getName())
+                .map(OperationStatusRoute::getNextOperationName)
+                .orElse("Неизвестный следующий статус");
     }
 
 
@@ -262,9 +209,14 @@ public class  OperationServiceImpl implements OperationService {
         return newOperation;
     }
 
-    public Map<String, String> getNEXT_STATUS_MAPPING() {
-
-        return NEXT_STATUS_MAPPING;
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, String> getNextStatusMapping() {
+        return operationStatusRouteRepository.findAllWithCurrentStatus().stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        route -> route.getCurrentStatus().getName(),
+                        OperationStatusRoute::getNextOperationName,
+                        (first, ignored) -> first));
     }
 
 }

@@ -43,5 +43,5 @@ public interface OperationService {
     Operation createNewOperation(Device device, Account account,
                                         String description);
     List<Operation> findBySerialNumber(String sn);
-    Map<String, String> getNEXT_STATUS_MAPPING();
+    Map<String, String> getNextStatusMapping();
 }
