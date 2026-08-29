@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Контракт сервиса DeviceSubTypeService.
+ *
+ * @author Tatarinov Anton
+ */
 public interface DeviceSubTypeService {
 
     DeviceSubType findByName(String name);

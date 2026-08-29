@@ -28,6 +28,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * MVC-контроллер UserController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 public class UserController {
 

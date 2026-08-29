@@ -4,6 +4,11 @@ import ru.polymetal.labManufacture.data.models.Operation;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Контракт сервиса OperationQueryService.
+ *
+ * @author Tatarinov Anton
+ */
 public interface OperationQueryService {
 
     /**

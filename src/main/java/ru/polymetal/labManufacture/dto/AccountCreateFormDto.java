@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Объект передачи данных AccountCreateFormDto.
+ *
+ * @author Tatarinov Anton
+ */
 @Setter
 @Getter
 public class AccountCreateFormDto {

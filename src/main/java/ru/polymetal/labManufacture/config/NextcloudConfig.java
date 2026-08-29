@@ -9,6 +9,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import java.util.Base64;
 
+/**
+ * Конфигурация приложения NextcloudConfig.
+ *
+ * @author Tatarinov Anton
+ */
 @Configuration
 @ConfigurationProperties(prefix = "nextcloud")
 @Data

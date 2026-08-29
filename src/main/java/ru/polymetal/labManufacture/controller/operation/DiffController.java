@@ -38,6 +38,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * MVC-контроллер DiffController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 @RequestMapping("/device")
 public class DiffController {

@@ -28,6 +28,11 @@ import org.springframework.scheduling.annotation.Async;
 import ru.polymetal.labManufacture.service.nextcloud.ShareCallback;
 
 
+/**
+ * Реализация сервиса LinkServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor

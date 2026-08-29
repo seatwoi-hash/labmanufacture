@@ -12,6 +12,11 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.UUID;
 
+/**
+ * Модель данных DeviceRelationId.
+ *
+ * @author Tatarinov Anton
+ */
 @Embeddable
 @Getter
 @Setter

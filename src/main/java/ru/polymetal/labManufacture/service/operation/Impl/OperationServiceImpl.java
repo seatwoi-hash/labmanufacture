@@ -20,6 +20,11 @@ import java.util.*;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.*;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 
+/**
+ * Реализация сервиса OperationServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor

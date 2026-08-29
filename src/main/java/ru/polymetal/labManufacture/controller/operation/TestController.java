@@ -42,6 +42,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * MVC-контроллер TestController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 @RequestMapping("/device")
 public class TestController {

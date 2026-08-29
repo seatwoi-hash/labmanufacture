@@ -8,6 +8,11 @@ import ru.polymetal.labManufacture.data.repository.OperationStatusRepository;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import java.util.List;
 
+/**
+ * Реализация сервиса DeviceStatusServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 @Slf4j
 public class DeviceStatusServiceImpl implements DeviceStatusService {

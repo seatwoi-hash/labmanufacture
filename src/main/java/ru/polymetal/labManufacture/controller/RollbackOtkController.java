@@ -55,6 +55,11 @@ import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * MVC-контроллер RollbackOtkController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 @RequestMapping("/device")
 public class RollbackOtkController {

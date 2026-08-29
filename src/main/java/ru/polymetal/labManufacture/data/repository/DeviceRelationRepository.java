@@ -8,6 +8,11 @@ import ru.polymetal.labManufacture.data.models.DeviceRelationId;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Репозиторий доступа к данным DeviceRelationRepository.
+ *
+ * @author Tatarinov Anton
+ */
 @Repository
 public interface DeviceRelationRepository extends JpaRepository<DeviceRelation, DeviceRelationId> {
 

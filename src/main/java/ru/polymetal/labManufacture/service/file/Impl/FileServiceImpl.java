@@ -17,6 +17,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+/**
+ * Реализация сервиса FileServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Slf4j
 @Service
 public class FileServiceImpl implements FileService {

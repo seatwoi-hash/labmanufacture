@@ -16,6 +16,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Модель данных OpsStatus.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "ops_statuses")
 @Getter

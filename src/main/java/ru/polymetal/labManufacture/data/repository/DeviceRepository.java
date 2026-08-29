@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Репозиторий доступа к данным DeviceRepository.
+ *
+ * @author Tatarinov Anton
+ */
 public interface DeviceRepository extends JpaRepository<Device, UUID> {
     Optional<Device> findBySerialNumber(String serialNumber);
 

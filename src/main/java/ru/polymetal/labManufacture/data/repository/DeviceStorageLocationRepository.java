@@ -7,6 +7,11 @@ import ru.polymetal.labManufacture.data.models.DeviceStorageLocation;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Репозиторий доступа к данным DeviceStorageLocationRepository.
+ *
+ * @author Tatarinov Anton
+ */
 @Repository
 public interface DeviceStorageLocationRepository extends JpaRepository<DeviceStorageLocation, UUID> {
 

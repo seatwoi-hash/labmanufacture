@@ -14,6 +14,11 @@ import java.util.UUID;
 @Entity
 @Table(name = "account_roles",
         uniqueConstraints = @UniqueConstraint(columnNames = {"account_id", "role_id"}))
+/**
+ * Модель данных AccountRole.
+ *
+ * @author Tatarinov Anton
+ */
 @Getter
 @Setter
 @NoArgsConstructor

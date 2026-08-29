@@ -29,6 +29,11 @@ import java.util.Map;
 import org.w3c.dom.NodeList;
 import org.springframework.util.MultiValueMap;
 
+/**
+ * Реализация сервиса NextcloudServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor

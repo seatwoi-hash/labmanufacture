@@ -7,6 +7,11 @@ import ru.polymetal.labManufacture.data.models.DeviceType;
 import ru.polymetal.labManufacture.data.repository.DeviceTypeRepository;
 import ru.polymetal.labManufacture.service.DeviceTypeService;
 
+/**
+ * Реализация сервиса DeviceTypeServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 @Slf4j
 public class DeviceTypeServiceImpl implements DeviceTypeService {

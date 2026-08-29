@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Репозиторий доступа к данным RoleRepository.
+ *
+ * @author Tatarinov Anton
+ */
 @Repository
 public interface RoleRepository extends JpaRepository<Role, UUID> {
 

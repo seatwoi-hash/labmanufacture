@@ -21,6 +21,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * MVC-контроллер HomeController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 public class HomeController {
 

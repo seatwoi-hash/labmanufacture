@@ -23,6 +23,11 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Модель данных FileData.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "file_data")
 @Builder

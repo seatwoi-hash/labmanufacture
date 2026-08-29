@@ -14,6 +14,11 @@ import ru.polymetal.labManufacture.service.nextcloud.NextcloudService;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Планировщик фоновых задач LinkServiceScheduler.
+ *
+ * @author Tatarinov Anton
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor

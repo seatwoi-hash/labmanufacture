@@ -5,6 +5,11 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Объект передачи данных FileResponseDto.
+ *
+ * @author Tatarinov Anton
+ */
 @Data
 @Builder
 public class FileResponseDto {

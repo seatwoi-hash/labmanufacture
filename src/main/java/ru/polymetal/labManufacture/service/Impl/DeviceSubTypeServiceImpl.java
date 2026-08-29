@@ -20,6 +20,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 
+/**
+ * Реализация сервиса DeviceSubTypeServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 @Slf4j
 public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {

@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Реализация сервиса OperationQueryServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 @RequiredArgsConstructor
 public class OperationQueryServiceImpl implements OperationQueryService {

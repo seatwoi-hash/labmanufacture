@@ -15,6 +15,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Модель данных Account.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "accounts")
 @NoArgsConstructor

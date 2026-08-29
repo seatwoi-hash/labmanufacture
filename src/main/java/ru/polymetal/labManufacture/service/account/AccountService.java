@@ -4,6 +4,11 @@ import ru.polymetal.labManufacture.data.models.Account;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Контракт сервиса AccountService.
+ *
+ * @author Tatarinov Anton
+ */
 public interface AccountService {
 
     void save(Account account);

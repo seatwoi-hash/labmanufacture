@@ -8,6 +8,11 @@ import ru.polymetal.labManufacture.data.models.Account;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+/**
+ * Компонент безопасности AccountDetails.
+ *
+ * @author Tatarinov Anton
+ */
 @Builder
 public record AccountDetails(Account account) implements UserDetails {
 
