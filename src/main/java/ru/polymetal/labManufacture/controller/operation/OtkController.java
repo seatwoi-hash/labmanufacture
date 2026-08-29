@@ -100,7 +100,7 @@ public class OtkController {
                 .findOperationsByStatusNames(Set.of(SIDE2.getCode(), REPAIR1.getCode(), TECHNICAL3.getCode()));
 
         model.addAttribute("devices", devices);
-        model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
+        model.addAttribute("nextStatus", operationService.getNextStatusMapping());
 
         Account account =
                 accountRepository.findByUsername(authentication.getName())
@@ -164,7 +164,7 @@ public class OtkController {
                 .findOperationsByStatusNames(Set.of(INSTALLATION.getCode(), REPAIR2.getCode()));
 
         model.addAttribute("devices", devices);
-        model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
+        model.addAttribute("nextStatus", operationService.getNextStatusMapping());
 
 
         Account account =
@@ -274,7 +274,7 @@ public class OtkController {
                 operationQueryService.findOperationsByStatusNames(Set.of(INSTALLATION2.getCode(), REPAIR4.getCode(), REPAIR5.getCode()));
 
         model.addAttribute("devices", devices);
-        model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
+        model.addAttribute("nextStatus", operationService.getNextStatusMapping());
 
         Account account =
                 accountRepository.findByUsername(authentication.getName())
@@ -349,7 +349,7 @@ public class OtkController {
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
-        model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
+        model.addAttribute("nextStatus", operationService.getNextStatusMapping());
 
 
         return "operation/otk/otk5-board";
