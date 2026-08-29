@@ -33,80 +33,80 @@ public class  OperationServiceImpl implements OperationService {
     private final OperationStatusRepository deviceStatusRepository;
 
     private static final Map<String, List<String>> ROLE_STATUS_MAPPING = Map.of(
-            "operator", Arrays.asList(CREATE, SIDE1),
-            "diagnostician", Arrays.asList(FAIL_TEST, FAIL_TEST_2),
+            "operator", Arrays.asList(CREATE.getCode(), SIDE1.getCode()),
+            "diagnostician", Arrays.asList(FAIL_TEST.getCode(), FAIL_TEST_2.getCode()),
 
-            "quality", Arrays.asList(SIDE2, REPAIR1, REPAIR2, REPAIR3, REPAIR4, REPAIR5, INSTALLATION, INSTALLATION2,
-                    REPAIR6,
-                    WASHING1,
-                    WASHING2,
-                    VARNISH),
-            "output", Arrays.asList(QUALITY_CHECK_1, TEST, QUALITY_CHECK_1_1),
-            "repairman", Arrays.asList(FAIL_QUALITY_CHECK_1,FAIL_QUALITY_CHECK_1_1, FAIL_QUALITY_CHECK_2,
-                    FAIL_QUALITY_CHECK_2_1, FAIL_QUALITY_CHECK_3, FAIL_QUALITY_CHECK_4, FAIL_QUALITY_CHECK_4_1,
-                    FAIL_TEST, FAIL_TEST_2, FAIL_QUALITY_CHECK_4_2, FAIL_QUALITY_CHECK_5, FAIL_QUALITY_CHECK_5_1),
-            "washer", Arrays.asList(TEST_2, QUALITY_CHECK_5_1, TECHNICAL2, FAIL_QUALITY_CHECK_5_1_1),
-            "varnisher", Arrays.asList(QUALITY_CHECK_5, FAIL_QUALITY_CHECK_6, QUALITY_CHECK_5_1_1),
-            "testerb", Arrays.asList(QUALITY_CHECK_2, QUALITY_CHECK_2_1, QUALITY_CHECK_4, QUALITY_CHECK_3, TECHNICAL, QUALITY_CHECK_4_1, QUALITY_CHECK_4_2),
-            "user", Arrays.asList(CREATE)
+            "quality", Arrays.asList(SIDE2.getCode(), REPAIR1.getCode(), REPAIR2.getCode(), REPAIR3.getCode(), REPAIR4.getCode(), REPAIR5.getCode(), INSTALLATION.getCode(), INSTALLATION2.getCode(),
+                    REPAIR6.getCode(),
+                    WASHING1.getCode(),
+                    WASHING2.getCode(),
+                    VARNISH.getCode()),
+            "output", Arrays.asList(QUALITY_CHECK_1.getCode(), TEST.getCode(), QUALITY_CHECK_1_1.getCode()),
+            "repairman", Arrays.asList(FAIL_QUALITY_CHECK_1.getCode(),FAIL_QUALITY_CHECK_1_1.getCode(), FAIL_QUALITY_CHECK_2.getCode(),
+                    FAIL_QUALITY_CHECK_2_1.getCode(), FAIL_QUALITY_CHECK_3.getCode(), FAIL_QUALITY_CHECK_4.getCode(), FAIL_QUALITY_CHECK_4_1.getCode(),
+                    FAIL_TEST.getCode(), FAIL_TEST_2.getCode(), FAIL_QUALITY_CHECK_4_2.getCode(), FAIL_QUALITY_CHECK_5.getCode(), FAIL_QUALITY_CHECK_5_1.getCode()),
+            "washer", Arrays.asList(TEST_2.getCode(), QUALITY_CHECK_5_1.getCode(), TECHNICAL2.getCode(), FAIL_QUALITY_CHECK_5_1_1.getCode()),
+            "varnisher", Arrays.asList(QUALITY_CHECK_5.getCode(), FAIL_QUALITY_CHECK_6.getCode(), QUALITY_CHECK_5_1_1.getCode()),
+            "testerb", Arrays.asList(QUALITY_CHECK_2.getCode(), QUALITY_CHECK_2_1.getCode(), QUALITY_CHECK_4.getCode(), QUALITY_CHECK_3.getCode(), TECHNICAL.getCode(), QUALITY_CHECK_4_1.getCode(), QUALITY_CHECK_4_2.getCode()),
+            "user", Arrays.asList(CREATE.getCode())
     );
 
     private static final Map<String, String> NEXT_STATUS_MAPPING = Map.ofEntries(
-            Map.entry(CREATE, "Монтаж \"Сторона 1\""),
-            Map.entry(SIDE1, "Монтаж \"Сторона 2\""),
-            Map.entry(SIDE2, "ОТК №1"),
-            Map.entry(QUALITY_CHECK_1, "Выводной монтаж №1"),
-            Map.entry(FAIL_QUALITY_CHECK_1, "Ремонт №1"),
-            Map.entry(REPAIR1, "ОТК №1.1"),
-            Map.entry(QUALITY_CHECK_1_1, "Выводной монтаж №1"),
-            Map.entry(FAIL_QUALITY_CHECK_1_1, "Ремонт №1"),
-            Map.entry(INSTALLATION, "ОТК №2"),
-            Map.entry(QUALITY_CHECK_2, "Тестировка"),
-            Map.entry(FAIL_QUALITY_CHECK_2, "Ремонт №2"),
-            Map.entry(QUALITY_CHECK_2_1, "Тестировка"),
-            Map.entry(FAIL_QUALITY_CHECK_2_1, "Ремонт №2"),
-            Map.entry(REPAIR2, "ОТК №2.1"),
-            Map.entry(TEST, "Выводной монтаж №2"),
-            Map.entry(FAIL_TEST, "Ремонт №3"),
-            Map.entry(QUALITY_CHECK_3, "Тестировка"),
-            Map.entry(FAIL_QUALITY_CHECK_3, "Ремонт №3"),
+            Map.entry(CREATE.getCode(), "Монтаж \"Сторона 1\""),
+            Map.entry(SIDE1.getCode(), "Монтаж \"Сторона 2\""),
+            Map.entry(SIDE2.getCode(), "ОТК №1"),
+            Map.entry(QUALITY_CHECK_1.getCode(), "Выводной монтаж №1"),
+            Map.entry(FAIL_QUALITY_CHECK_1.getCode(), "Ремонт №1"),
+            Map.entry(REPAIR1.getCode(), "ОТК №1.1"),
+            Map.entry(QUALITY_CHECK_1_1.getCode(), "Выводной монтаж №1"),
+            Map.entry(FAIL_QUALITY_CHECK_1_1.getCode(), "Ремонт №1"),
+            Map.entry(INSTALLATION.getCode(), "ОТК №2"),
+            Map.entry(QUALITY_CHECK_2.getCode(), "Тестировка"),
+            Map.entry(FAIL_QUALITY_CHECK_2.getCode(), "Ремонт №2"),
+            Map.entry(QUALITY_CHECK_2_1.getCode(), "Тестировка"),
+            Map.entry(FAIL_QUALITY_CHECK_2_1.getCode(), "Ремонт №2"),
+            Map.entry(REPAIR2.getCode(), "ОТК №2.1"),
+            Map.entry(TEST.getCode(), "Выводной монтаж №2"),
+            Map.entry(FAIL_TEST.getCode(), "Ремонт №3"),
+            Map.entry(QUALITY_CHECK_3.getCode(), "Тестировка"),
+            Map.entry(FAIL_QUALITY_CHECK_3.getCode(), "Ремонт №3"),
 
-            Map.entry(INSTALLATION2, "ОТК №4"),
-            Map.entry(QUALITY_CHECK_4, "Тестировка №2"),
-            Map.entry(FAIL_QUALITY_CHECK_4, "Ремонт №4"),
-            Map.entry(QUALITY_CHECK_4_1, "Тестировка №2"),
-            Map.entry(FAIL_QUALITY_CHECK_4_1, "Ремонт №4"),
-            Map.entry(REPAIR4, "ОТК №4.1"),
-            Map.entry(DIAGNOSTICIAN_REPAIR_1, "Ремонт №3"),
-            Map.entry(DIAGNOSTICIAN_REPAIR_2, "Ремонт №5"),
-            Map.entry(DIAGNOSTICIAN_TEST_1, "Тестировка"),
-            Map.entry(DIAGNOSTICIAN_TEST_2, "Тестировка №2"),
-
-
-            Map.entry(TEST_2, "Отмывка №1"),
-            Map.entry(FAIL_TEST_2, "Ремонт №5"),
-            Map.entry(QUALITY_CHECK_4_2, "Тестировка №2"),
-            Map.entry(FAIL_QUALITY_CHECK_4_2, "Ремонт №5"),
-            Map.entry(REPAIR5, "ОТК №4.2"),
-            Map.entry(QUALITY_CHECK_5_1, "Отмывка №2"),
-            Map.entry(FAIL_QUALITY_CHECK_5_1, "Ремонт №6"),
+            Map.entry(INSTALLATION2.getCode(), "ОТК №4"),
+            Map.entry(QUALITY_CHECK_4.getCode(), "Тестировка №2"),
+            Map.entry(FAIL_QUALITY_CHECK_4.getCode(), "Ремонт №4"),
+            Map.entry(QUALITY_CHECK_4_1.getCode(), "Тестировка №2"),
+            Map.entry(FAIL_QUALITY_CHECK_4_1.getCode(), "Ремонт №4"),
+            Map.entry(REPAIR4.getCode(), "ОТК №4.1"),
+            Map.entry(DIAGNOSTICIAN_REPAIR_1.getCode(), "Ремонт №3"),
+            Map.entry(DIAGNOSTICIAN_REPAIR_2.getCode(), "Ремонт №5"),
+            Map.entry(DIAGNOSTICIAN_TEST_1.getCode(), "Тестировка"),
+            Map.entry(DIAGNOSTICIAN_TEST_2.getCode(), "Тестировка №2"),
 
 
-            Map.entry(WASHING1, "ОТК №5"),
-            Map.entry(REPAIR3, "ОТК №3"),
+            Map.entry(TEST_2.getCode(), "Отмывка №1"),
+            Map.entry(FAIL_TEST_2.getCode(), "Ремонт №5"),
+            Map.entry(QUALITY_CHECK_4_2.getCode(), "Тестировка №2"),
+            Map.entry(FAIL_QUALITY_CHECK_4_2.getCode(), "Ремонт №5"),
+            Map.entry(REPAIR5.getCode(), "ОТК №4.2"),
+            Map.entry(QUALITY_CHECK_5_1.getCode(), "Отмывка №2"),
+            Map.entry(FAIL_QUALITY_CHECK_5_1.getCode(), "Ремонт №6"),
 
-            Map.entry(QUALITY_CHECK_5, "Нанесение компаунда"),
-            Map.entry(QUALITY_CHECK_5_1_1, "Нанесение компаунда"),
-            Map.entry(FAIL_QUALITY_CHECK_5, "Ремонт №6"),
-            Map.entry(FAIL_QUALITY_CHECK_5_1_1, "Отмывка №2"),
-            Map.entry(WASHING2, "ОТК №5"),
-            Map.entry(REPAIR6, "ОТК №5.1"),
-            Map.entry(VARNISH, "ОТК №6"),
-            Map.entry(QUALITY_CHECK_6, "Готовые платы"),
-            Map.entry(FAIL_QUALITY_CHECK_6, "Нанесение компаунда"),
-            Map.entry(TECHNICAL, "Тестировка №1"),
-            Map.entry(TECHNICAL2, "Отмывка №1"),
-            Map.entry(TECHNICAL3, "ОТК №1")
+
+            Map.entry(WASHING1.getCode(), "ОТК №5"),
+            Map.entry(REPAIR3.getCode(), "ОТК №3"),
+
+            Map.entry(QUALITY_CHECK_5.getCode(), "Нанесение компаунда"),
+            Map.entry(QUALITY_CHECK_5_1_1.getCode(), "Нанесение компаунда"),
+            Map.entry(FAIL_QUALITY_CHECK_5.getCode(), "Ремонт №6"),
+            Map.entry(FAIL_QUALITY_CHECK_5_1_1.getCode(), "Отмывка №2"),
+            Map.entry(WASHING2.getCode(), "ОТК №5"),
+            Map.entry(REPAIR6.getCode(), "ОТК №5.1"),
+            Map.entry(VARNISH.getCode(), "ОТК №6"),
+            Map.entry(QUALITY_CHECK_6.getCode(), "Готовые платы"),
+            Map.entry(FAIL_QUALITY_CHECK_6.getCode(), "Нанесение компаунда"),
+            Map.entry(TECHNICAL.getCode(), "Тестировка №1"),
+            Map.entry(TECHNICAL2.getCode(), "Отмывка №1"),
+            Map.entry(TECHNICAL3.getCode(), "ОТК №1")
 
     );
 
@@ -135,7 +135,7 @@ public class  OperationServiceImpl implements OperationService {
 
         operation.setDevice(device);
         operation.setAccount(account);
-        operation.setStatus(deviceStatusService.findByName(CREATE));
+        operation.setStatus(deviceStatusService.findByName(CREATE.getCode()));
 
         return operation;
     }
@@ -183,7 +183,7 @@ public class  OperationServiceImpl implements OperationService {
     public List<String> getAllStatusNames() {
         return deviceStatusRepository.findAll().stream()
                 .map(OperationStatus::getName)
-                .filter(name -> !READY.equals(name))
+                .filter(name -> !READY.getCode().equals(name))
                 .toList();
     }
 
@@ -230,7 +230,7 @@ public class  OperationServiceImpl implements OperationService {
     public Operation createNewOperation(Device device, Account account,
                                         String description) {
 
-        OperationStatus status = deviceStatusRepository.findByName(CREATE)
+        OperationStatus status = deviceStatusRepository.findByName(CREATE.getCode())
                 .orElseThrow(() -> new IllegalArgumentException("Подтип не найден"));
 
         Operation newOperation = new Operation();
@@ -260,7 +260,7 @@ public class  OperationServiceImpl implements OperationService {
         LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
 
         return operationRepository.countByCreatedTimeBetweenAndDevice_Type_NameAndStatus_NameAndIsDeletedFalse(
-                startOfDay, endOfDay, BOARD_TYPE_NAME, READY);
+                startOfDay, endOfDay, BOARD_TYPE_NAME, READY.getCode());
     }
 
     @Override

@@ -52,7 +52,7 @@ public class InstallationController {
     public String showInstallationDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_1, QUALITY_CHECK_1_1));
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_1.getCode(), QUALITY_CHECK_1_1.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -76,7 +76,7 @@ public class InstallationController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        operationService.completeOperationWithDescription(deviceId, account, INSTALLATION, device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, INSTALLATION.getCode(), device.getDescription());
 
 
         return ResponseEntity.ok().build();
@@ -87,7 +87,7 @@ public class InstallationController {
     public String showInstallationTwoDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(TEST));
+                .findOperationsByStatusNames(Set.of(TEST.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -116,7 +116,7 @@ public class InstallationController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        UUID operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2, device.getDescription());
+        UUID operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2.getCode(), device.getDescription());
 
 
 

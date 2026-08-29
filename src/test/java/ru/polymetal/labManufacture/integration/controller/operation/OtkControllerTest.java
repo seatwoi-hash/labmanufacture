@@ -71,7 +71,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(SIDE2)
+        OperationStatus operationStatus = operationStatusRepository.findByName(SIDE2.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -93,7 +93,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> QUALITY_CHECK_1.equals(o.getStatus().getName())),
+                        .anyMatch(o -> QUALITY_CHECK_1.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом QUALITY_CHECK_1"
         );
 
@@ -119,7 +119,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(INSTALLATION)
+        OperationStatus operationStatus = operationStatusRepository.findByName(INSTALLATION.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -141,7 +141,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> QUALITY_CHECK_2.equals(o.getStatus().getName())),
+                        .anyMatch(o -> QUALITY_CHECK_2.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом QUALITY_CHECK_2"
         );
 
@@ -167,7 +167,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(REPAIR3)
+        OperationStatus operationStatus = operationStatusRepository.findByName(REPAIR3.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -189,7 +189,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> QUALITY_CHECK_3.equals(o.getStatus().getName())),
+                        .anyMatch(o -> QUALITY_CHECK_3.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом QUALITY_CHECK_3"
         );
 
@@ -215,7 +215,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(INSTALLATION2)
+        OperationStatus operationStatus = operationStatusRepository.findByName(INSTALLATION2.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -237,7 +237,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> QUALITY_CHECK_4.equals(o.getStatus().getName())),
+                        .anyMatch(o -> QUALITY_CHECK_4.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом QUALITY_CHECK_4"
         );
 
@@ -263,7 +263,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(WASHING1)
+        OperationStatus operationStatus = operationStatusRepository.findByName(WASHING1.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -285,7 +285,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> QUALITY_CHECK_5.equals(o.getStatus().getName())),
+                        .anyMatch(o -> QUALITY_CHECK_5.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом QUALITY_CHECK_5"
         );
 
@@ -312,7 +312,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(VARNISH)
+        OperationStatus operationStatus = operationStatusRepository.findByName(VARNISH.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -334,7 +334,7 @@ public class OtkControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> QUALITY_CHECK_6.equals(o.getStatus().getName())),
+                        .anyMatch(o -> QUALITY_CHECK_6.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом QUALITY_CHECK_6"
         );
 

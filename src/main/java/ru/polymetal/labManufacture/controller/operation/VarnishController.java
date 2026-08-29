@@ -47,7 +47,7 @@ public class VarnishController {
     public String showVarnishDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_5, FAIL_QUALITY_CHECK_6, QUALITY_CHECK_5_1_1));
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_5.getCode(), FAIL_QUALITY_CHECK_6.getCode(), QUALITY_CHECK_5_1_1.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -73,7 +73,7 @@ public class VarnishController {
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
 
-        operationService.completeOperationWithoutDescription(deviceId, account, VARNISH);
+        operationService.completeOperationWithoutDescription(deviceId, account, VARNISH.getCode());
 
         return ResponseEntity.ok().build();
 

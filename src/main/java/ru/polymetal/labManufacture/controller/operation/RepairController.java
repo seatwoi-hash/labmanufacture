@@ -69,7 +69,7 @@ public class RepairController {
     public String showRepairOneDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(FAIL_QUALITY_CHECK_1, FAIL_QUALITY_CHECK_1_1));
+                .findOperationsByStatusNames(Set.of(FAIL_QUALITY_CHECK_1.getCode(), FAIL_QUALITY_CHECK_1_1.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -94,7 +94,7 @@ public class RepairController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        operationService.completeOperationWithDescription(deviceId, account, REPAIR1, device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, REPAIR1.getCode(), device.getDescription());
 
         return ResponseEntity.ok().build();
     }
@@ -104,7 +104,7 @@ public class RepairController {
     public String showRepairTwoDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(FAIL_QUALITY_CHECK_2, FAIL_QUALITY_CHECK_2_1));
+                .findOperationsByStatusNames(Set.of(FAIL_QUALITY_CHECK_2.getCode(), FAIL_QUALITY_CHECK_2_1.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -129,7 +129,7 @@ public class RepairController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        operationService.completeOperationWithDescription(deviceId, account, REPAIR2, device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, REPAIR2.getCode(), device.getDescription());
 
         return ResponseEntity.ok().build();
     }
@@ -139,7 +139,7 @@ public class RepairController {
     public String showRepairThreeDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(DIAGNOSTICIAN_REPAIR_1, FAIL_QUALITY_CHECK_3));
+                .findOperationsByStatusNames(Set.of(DIAGNOSTICIAN_REPAIR_1.getCode(), FAIL_QUALITY_CHECK_3.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -165,7 +165,7 @@ public class RepairController {
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
 
-        operationService.completeOperationWithDescription(deviceId, account, REPAIR3, device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, REPAIR3.getCode(), device.getDescription());
 
         return ResponseEntity.ok().build();
     }
@@ -175,7 +175,7 @@ public class RepairController {
     public String showRepairFourDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(FAIL_QUALITY_CHECK_4, FAIL_QUALITY_CHECK_4_1));
+                .findOperationsByStatusNames(Set.of(FAIL_QUALITY_CHECK_4.getCode(), FAIL_QUALITY_CHECK_4_1.getCode()));
 
 
         model.addAttribute("devices", devices);
@@ -200,7 +200,7 @@ public class RepairController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        operationService.completeOperationWithDescription(deviceId, account, REPAIR4, device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, REPAIR4.getCode(), device.getDescription());
 
         return ResponseEntity.ok().build();
     }
@@ -210,7 +210,7 @@ public class RepairController {
     public String showRepairFiveDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(DIAGNOSTICIAN_REPAIR_2, FAIL_QUALITY_CHECK_4_2));
+                .findOperationsByStatusNames(Set.of(DIAGNOSTICIAN_REPAIR_2.getCode(), FAIL_QUALITY_CHECK_4_2.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -235,7 +235,7 @@ public class RepairController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        operationService.completeOperationWithDescription(deviceId, account, REPAIR5, device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, REPAIR5.getCode(), device.getDescription());
 
         return ResponseEntity.ok().build();
     }
@@ -245,7 +245,7 @@ public class RepairController {
     public String showRepairSixDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(FAIL_QUALITY_CHECK_5, FAIL_QUALITY_CHECK_5_1));
+                .findOperationsByStatusNames(Set.of(FAIL_QUALITY_CHECK_5.getCode(), FAIL_QUALITY_CHECK_5_1.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -269,7 +269,7 @@ public class RepairController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        operationService.completeOperationWithDescription(deviceId, account, REPAIR6, device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, REPAIR6.getCode(), device.getDescription());
 
         return ResponseEntity.ok().build();
     }

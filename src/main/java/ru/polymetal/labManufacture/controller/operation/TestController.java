@@ -66,8 +66,8 @@ public class TestController {
     public String showTestDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_2, QUALITY_CHECK_2_1, QUALITY_CHECK_3,
-                        DIAGNOSTICIAN_TEST_1, TECHNICAL));
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_2.getCode(), QUALITY_CHECK_2_1.getCode(), QUALITY_CHECK_3.getCode(),
+                        DIAGNOSTICIAN_TEST_1.getCode(), TECHNICAL.getCode()));
 
         model.addAttribute("devices", devices);
         Account account =
@@ -96,10 +96,10 @@ public class TestController {
         Boolean isTestOne = deviceSubTypeService.findIsTestTwoById(operation);
 
         if ("passed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, TEST,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, TEST.getCode(),
                     device.getDescription());
         } else if ("failed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST.getCode(),
                     device.getDescription());
         }
 
@@ -108,7 +108,7 @@ public class TestController {
 
         if (!isTestOne && !"failed".equals(action)) {
             operationIdTech = operationService.completeOperationWithoutDescription(operationIdTech, account,
-                    TECHNICAL2);
+                    TECHNICAL2.getCode());
         }
 
         return ResponseEntity.ok().build();
@@ -119,8 +119,8 @@ public class TestController {
     public String showTestTwoDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_4, QUALITY_CHECK_4_1, DIAGNOSTICIAN_TEST_2,
-                        QUALITY_CHECK_4_2));
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_4.getCode(), QUALITY_CHECK_4_1.getCode(), DIAGNOSTICIAN_TEST_2.getCode(),
+                        QUALITY_CHECK_4_2.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -152,15 +152,15 @@ public class TestController {
 
 
         if ("passed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, TEST_2,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, TEST_2.getCode(),
                     device.getDescription());
         } else if ("failed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST_2,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_TEST_2.getCode(),
                     device.getDescription());
         }
 
         if (!isTestTwoById) {
-            operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL2);
+            operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL2.getCode());
         }
 
         Operation operationNew =

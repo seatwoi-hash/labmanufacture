@@ -60,7 +60,7 @@ public class VarnishControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(QUALITY_CHECK_5)
+        OperationStatus operationStatus = operationStatusRepository.findByName(QUALITY_CHECK_5.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -81,7 +81,7 @@ public class VarnishControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> VARNISH.equals(o.getStatus().getName())),
+                        .anyMatch(o -> VARNISH.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом VARNISH"
         );
 

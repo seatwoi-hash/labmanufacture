@@ -63,7 +63,7 @@ public class DiffController {
     public String showMOneDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(CREATE));
+                .findOperationsByStatusNames(Set.of(CREATE.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -90,10 +90,10 @@ public class DiffController {
         Boolean isInstallation = deviceSubTypeService.findIsSideTwoById(operation);
         UUID operationIdTech = null;
 
-        operationIdTech = operationService.completeOperationWithoutDescription(deviceId, account, SIDE1);
+        operationIdTech = operationService.completeOperationWithoutDescription(deviceId, account, SIDE1.getCode());
 
         if (!isInstallation ) {
-            operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL3);
+            operationIdTech =  operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL3.getCode());
         }
 
         return ResponseEntity.ok().build();
@@ -103,7 +103,7 @@ public class DiffController {
     public String showMTwoDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(SIDE1));
+                .findOperationsByStatusNames(Set.of(SIDE1.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -125,7 +125,7 @@ public class DiffController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        operationService.completeOperationWithoutDescription(deviceId, account, SIDE2);
+        operationService.completeOperationWithoutDescription(deviceId, account, SIDE2.getCode());
 
         return ResponseEntity.ok().build();
     }
@@ -134,7 +134,7 @@ public class DiffController {
     public String showReadyBoard(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(READY));
+                .findOperationsByStatusNames(Set.of(READY.getCode()));
 
 
         List<Operation> sortDevices =
@@ -158,7 +158,7 @@ public class DiffController {
         List<Device> devices = deviceService.findAll().stream()
                 .filter(a -> !a.getIsDeleted())
                 .filter(a -> a.getOperations().stream()
-                        .noneMatch(op -> op.getStatus().getName().equals(READY)))
+                        .noneMatch(op -> op.getStatus().getName().equals(READY.getCode())))
                 .toList();
 
 
@@ -178,8 +178,8 @@ public class DiffController {
     public String showOperationBoard(Model model, Authentication authentication, @PathVariable String sn) {
 
         List<Operation> operations =
-                operationService.findBySerialNumber(sn).stream().filter(a -> !(a.getStatus().getName().equals(TECHNICAL)
-                        || a.getStatus().getName().equals(TECHNICAL2) || a.getStatus().getName().equals(TECHNICAL3)))
+                operationService.findBySerialNumber(sn).stream().filter(a -> !(a.getStatus().getName().equals(TECHNICAL.getCode())
+                        || a.getStatus().getName().equals(TECHNICAL2.getCode()) || a.getStatus().getName().equals(TECHNICAL3.getCode())))
                         .sorted(Comparator.comparing(a -> a.getCreatedTime())).collect(Collectors.toList());
 
         model.addAttribute("operations", operations);
@@ -202,7 +202,7 @@ public class DiffController {
             Model model,
             Authentication authentication) {
 
-        UUID readyStatusId = deviceStatusService.findByName(READY).getId();
+        UUID readyStatusId = deviceStatusService.findByName(READY.getCode()).getId();
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdTime").descending());
 
         Page<Operation> devicePage;
