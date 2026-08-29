@@ -45,7 +45,7 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     @Transactional(readOnly = true)
     public DeviceSubType findByName(String name) {
         log.debug("Поиск типа устройства по названию: {}", name);
-        return deviceSubTypeRepository.findByName(name)
+        return deviceSubTypeRepository.findByNameAndIsDeletedFalse(name)
                 .orElseThrow(() -> new RuntimeException("Тип устройства '" + name + "' не найден"));
     }
 
@@ -57,21 +57,21 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
     @Override
     public List<DeviceSubType> findAll() {
 
-        return deviceSubTypeRepository.findAll().stream().filter(a -> !a.getIsDeleted()).toList();
+        return deviceSubTypeRepository.findAllByIsDeletedFalse();
     }
 
     @Override
     @Transactional
     public void save(DeviceSubTypeDto deviceSubTypeDto, MultipartFile file, MultipartFile zip) throws IOException {
 
-        if (deviceSubTypeRepository.findByName(deviceSubTypeDto.name()).isPresent()) {
+        if (deviceSubTypeRepository.findByNameAndIsDeletedFalse(deviceSubTypeDto.name().trim()).isPresent()) {
             throw new RuntimeException("Такой тип уже существует");
         }
 
         DeviceSubType deviceSubType = new DeviceSubType();
 
 
-        deviceSubType.setName(deviceSubTypeDto.name());
+        deviceSubType.setName(deviceSubTypeDto.name().trim());
         deviceSubType.setSnType(deviceSubTypeDto.snType());
         deviceSubType.setVersionType(deviceSubTypeDto.versionType());
         deviceSubType.setDescription(deviceSubTypeDto.description());
@@ -79,13 +79,13 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         deviceSubType.setIsTestTwo(deviceSubTypeDto.isTestTwo());
         deviceSubType.setIsSideTwo(deviceSubTypeDto.isSideTwo());
 
-        if (zip != null) {
+        if (zip != null && !zip.isEmpty()) {
             deviceSubType.setData(zip.getBytes());
         }
 
         DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);
 
-        if (file != null) {
+        if (file != null && !file.isEmpty()) {
             String newName = UUID.randomUUID() + ".pdf";
             this.uploadFile(newName, file.getBytes(), saved.getId());
             deviceSubType.setFileName(newName);
@@ -99,20 +99,24 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
         DeviceSubType deviceSubType = deviceSubTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Тип платы не найден"));
 
-        deviceSubTypeRepository.delete(deviceSubType);
+        deviceSubType.setIsDeleted(true);
     }
 
     @Override
     @Transactional
-    public void edite(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file, MultipartFile zip) throws IOException {
+    public void edit(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file, MultipartFile zip) throws IOException {
         DeviceSubType deviceSubType = deviceSubTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Тип не найден"));
 
+        String normalizedName = deviceSubTypeDto.name().trim();
+        if (deviceSubTypeRepository.existsByNameAndIdNot(normalizedName, id)) {
+            throw new RuntimeException("Такой тип уже существует");
+        }
 
         deviceSubType.setIsTestTwo(deviceSubTypeDto.isTestTwo());
         deviceSubType.setIsInstallationOne(deviceSubTypeDto.isInstallationOne());
         deviceSubType.setIsSideTwo(deviceSubTypeDto.isSideTwo());
-        deviceSubType.setName(deviceSubTypeDto.name());
+        deviceSubType.setName(normalizedName);
         deviceSubType.setVersionType(deviceSubTypeDto.versionType());
         deviceSubType.setSnType(deviceSubTypeDto.snType());
         deviceSubType.setDescription(deviceSubTypeDto.description());

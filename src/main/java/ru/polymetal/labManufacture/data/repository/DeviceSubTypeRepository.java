@@ -15,9 +15,13 @@ public interface DeviceSubTypeRepository extends JpaRepository<DeviceSubType, UU
 
     Optional<DeviceSubType> findByName(String name);
 
-    List<DeviceSubType> findByNameContainingIgnoreCase(String name);
+    Optional<DeviceSubType> findByNameAndIsDeletedFalse(String name);
 
-    List<DeviceSubType> findAll();
+    List<DeviceSubType> findAllByIsDeletedFalse();
+
+    boolean existsByNameAndIdNot(String name, UUID id);
+
+    List<DeviceSubType> findByNameContainingIgnoreCase(String name);
 
     List<DeviceSubType> findAllByName(String name);
 
@@ -32,4 +36,3 @@ public interface DeviceSubTypeRepository extends JpaRepository<DeviceSubType, UU
     @Query("SELECT d.isSideTwo FROM DeviceSubType d WHERE d.id = :id AND d.isDeleted = false")
     Boolean findIsSideTwoByIdAndNotDeleted(@Param("id") UUID id);
 }
-
