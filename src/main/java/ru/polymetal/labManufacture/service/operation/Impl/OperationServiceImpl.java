@@ -15,7 +15,8 @@ import ru.polymetal.labManufacture.dto.DeviceDto;
 import ru.polymetal.labManufacture.service.*;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.Clock;
 import java.util.*;
 
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.*;
@@ -35,9 +36,9 @@ public class  OperationServiceImpl implements OperationService {
 
     private final OperationRepository operationRepository;
     private final DeviceStatusService deviceStatusService;
-    private final DeviceTypeService deviceTypeService;
     private final OperationStatusRepository deviceStatusRepository;
     private final RoleOperationStatusAccessRepository roleOperationStatusAccessRepository;
+
 
     private static final Map<String, String> NEXT_STATUS_MAPPING = Map.ofEntries(
             Map.entry(CREATE.getCode(), "Монтаж \"Сторона 1\""),
@@ -99,33 +100,9 @@ public class  OperationServiceImpl implements OperationService {
     );
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Operation> findById(UUID operationId) {
         return operationRepository.findById(operationId);
-    }
-
-    @Override
-    public void validateDeviceDto(DeviceDto deviceDto) {
-        if (deviceDto.getSerialNumber() == null || deviceDto.getSerialNumber().isBlank()) {
-            throw new IllegalArgumentException("Серийный номер не может быть пустым");
-        }
-    }
-
-    @Override
-    @Transactional
-    public Operation buildDevice(DeviceDto deviceDto, Account account, DeviceSubType subtype) {
-
-        Operation operation = new Operation();
-        Device device = new Device();
-
-        device.setSubtype(subtype);
-        device.setType(deviceTypeService.findByName(BOARD_TYPE_NAME));
-        device.setSerialNumber(deviceDto.getSerialNumber());
-
-        operation.setDevice(device);
-        operation.setAccount(account);
-        operation.setStatus(deviceStatusService.findByName(CREATE.getCode()));
-
-        return operation;
     }
 
     @Override
@@ -177,10 +154,8 @@ public class  OperationServiceImpl implements OperationService {
         return performOperation(deviceId, account, targetStatus, "");
     }
 
-    @Override
-    @Transactional
-    public UUID performOperation(UUID operationId, Account account,
-                                 String targetStatus, String description) {
+    private UUID performOperation(UUID operationId, Account account,
+                                  String targetStatus, String description) {
 
         Operation operation = operationRepository.findByIdWithLock(operationId)
                 .orElseThrow(() -> new IllegalArgumentException("Операция по этому устройству не найдена"));
@@ -188,9 +163,8 @@ public class  OperationServiceImpl implements OperationService {
         OperationStatus newStatus = deviceStatusService.findByName(targetStatus);
         Operation newOperation = createNewDeviceVersion(operation, account, newStatus, description);
         markDeviceAsDeleted(operation);
-        operationRepository.save(newOperation);
-
-        return operationRepository.save(newOperation).getId();
+        Operation savedOperation = operationRepository.save(newOperation);
+        return savedOperation.getId();
     }
 
     @Override
@@ -199,12 +173,12 @@ public class  OperationServiceImpl implements OperationService {
                                         String description) {
 
         OperationStatus status = deviceStatusRepository.findByName(CREATE.getCode())
-                .orElseThrow(() -> new IllegalArgumentException("Подтип не найден"));
+                .orElseThrow(() -> new IllegalArgumentException("Статус операции 'created' не найден"));
 
         Operation newOperation = new Operation();
         newOperation.setDevice(device);
         newOperation.setDescription(description);
-        newOperation.setCreatedTime(LocalDateTime.now());
+        newOperation.setCreatedTime(LocalDateTime.now(clock));
         newOperation.setAccount(account);
         newOperation.setStatus(status);
 
@@ -213,19 +187,17 @@ public class  OperationServiceImpl implements OperationService {
         return newOperation;
     }
 
-    @Override
-    @Transactional
-    public void markDeviceAsDeleted(Operation operation) {
-        operation.setDeletedAt(LocalDateTime.now());
+    private void markDeviceAsDeleted(Operation operation) {
+        operation.setDeletedAt(LocalDateTime.now(clock));
         operation.setIsDeleted(true);
-        operationRepository.save(operation);
     }
 
     @Override
     @Transactional(readOnly = true)
     public int getBoardsProducedToday() {
-        LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
+        LocalDate today = LocalDate.now(clock);
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
 
         return operationRepository.countByCreatedTimeBetweenAndDevice_Type_NameAndStatus_NameAndIsDeletedFalse(
                 startOfDay, endOfDay, BOARD_TYPE_NAME, READY.getCode());
@@ -239,7 +211,7 @@ public class  OperationServiceImpl implements OperationService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Operation> findByStatusIdAndIsDelete(UUID statusId) {
 
         return operationRepository.findByStatusIdAndDeletedWithFetch(statusId);
@@ -254,12 +226,14 @@ public class  OperationServiceImpl implements OperationService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Operation> findByStatusId(UUID statusId, Pageable pageable) {
 
         return operationRepository.findByStatusIdAndIsDeleted(statusId, false, pageable);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Operation> findByStatusIdAndSerialNumberContainingIgnoreCase(UUID statusId, String search,
                                                                              Pageable pageable) {
         return operationRepository.findByStatusIdAndSerialNumberContainingIgnoreCase(
@@ -273,16 +247,14 @@ public class  OperationServiceImpl implements OperationService {
         return operationRepository.findByDevice_SerialNumber(sn);
     }
 
-    @Override
-    @Transactional
-    public Operation createNewDeviceVersion(Operation source, Account account,
-                                            OperationStatus newStatus, String description) {
+    private Operation createNewDeviceVersion(Operation source, Account account,
+                                             OperationStatus newStatus, String description) {
 
         Operation newOperation = new Operation();
         Device device = source.getDevice();
         newOperation.setDevice(device);
         newOperation.setDescription(description);
-        newOperation.setCreatedTime(source.getCreatedTime());
+        newOperation.setCreatedTime(LocalDateTime.now(clock));
         newOperation.setAccount(account);
         newOperation.setStatus(newStatus);
 
