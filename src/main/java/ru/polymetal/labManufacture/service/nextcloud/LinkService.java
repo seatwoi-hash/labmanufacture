@@ -2,7 +2,6 @@ package ru.polymetal.labManufacture.service.nextcloud;
 
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
-import ru.polymetal.labManufacture.service.nextcloud.Impl.LinkServiceImpl;
 import java.io.IOException;
 
 
