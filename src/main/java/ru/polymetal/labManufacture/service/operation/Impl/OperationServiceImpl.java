@@ -38,6 +38,7 @@ public class  OperationServiceImpl implements OperationService {
     private final DeviceStatusService deviceStatusService;
     private final OperationStatusRepository deviceStatusRepository;
     private final RoleOperationStatusAccessRepository roleOperationStatusAccessRepository;
+    private final Clock clock;
 
 
     private static final Map<String, String> NEXT_STATUS_MAPPING = Map.ofEntries(

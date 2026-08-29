@@ -6,9 +6,6 @@ import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.models.OperationStatus;
-import ru.polymetal.labManufacture.data.models.DeviceSubType;
-import ru.polymetal.labManufacture.dto.DeviceDto;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
