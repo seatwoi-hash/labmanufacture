@@ -58,8 +58,8 @@ public class HomeController {
                 .collect(Collectors.groupingBy(operation -> operation.getDevice().getSerialNumber()))
                 .entrySet().stream()
                 .filter(entry -> entry.getValue().stream()
-                        .noneMatch(device -> device.getStatus().getName().equals(QUALITY_CHECK_6)
-                                || device.getStatus().getName().equals(READY)))
+                        .noneMatch(device -> device.getStatus().getName().equals(QUALITY_CHECK_6.getCode())
+                                || device.getStatus().getName().equals(READY.getCode())))
                 .flatMap(entry -> entry.getValue().stream())
                 .sorted(Comparator.comparing(Operation::getCreatedTime).reversed())
                 .toList();

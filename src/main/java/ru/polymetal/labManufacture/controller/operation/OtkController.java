@@ -92,7 +92,7 @@ public class OtkController {
     public String showOtkOneDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(SIDE2, REPAIR1, TECHNICAL3));
+                .findOperationsByStatusNames(Set.of(SIDE2.getCode(), REPAIR1.getCode(), TECHNICAL3.getCode()));
 
         model.addAttribute("devices", devices);
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
@@ -124,29 +124,29 @@ public class OtkController {
         UUID operationIdTech = null;
 
         if ("passed".equals(action)) {
-            if (operation.getStatus().getName().equals(SIDE2) || operation.getStatus().getName().equals(TECHNICAL3)) {
-                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_1,
+            if (operation.getStatus().getName().equals(SIDE2.getCode()) || operation.getStatus().getName().equals(TECHNICAL3.getCode())) {
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_1.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR1)) {
+            } else if (operation.getStatus().getName().equals(REPAIR1.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        QUALITY_CHECK_1_1,
+                        QUALITY_CHECK_1_1.getCode(),
                         device.getDescription());
             }
         } else if ("failed".equals(action)) {
-            if (operation.getStatus().getName().equals(SIDE2) || operation.getStatus().getName().equals(TECHNICAL3)) {
+            if (operation.getStatus().getName().equals(SIDE2.getCode()) || operation.getStatus().getName().equals(TECHNICAL3.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_1,
+                        FAIL_QUALITY_CHECK_1.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR1)) {
+            } else if (operation.getStatus().getName().equals(REPAIR1.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_1_1,
+                        FAIL_QUALITY_CHECK_1_1.getCode(),
                         device.getDescription());
             }
         }
 
 
         if (!isInstallation && !"failed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL);
+            operationIdTech = operationService.completeOperationWithoutDescription(operationIdTech, account, TECHNICAL.getCode());
         }
 
         return ResponseEntity.ok().build();
@@ -156,7 +156,7 @@ public class OtkController {
     public String showOtkTwoDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(INSTALLATION, REPAIR2));
+                .findOperationsByStatusNames(Set.of(INSTALLATION.getCode(), REPAIR2.getCode()));
 
         model.addAttribute("devices", devices);
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
@@ -187,22 +187,22 @@ public class OtkController {
         Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
 
         if ("passed".equals(action)) {
-            if (operation.getStatus().getName().equals(INSTALLATION)) {
-                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_2,
+            if (operation.getStatus().getName().equals(INSTALLATION.getCode())) {
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_2.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR2)) {
+            } else if (operation.getStatus().getName().equals(REPAIR2.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        QUALITY_CHECK_2_1,
+                        QUALITY_CHECK_2_1.getCode(),
                         device.getDescription());
             }
         } else if ("failed".equals(action)) {
-            if (operation.getStatus().getName().equals(INSTALLATION)) {
+            if (operation.getStatus().getName().equals(INSTALLATION.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_2,
+                        FAIL_QUALITY_CHECK_2.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR2)) {
+            } else if (operation.getStatus().getName().equals(REPAIR2.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_2_1,
+                        FAIL_QUALITY_CHECK_2_1.getCode(),
                         device.getDescription());
             }
         }
@@ -219,7 +219,7 @@ public class OtkController {
     public String showOtkThreeDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(REPAIR3));
+                .findOperationsByStatusNames(Set.of(REPAIR3.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -247,10 +247,10 @@ public class OtkController {
 
 
         if ("passed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_3,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_3.getCode(),
                     device.getDescription());
         } else if ("failed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_3,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_3.getCode(),
                     device.getDescription());
         }
 
@@ -266,7 +266,7 @@ public class OtkController {
     public String showOtkFourDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices =
-                operationQueryService.findOperationsByStatusNames(Set.of(INSTALLATION2, REPAIR4, REPAIR5));
+                operationQueryService.findOperationsByStatusNames(Set.of(INSTALLATION2.getCode(), REPAIR4.getCode(), REPAIR5.getCode()));
 
         model.addAttribute("devices", devices);
         model.addAttribute("nextStatus", operationService.getNEXT_STATUS_MAPPING());
@@ -296,30 +296,30 @@ public class OtkController {
         Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
 
         if ("passed".equals(action)) {
-            if (operation.getStatus().getName().equals(INSTALLATION2)) {
-                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_4,
+            if (operation.getStatus().getName().equals(INSTALLATION2.getCode())) {
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_4.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR4)) {
+            } else if (operation.getStatus().getName().equals(REPAIR4.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        QUALITY_CHECK_4_1,
+                        QUALITY_CHECK_4_1.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR5)) {
+            } else if (operation.getStatus().getName().equals(REPAIR5.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        QUALITY_CHECK_4_2,
+                        QUALITY_CHECK_4_2.getCode(),
                         device.getDescription());
             }
         } else if ("failed".equals(action)) {
-            if (operation.getStatus().getName().equals(INSTALLATION2)) {
+            if (operation.getStatus().getName().equals(INSTALLATION2.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_4,
+                        FAIL_QUALITY_CHECK_4.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR4)) {
+            } else if (operation.getStatus().getName().equals(REPAIR4.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_4_1,
+                        FAIL_QUALITY_CHECK_4_1.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR5)) {
+            } else if (operation.getStatus().getName().equals(REPAIR5.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_4_2,
+                        FAIL_QUALITY_CHECK_4_2.getCode(),
                         device.getDescription());
             }
         }
@@ -334,7 +334,7 @@ public class OtkController {
     public String showOtkFiveDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(WASHING1, REPAIR6, WASHING2));
+                .findOperationsByStatusNames(Set.of(WASHING1.getCode(), REPAIR6.getCode(), WASHING2.getCode()));
 
 
         model.addAttribute("devices", devices);
@@ -367,36 +367,36 @@ public class OtkController {
 
 
         if ("passed".equals(action)) {
-            if (operation.getStatus().getName().equals(WASHING1)) {
-                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_5,
+            if (operation.getStatus().getName().equals(WASHING1.getCode())) {
+                operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_5.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR6)) {
+            } else if (operation.getStatus().getName().equals(REPAIR6.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        QUALITY_CHECK_5_1,
+                        QUALITY_CHECK_5_1.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(WASHING2)) {
+            } else if (operation.getStatus().getName().equals(WASHING2.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        QUALITY_CHECK_5_1_1,
+                        QUALITY_CHECK_5_1_1.getCode(),
                         device.getDescription());
             }
         } else if ("failed_wash".equals(action)) {
 
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                    FAIL_QUALITY_CHECK_5_1_1,
+                    FAIL_QUALITY_CHECK_5_1_1.getCode(),
                     device.getDescription());
 
         } else if ("failed_repair".equals(action)) {
-            if (operation.getStatus().getName().equals(WASHING1)) {
+            if (operation.getStatus().getName().equals(WASHING1.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_5,
+                        FAIL_QUALITY_CHECK_5.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(WASHING2)) {
+            } else if (operation.getStatus().getName().equals(WASHING2.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_5_1,
+                        FAIL_QUALITY_CHECK_5_1.getCode(),
                         device.getDescription());
-            } else if (operation.getStatus().getName().equals(REPAIR6)) {
+            } else if (operation.getStatus().getName().equals(REPAIR6.getCode())) {
                 operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                        FAIL_QUALITY_CHECK_5_1,
+                        FAIL_QUALITY_CHECK_5_1.getCode(),
                         device.getDescription());
             }
         }
@@ -411,7 +411,7 @@ public class OtkController {
     public String showOtkSixDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(VARNISH));
+                .findOperationsByStatusNames(Set.of(VARNISH.getCode()));
         model.addAttribute("devices", devices);
 
         Account account =
@@ -438,12 +438,12 @@ public class OtkController {
 
 
         if ("passed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_6,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_6.getCode(),
                     device.getDescription());
 
-            operationService.completeOperationWithDescription(operationIdTech, account, READY, device.getDescription());
+            operationService.completeOperationWithDescription(operationIdTech, account, READY.getCode(), device.getDescription());
         } else if ("failed".equals(action)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_6,
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, FAIL_QUALITY_CHECK_6.getCode(),
                     device.getDescription());
         }
 

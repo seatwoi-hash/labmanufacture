@@ -57,7 +57,7 @@ public class DiagnosticianControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(FAIL_TEST)
+        OperationStatus operationStatus = operationStatusRepository.findByName(FAIL_TEST.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -78,7 +78,7 @@ public class DiagnosticianControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> DIAGNOSTICIAN_REPAIR_1.equals(o.getStatus().getName())),
+                        .anyMatch(o -> DIAGNOSTICIAN_REPAIR_1.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом DIAGNOSTICIAN_REPAIR_1"
         );
 
@@ -95,7 +95,7 @@ public class DiagnosticianControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(FAIL_TEST_2)
+        OperationStatus operationStatus = operationStatusRepository.findByName(FAIL_TEST_2.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -117,7 +117,7 @@ public class DiagnosticianControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> DIAGNOSTICIAN_REPAIR_2.equals(o.getStatus().getName())),
+                        .anyMatch(o -> DIAGNOSTICIAN_REPAIR_2.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом DIAGNOSTICIAN_REPAIR_2"
         );
 

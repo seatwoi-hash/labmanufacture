@@ -44,7 +44,7 @@ public class DiffControllerTest extends BaseIntegrationTest {
     @Transactional
     public void completeMOne() throws Exception {
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(CREATE)
+        OperationStatus operationStatus = operationStatusRepository.findByName(CREATE.getCode())
                 .orElseThrow(() -> new RuntimeException("Статус не найден"));
 
         Operation operation = operationRepository.findByStatusIdAndDeletedWithFetch(operationStatus.getId()).get(0);
@@ -61,7 +61,7 @@ public class DiffControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> SIDE1.equals(o.getStatus().getName())),
+                        .anyMatch(o -> SIDE1.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом SIDE1"
         );
     }
@@ -79,7 +79,7 @@ public class DiffControllerTest extends BaseIntegrationTest {
     @Transactional
     void completeMTwo() throws Exception {
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(CREATE)
+        OperationStatus operationStatus = operationStatusRepository.findByName(CREATE.getCode())
                 .orElseThrow(() -> new RuntimeException("Статус не найден"));
 
         Operation operation = operationRepository.findByStatusIdAndDeletedWithFetch(operationStatus.getId()).get(0);
@@ -96,7 +96,7 @@ public class DiffControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> SIDE2.equals(o.getStatus().getName())),
+                        .anyMatch(o -> SIDE2.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом SIDE2"
         );
     }

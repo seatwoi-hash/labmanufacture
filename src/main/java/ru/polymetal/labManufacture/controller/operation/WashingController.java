@@ -51,7 +51,7 @@ public class WashingController {
     public String showWashingOneDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(TEST_2, TECHNICAL2));
+                .findOperationsByStatusNames(Set.of(TEST_2.getCode(), TECHNICAL2.getCode()));
         model.addAttribute("devices", devices);
 
         Account account =
@@ -76,7 +76,7 @@ public class WashingController {
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
 
-        operationService.completeOperationWithDescription(deviceId, account, WASHING1 ,device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, WASHING1.getCode() ,device.getDescription());
 
         return ResponseEntity.ok().build();
     }
@@ -85,7 +85,7 @@ public class WashingController {
     public String showWashingTwoDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_5_1, FAIL_QUALITY_CHECK_5_1_1));
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_5_1.getCode(), FAIL_QUALITY_CHECK_5_1_1.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -114,7 +114,7 @@ public class WashingController {
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
 
-        operationService.completeOperationWithDescription(deviceId, account, WASHING2, device.getDescription());
+        operationService.completeOperationWithDescription(deviceId, account, WASHING2.getCode(), device.getDescription());
 
         return ResponseEntity.ok().build();
     }

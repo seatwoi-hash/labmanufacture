@@ -62,7 +62,7 @@ public class WashingControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(TEST_2)
+        OperationStatus operationStatus = operationStatusRepository.findByName(TEST_2.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -83,7 +83,7 @@ public class WashingControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> WASHING1.equals(o.getStatus().getName())),
+                        .anyMatch(o -> WASHING1.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом WASHING1"
         );
 
@@ -109,7 +109,7 @@ public class WashingControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(QUALITY_CHECK_5_1)
+        OperationStatus operationStatus = operationStatusRepository.findByName(QUALITY_CHECK_5_1.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -130,7 +130,7 @@ public class WashingControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> WASHING2.equals(o.getStatus().getName())),
+                        .anyMatch(o -> WASHING2.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом WASHING2"
         );
 

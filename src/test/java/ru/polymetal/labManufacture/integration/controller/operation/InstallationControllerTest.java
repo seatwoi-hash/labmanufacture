@@ -72,7 +72,7 @@ public class InstallationControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(QUALITY_CHECK_1)
+        OperationStatus operationStatus = operationStatusRepository.findByName(QUALITY_CHECK_1.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -93,7 +93,7 @@ public class InstallationControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> INSTALLATION.equals(o.getStatus().getName())),
+                        .anyMatch(o -> INSTALLATION.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом INSTALLATION"
         );
 
@@ -119,7 +119,7 @@ public class InstallationControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(TEST)
+        OperationStatus operationStatus = operationStatusRepository.findByName(TEST.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -140,7 +140,7 @@ public class InstallationControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> INSTALLATION2.equals(o.getStatus().getName())),
+                        .anyMatch(o -> INSTALLATION2.getCode().equals(o.getStatus().getName())),
                 "Не найдена операция со статусом INSTALLATION2"
         );
 

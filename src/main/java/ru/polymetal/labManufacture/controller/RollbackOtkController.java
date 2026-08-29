@@ -93,46 +93,46 @@ public class RollbackOtkController {
         Boolean isSideTwo = deviceSubTypeService.findIsTestTwoById(operation);
 
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_1) && isSideTwo) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_1.getCode()) && isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2.getCode(),
                     "Возвращён  - " + device.getDescription());
-        } else if (operation.getStatus().getName().equals(QUALITY_CHECK_1) && !isSideTwo) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1,
-                    "Возвращён  - " + device.getDescription());
-        }
-
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_1_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR1,
+        } else if (operation.getStatus().getName().equals(QUALITY_CHECK_1.getCode()) && !isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1) && isSideTwo) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2,
-                    "Возвращён  - " + device.getDescription());
-        } else if (operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1) && !isSideTwo) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_1_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR1,
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1.getCode()) && isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2.getCode(),
+                    "Возвращён  - " + device.getDescription());
+        } else if (operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1.getCode()) && !isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(TECHNICAL)  && isSideTwo) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2,
-                    "Возвращён  - " + device.getDescription());
-        } else if (operation.getStatus().getName().equals(TECHNICAL) && !isSideTwo) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_1_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(TECHNICAL2)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2,
+        if(operation.getStatus().getName().equals(TECHNICAL.getCode())  && isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2.getCode(),
                     "Возвращён  - " + device.getDescription());
-        } else if (operation.getStatus().getName().equals(TECHNICAL2) && !isSideTwo) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1,
+        } else if (operation.getStatus().getName().equals(TECHNICAL.getCode()) && !isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1.getCode(),
+                    "Возвращён  - " + device.getDescription());
+        }
+
+        if(operation.getStatus().getName().equals(TECHNICAL2.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE2.getCode(),
+                    "Возвращён  - " + device.getDescription());
+        } else if (operation.getStatus().getName().equals(TECHNICAL2.getCode()) && !isSideTwo) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, SIDE1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
@@ -163,26 +163,26 @@ public class RollbackOtkController {
                 " найдена"));
 
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_2)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_2.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
 
-        if(operation.getStatus().getName().equals(REPAIR2)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_2_1,
+        if(operation.getStatus().getName().equals(REPAIR2.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, QUALITY_CHECK_2_1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_2)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_2.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_2_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR2,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_2_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR2.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
@@ -216,14 +216,14 @@ public class RollbackOtkController {
                 " найдена"));
 
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_3)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR3,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_3.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR3.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_3)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR3,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_3.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR3.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
@@ -251,34 +251,34 @@ public class RollbackOtkController {
                 " найдена"));
 
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_4)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_4.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_4_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR4,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_4_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR4.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_4_2)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR5,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_4_2.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR5.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR4,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR4.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4_2)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR5,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_4_2.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR5.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
@@ -311,37 +311,37 @@ public class RollbackOtkController {
 
 
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_5)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_5.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_5_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR6,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_5_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR6.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
 
-        if(operation.getStatus().getName().equals(QUALITY_CHECK_5_1_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING2,
+        if(operation.getStatus().getName().equals(QUALITY_CHECK_5_1_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING2.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1,
-                    "Возвращён  - " + device.getDescription());
-        }
-
-
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5_1_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING2,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5_1)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR6,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5_1_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING2.getCode(),
+                    "Возвращён  - " + device.getDescription());
+        }
+
+
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_5_1.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, REPAIR6.getCode(),
                     "Возвращён  - " + "Возвращён  - " + device.getDescription());
         }
 
@@ -370,13 +370,13 @@ public class RollbackOtkController {
                 " найдена"));
 
 
-        if(operation.getStatus().getName().equals(READY)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1,
+        if(operation.getStatus().getName().equals(READY.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 
-        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_6)) {
-            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1,
+        if(operation.getStatus().getName().equals(FAIL_QUALITY_CHECK_6.getCode())) {
+            operationIdTech = operationService.completeOperationWithDescription(deviceId, account, WASHING1.getCode(),
                     "Возвращён  - " + device.getDescription());
         }
 

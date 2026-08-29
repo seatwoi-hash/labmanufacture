@@ -60,7 +60,7 @@ public class DiagnosticianController {
     public String showDiagnosticianOne(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(FAIL_TEST));
+                .findOperationsByStatusNames(Set.of(FAIL_TEST.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -78,7 +78,7 @@ public class DiagnosticianController {
     public String showDiagnosticianTwo(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(FAIL_TEST_2));
+                .findOperationsByStatusNames(Set.of(FAIL_TEST_2.getCode()));
 
         model.addAttribute("devices", devices);
 
@@ -108,13 +108,13 @@ public class DiagnosticianController {
 
         if ("repair".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                    DIAGNOSTICIAN_REPAIR_1,
+                    DIAGNOSTICIAN_REPAIR_1.getCode(),
                     oldOperation.getDescription());
         }
 
         if ("test".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                    DIAGNOSTICIAN_TEST_1,
+                    DIAGNOSTICIAN_TEST_1.getCode(),
                     oldOperation.getDescription());
         }
 
@@ -143,13 +143,13 @@ public class DiagnosticianController {
 
         if ("repair".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                    DIAGNOSTICIAN_REPAIR_2,
+                    DIAGNOSTICIAN_REPAIR_2.getCode(),
                     oldOperation.getDescription());
         }
 
         if ("test".equals(action)) {
             operationIdTech = operationService.completeOperationWithDescription(deviceId, account,
-                    DIAGNOSTICIAN_TEST_2,
+                    DIAGNOSTICIAN_TEST_2.getCode(),
                     oldOperation.getDescription());
         }
 
