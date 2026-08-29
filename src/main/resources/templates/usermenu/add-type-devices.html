@@ -265,9 +265,14 @@
                     <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Добавить новый тип платы</h5>
                 </div>
                 <div class="form-body" style="padding: 1.5rem 2rem; background: white;">
-                    <form id="addTypeForm" method="POST" th:action="@{/devicetype/add}" class="row g-3 align-items-end"
+                    <form id="addTypeForm" method="POST" th:action="@{/devicetype/add}" th:object="${subtype}" class="row g-3 align-items-end"
                           enctype="multipart/form-data">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+                        <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+                            <div th:each="fieldError : ${#fields.allErrors()}" th:text="${fieldError}"></div>
+                        </div>
 
                         <div class="col-md-6">
                             <label for="typeName" class="form-label" style="font-weight: 600; color: #495057;">
@@ -276,7 +281,7 @@
                             <input type="text"
                                    class="form-control"
                                    id="typeName"
-                                   name="name"
+                                   th:field="*{name}"
                                    placeholder="Введите тип платы"
                                    style="border: 1px solid #dee2e6; border-radius: 6px;"
                                    required>
@@ -290,7 +295,7 @@
                             </label>
                             <textarea class="form-control"
                                       id="typeDescription"
-                                      name="description"
+                                      th:field="*{description}"
                                       placeholder="Введите описание типа платы"
                                       style="border: 1px solid #dee2e6; border-radius: 6px; min-height: 100px; resize: vertical;"
                                       required></textarea>
@@ -309,7 +314,7 @@
                                 <div class="option-item">
                                     <input type="checkbox"
                                            id="isInstallationOne"
-                                           name="isInstallationOne"
+                                           th:field="*{isInstallationOne}"
                                            value="true"
                                            class="option-checkbox"
                                            th:checked="${subtype?.isInstallationOne == null ? true : subtype.isInstallationOne}">
@@ -322,7 +327,7 @@
                                 <div class="option-item">
                                     <input type="checkbox"
                                            id="isTestTwo"
-                                           name="isTestTwo"
+                                           th:field="*{isTestTwo}"
                                            value="true"
                                            class="option-checkbox"
                                            th:checked="${subtype?.isTestTwo == null ? true : subtype.isTestTwo}">
@@ -336,7 +341,7 @@
                                 <div class="option-item">
                                     <input type="checkbox"
                                            id="isSideTwo"
-                                           name="isSideTwo"
+                                           th:field="*{isSideTwo}"
                                            value="true"
                                            class="option-checkbox"
                                            th:checked="${subtype?.isSideTwo == null ? true : subtype.isSideTwo}">
@@ -357,7 +362,7 @@
                                 <input type="number"
                                        class="form-control"
                                        id="typeNumber"
-                                       name="snType"
+                                       th:field="*{snType}"
                                        placeholder="Введите номер типа"
                                        min="10"
                                        max="99"
@@ -378,7 +383,7 @@
                                 <input type="number"
                                        class="form-control"
                                        id="typeVersionBoard"
-                                       name="versionType"
+                                       th:field="*{versionType}"
                                        placeholder="Введите версию типа"
                                        min="0"
                                        max="9"
@@ -399,6 +404,7 @@
                                 </label>
                                 <input type="file"
                                        class="form-control"
+                                       id="fileInput"
                                        name="file"
                                        required
                                        accept=".pdf">

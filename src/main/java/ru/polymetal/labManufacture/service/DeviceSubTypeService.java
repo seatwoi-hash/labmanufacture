@@ -21,7 +21,12 @@ public interface DeviceSubTypeService {
 
     void delete(UUID id);
 
-    void edite(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file, MultipartFile zip) throws IOException;
+    void edit(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file, MultipartFile zip) throws IOException;
+
+    @Deprecated(forRemoval = false)
+    default void edite(DeviceSubTypeDto deviceSubTypeDto, UUID id, MultipartFile file, MultipartFile zip) throws IOException {
+        edit(deviceSubTypeDto, id, file, zip);
+    }
 
     Boolean findIsInstallationOneById(Operation operation);
 

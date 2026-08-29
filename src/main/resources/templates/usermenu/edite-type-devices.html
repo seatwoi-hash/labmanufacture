@@ -184,6 +184,11 @@
                     <input type="hidden" th:field="*{id}" />
                     <input type="hidden" name="_method" value="PATCH" />
 
+                    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+                    <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+                        <div th:each="fieldError : ${#fields.allErrors()}" th:text="${fieldError}"></div>
+                    </div>
+
                     <!-- Название типа -->
                     <div class="form-group">
                         <label for="typeName" class="form-label" style="font-weight: 600; color: #495057;">
