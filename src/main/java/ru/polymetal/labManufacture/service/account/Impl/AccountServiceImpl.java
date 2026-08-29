@@ -8,6 +8,11 @@ import ru.polymetal.labManufacture.service.account.AccountService;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Реализация сервиса AccountServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 public class AccountServiceImpl implements AccountService {
 

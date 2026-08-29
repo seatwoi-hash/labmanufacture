@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Optional;
 
+/**
+ * MVC-контроллер AuthController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 public class AuthController {
 

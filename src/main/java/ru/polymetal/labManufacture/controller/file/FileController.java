@@ -13,6 +13,11 @@ import ru.polymetal.labManufacture.service.account.AccountService;
 import ru.polymetal.labManufacture.service.file.FileService;
 import java.util.UUID;
 
+/**
+ * MVC-контроллер FileController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 @RequestMapping("/file")
 public class FileController {

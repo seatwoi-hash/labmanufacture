@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Репозиторий доступа к данным OperationStatusRepository.
+ *
+ * @author Tatarinov Anton
+ */
 @Repository
 public interface OperationStatusRepository extends JpaRepository<OperationStatus, UUID> {
 

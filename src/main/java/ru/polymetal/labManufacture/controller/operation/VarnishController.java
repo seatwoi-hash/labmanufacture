@@ -27,6 +27,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * MVC-контроллер VarnishController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 @RequestMapping("/device")
 public class VarnishController {

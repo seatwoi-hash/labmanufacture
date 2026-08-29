@@ -7,6 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.ui.Model;
 
 
+/**
+ * MVC-контроллер DebugController.
+ *
+ * @author Tatarinov Anton
+ */
 @RestController
 public class DebugController {
 

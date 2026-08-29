@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Репозиторий доступа к данным LocationTypeRepository.
+ *
+ * @author Tatarinov Anton
+ */
 @Repository
 public interface LocationTypeRepository extends JpaRepository<LocationType, UUID> {
 

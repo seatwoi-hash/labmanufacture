@@ -2,6 +2,11 @@ package ru.polymetal.labManufacture.service.nextcloud;
 
 import java.io.IOException;
 
+/**
+ * Контракт сервиса NextcloudService.
+ *
+ * @author Tatarinov Anton
+ */
 public interface NextcloudService {
 
     public void uploadFile(String remotePath, byte[] content) throws IOException;

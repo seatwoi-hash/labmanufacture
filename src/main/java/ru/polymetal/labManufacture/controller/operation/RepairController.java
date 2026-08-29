@@ -47,6 +47,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * MVC-контроллер RepairController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 @RequestMapping("/device")
 public class RepairController {

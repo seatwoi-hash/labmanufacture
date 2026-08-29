@@ -10,6 +10,11 @@ import ru.polymetal.labManufacture.data.models.Operation;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Репозиторий доступа к данным FileDataRepository.
+ *
+ * @author Tatarinov Anton
+ */
 public interface FileDataRepository extends JpaRepository<FileData, UUID> {
 
     Optional<FileData> findByOperation(Operation operation);

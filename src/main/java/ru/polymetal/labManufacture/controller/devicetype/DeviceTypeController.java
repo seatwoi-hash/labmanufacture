@@ -33,6 +33,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
 
+/**
+ * MVC-контроллер DeviceTypeController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 @Slf4j
 @RequestMapping("/devicetype")

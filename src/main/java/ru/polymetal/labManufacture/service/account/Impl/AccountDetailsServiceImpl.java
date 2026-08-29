@@ -13,6 +13,11 @@ import ru.polymetal.labManufacture.service.account.AccountDetailsService;
 import java.util.Set;
 
 
+/**
+ * Реализация сервиса AccountDetailsServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 @Transactional
 public class AccountDetailsServiceImpl implements AccountDetailsService {

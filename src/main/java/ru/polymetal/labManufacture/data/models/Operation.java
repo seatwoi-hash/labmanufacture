@@ -24,6 +24,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Модель данных Operation.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "operations")
 @Getter

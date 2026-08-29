@@ -5,6 +5,11 @@ import lombok.Data;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 
+/**
+ * Объект передачи данных FileUploadRequestDto.
+ *
+ * @author Tatarinov Anton
+ */
 @Data
 public class FileUploadRequestDto {
 

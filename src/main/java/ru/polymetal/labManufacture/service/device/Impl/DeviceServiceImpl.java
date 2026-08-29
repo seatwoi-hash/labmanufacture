@@ -20,6 +20,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Реализация сервиса DeviceServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Slf4j
 @Service
 public class DeviceServiceImpl implements DeviceService {

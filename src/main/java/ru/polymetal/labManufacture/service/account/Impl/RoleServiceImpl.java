@@ -7,6 +7,11 @@ import ru.polymetal.labManufacture.data.repository.RoleRepository;
 import ru.polymetal.labManufacture.service.account.RoleService;
 import java.util.List;
 
+/**
+ * Реализация сервиса RoleServiceImpl.
+ *
+ * @author Tatarinov Anton
+ */
 @Service
 public class RoleServiceImpl implements RoleService {
 

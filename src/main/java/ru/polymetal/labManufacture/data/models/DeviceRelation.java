@@ -14,6 +14,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Модель данных DeviceRelation.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "device_relations")
 @Getter

@@ -9,6 +9,11 @@ import lombok.Setter;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import java.time.LocalDateTime;
 
+/**
+ * Объект передачи данных DeviceDto.
+ *
+ * @author Tatarinov Anton
+ */
 @Data
 public class DeviceDto {
 

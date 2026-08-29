@@ -8,6 +8,11 @@ import ru.polymetal.labManufacture.dto.FileUploadRequestDto;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Контракт сервиса FileService.
+ *
+ * @author Tatarinov Anton
+ */
 public interface FileService {
 
     FileResponseDto uploadFile(MultipartFile file, FileUploadRequestDto request) throws IOException;

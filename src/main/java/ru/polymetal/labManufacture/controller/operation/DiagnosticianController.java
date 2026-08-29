@@ -32,6 +32,11 @@ import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.DIAGNOSTICI
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_TEST;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_TEST_2;
 
+/**
+ * MVC-контроллер DiagnosticianController.
+ *
+ * @author Tatarinov Anton
+ */
 @Controller
 @RequestMapping("/device")
 public class DiagnosticianController {

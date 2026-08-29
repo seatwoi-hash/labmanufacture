@@ -17,6 +17,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Модель данных LocationType.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "location_types")
 @Getter

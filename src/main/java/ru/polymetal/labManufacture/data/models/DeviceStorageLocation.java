@@ -18,6 +18,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Модель данных DeviceStorageLocation.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "device_storage_locations")
 @Getter

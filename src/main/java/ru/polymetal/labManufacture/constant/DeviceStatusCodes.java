@@ -3,6 +3,11 @@ package ru.polymetal.labManufacture.constant;
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * Перечень кодов DeviceStatusCodes.
+ *
+ * @author Tatarinov Anton
+ */
 public enum DeviceStatusCodes {
     READY("ready"), CREATE("created"), SIDE1("Side1"), SIDE2("Side2"),
     INSTALLATION("Installation1"), INSTALLATION2("Installation2"),

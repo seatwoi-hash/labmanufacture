@@ -7,6 +7,11 @@ import lombok.Data;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
 
+/**
+ * Объект передачи данных ProfileUpdateDto.
+ *
+ * @author Tatarinov Anton
+ */
 @Data
 public class ProfileUpdateDto {
 

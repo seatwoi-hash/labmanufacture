@@ -12,6 +12,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Модель данных Device.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "devices")
 @Getter

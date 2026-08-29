@@ -9,6 +9,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Контракт сервиса DeviceService.
+ *
+ * @author Tatarinov Anton
+ */
 public interface DeviceService {
     void createDevice(DeviceDto deviceDto, String username) throws IOException;
     boolean existsSerialNumber(String sn);

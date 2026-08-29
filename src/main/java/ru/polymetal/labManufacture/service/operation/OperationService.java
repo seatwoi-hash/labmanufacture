@@ -16,6 +16,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Контракт сервиса OperationService.
+ *
+ * @author Tatarinov Anton
+ */
 public interface OperationService {
 
     Optional<Operation> findById(UUID operationId);

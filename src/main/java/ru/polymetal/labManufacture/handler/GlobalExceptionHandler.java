@@ -8,6 +8,11 @@ import ru.polymetal.labManufacture.exception.DeviceTypeNotFoundException;
 import ru.polymetal.labManufacture.exception.OperationNotFoundException;
 import ru.polymetal.labManufacture.exception.UserNotFoundException;
 
+/**
+ * Глобальный обработчик ошибок GlobalExceptionHandler.
+ *
+ * @author Tatarinov Anton
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)

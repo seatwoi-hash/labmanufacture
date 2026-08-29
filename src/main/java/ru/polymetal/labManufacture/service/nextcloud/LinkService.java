@@ -5,6 +5,11 @@ import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import java.io.IOException;
 
 
+/**
+ * Контракт сервиса LinkService.
+ *
+ * @author Tatarinov Anton
+ */
 public interface LinkService {
 
     void createPublicShare(String sn, String filePath, String shareName,

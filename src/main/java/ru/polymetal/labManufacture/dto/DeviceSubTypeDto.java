@@ -9,6 +9,11 @@ import jakarta.validation.constraints.Size;
 import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import java.util.UUID;
 
+/**
+ * Объект передачи данных DeviceSubTypeDto.
+ *
+ * @author Tatarinov Anton
+ */
 @Builder
 public record DeviceSubTypeDto(UUID id,
                                @NotBlank(message = "Название типа платы обязательно")

@@ -21,6 +21,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Модель данных OperationStatus.
+ *
+ * @author Tatarinov Anton
+ */
 @Entity
 @Table(name = "operation_statuses")
 @Getter
