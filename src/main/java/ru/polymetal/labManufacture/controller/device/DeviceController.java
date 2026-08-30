@@ -2,6 +2,7 @@ package ru.polymetal.labManufacture.controller.device;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -117,10 +118,8 @@ public class DeviceController {
 
 
     @DeleteMapping("/delete-board/{id}")
-    public String deleteDevice(@PathVariable UUID id)
-    {
+    public ResponseEntity<Void> deleteDevice(@PathVariable UUID id) {
         deviceService.delete(id);
-
-        return "redirect:/device/noready-board";
+        return ResponseEntity.noContent().build();
     }
 }

@@ -17,6 +17,8 @@ import ru.polymetal.labManufacture.service.operation.OperationService;
 import ru.polymetal.labManufacture.service.nextcloud.LinkService;
 import ru.polymetal.labManufacture.service.nextcloud.NextcloudService;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,12 +40,13 @@ public class DeviceServiceImpl implements DeviceService {
     private final DeviceSubTypeService deviceSubTypeService;
     private final NextcloudService nextcloudService;
     private final LinkService linkService;
+    private final Clock clock;
 
 
     public DeviceServiceImpl(DeviceRepository deviceRepository, OperationService operationService,
                              AccountRepository accountRepository, DeviceTypeService deviceTypeService,
                              DeviceSubTypeService deviceSubTypeService, OperationStatusRepository deviceStatusRepository,
-                             NextcloudService nextcloudService, LinkService linkService) {
+                             NextcloudService nextcloudService, LinkService linkService, Clock clock) {
         this.deviceRepository = deviceRepository;
         this.operationService = operationService;
         this.accountRepository = accountRepository;
@@ -51,6 +54,7 @@ public class DeviceServiceImpl implements DeviceService {
         this.deviceSubTypeService = deviceSubTypeService;
         this.nextcloudService = nextcloudService;
         this.linkService = linkService;
+        this.clock = clock;
     }
 
     @Override
@@ -94,8 +98,13 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     @Transactional
     public void delete(UUID id) {
-        Device device = deviceRepository.findById(id).orElseThrow(() -> new RuntimeException("Устройство не найдено"));
-        deviceRepository.delete(device);
+        Device device = deviceRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new IllegalArgumentException("Устройство не найдено или уже удалено"));
+
+        device.setIsDeleted(true);
+        device.setDeletedAt(LocalDateTime.now(clock));
+        deviceRepository.save(device);
+        log.info("Устройство помечено удалённым: id={}, serialNumber={}", id, device.getSerialNumber());
     }
 
     @Override
