@@ -19,6 +19,8 @@ public interface DeviceRepository extends JpaRepository<Device, UUID> {
     boolean existsBySerialNumber(String serialNumber);
     boolean existsBySerialNumberAndIsDeletedFalse(String serialNumber);
 
+    Optional<Device> findByIdAndIsDeletedFalse(UUID id);
+
 
     List<Device> findByTypeId(UUID typeId);
 

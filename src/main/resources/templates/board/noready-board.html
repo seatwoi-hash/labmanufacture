@@ -469,8 +469,14 @@
                         .text()
                         .then(text => {
 
+                            const responseText = text.trim();
+                            const message = responseText.startsWith('<!DOCTYPE') ||
+                                responseText.startsWith('<html')
+                                ? 'Ошибка удаления устройства'
+                                : responseText;
+
                             throw new Error(
-                                text ||
+                                message ||
                                 'Ошибка удаления устройства'
                             );
                         });
