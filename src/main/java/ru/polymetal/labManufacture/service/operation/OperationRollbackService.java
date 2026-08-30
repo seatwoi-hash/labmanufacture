@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface OperationRollbackService {
 
     UUID rollback(UUID operationId, Account account, String description);
+
+    UUID rollbackTo(UUID operationId, UUID targetOperationId, Account account, String description);
 }

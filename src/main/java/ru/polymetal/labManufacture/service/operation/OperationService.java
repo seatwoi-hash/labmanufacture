@@ -7,6 +7,7 @@ import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.models.OperationStatus;
 import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,6 +26,9 @@ public interface OperationService {
     UUID completeOperationWithDescription(UUID deviceId, Account account,
                                           String targetStatus, String description);
 
+    UUID completeRollbackOperation(UUID deviceId, Account account,
+                                   String targetStatus, String description);
+
     UUID completeOperationWithoutDescription(UUID deviceId, Account account,
                                              String targetStatus);
 
@@ -32,9 +36,15 @@ public interface OperationService {
 
     String getNextStatus(OperationStatus status);
 
+    String getPreviousStatus(OperationStatus status);
+
     List<Operation> findByStatusIdAndIsDelete(UUID statusId);
 
     List<Operation> findAll();
+
+    List<Operation> findActiveOperationsForRollback();
+
+    List<Operation> findRollbackTargetsByDeviceIds(Collection<UUID> deviceIds);
 
     Page<Operation> findByStatusId(UUID statusId, Pageable pageable);
 

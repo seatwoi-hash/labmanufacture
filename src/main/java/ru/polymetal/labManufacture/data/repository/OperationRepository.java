@@ -13,6 +13,7 @@ import ru.polymetal.labManufacture.data.models.Operation;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -99,4 +100,21 @@ public interface OperationRepository extends JpaRepository<Operation, UUID> {
     );
 
     Optional<Operation> findFirstByDevice_IdAndIsDeletedTrueOrderByDeletedAtDesc(UUID deviceId);
+
+    @Query("SELECT o FROM Operation o " +
+            "JOIN FETCH o.device d " +
+            "JOIN FETCH d.subtype " +
+            "JOIN FETCH o.status " +
+            "JOIN FETCH o.account " +
+            "WHERE o.isDeleted = false " +
+            "AND COALESCE(d.isDeleted, false) = false " +
+            "ORDER BY o.createdTime DESC")
+    List<Operation> findActiveOperationsForRollback();
+
+    @Query("SELECT o FROM Operation o " +
+            "JOIN FETCH o.device d " +
+            "JOIN FETCH o.status " +
+            "WHERE o.isDeleted = true AND d.id IN :deviceIds " +
+            "ORDER BY o.createdTime DESC")
+    List<Operation> findRollbackTargetsByDeviceIds(@Param("deviceIds") Collection<UUID> deviceIds);
 }

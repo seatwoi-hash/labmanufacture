@@ -33,7 +33,9 @@ import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -161,13 +163,15 @@ public class DiffController {
     public String showNoReadyBoard(Model model, Authentication authentication) {
 
         List<Device> devices = deviceService.findAll().stream()
-                .filter(a -> !a.getIsDeleted())
-                .filter(a -> a.getOperations().stream()
-                        .noneMatch(op -> op.getStatus().getName().equals(READY.getCode())))
+                .filter(device -> !Boolean.TRUE.equals(device.getIsDeleted()))
+                .filter(device -> device.getOperations().stream()
+                        .filter(operation -> !Boolean.TRUE.equals(operation.getIsDeleted()))
+                        .noneMatch(operation -> READY.matches(operation.getStatus().getName())))
                 .toList();
 
 
         model.addAttribute("devices", devices);
+        model.addAttribute("deviceDisplayNames", buildDeviceDisplayNames(devices));
 
         Account account =
                 accountRepository.findByUsername(authentication.getName())
@@ -179,15 +183,41 @@ public class DiffController {
         return "board/noready-board";
     }
 
+    private Map<UUID, String> buildDeviceDisplayNames(List<Device> devices) {
+        Map<UUID, String> displayNames = new LinkedHashMap<>();
+        for (Device device : devices) {
+            Operation activeOperation = device.getOperations().stream()
+                    .filter(operation -> !Boolean.TRUE.equals(operation.getIsDeleted()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (activeOperation != null && isTechnicalStatus(activeOperation)) {
+                displayNames.put(
+                        device.getId(), operationService.getPreviousStatus(activeOperation.getStatus()));
+                continue;
+            }
+
+            Operation displayStatus = device.getDisplayStatus();
+            displayNames.put(
+                    device.getId(),
+                    displayStatus == null || displayStatus.getStatus() == null
+                            ? null
+                            : displayStatus.getStatus().getDescription());
+        }
+        return displayNames;
+    }
+
     @GetMapping("/operation-board/{sn}")
     public String showOperationBoard(Model model, Authentication authentication, @PathVariable String sn) {
 
-        List<Operation> operations =
-                operationService.findBySerialNumber(sn).stream().filter(a -> !(a.getStatus().getName().equals(TECHNICAL.getCode())
-                        || a.getStatus().getName().equals(TECHNICAL2.getCode()) || a.getStatus().getName().equals(TECHNICAL3.getCode())))
-                        .sorted(Comparator.comparing(a -> a.getCreatedTime())).collect(Collectors.toList());
+        List<Operation> operations = operationService.findBySerialNumber(sn).stream()
+                .filter(operation -> Boolean.TRUE.equals(operation.getIsRollback())
+                        || !isTechnicalStatus(operation))
+                .sorted(Comparator.comparing(Operation::getCreatedTime))
+                .collect(Collectors.toList());
 
         model.addAttribute("operations", operations);
+        model.addAttribute("operationDisplayNames", buildOperationDisplayNames(operations));
 
         Account account =
                 accountRepository.findByUsername(authentication.getName())
@@ -197,6 +227,28 @@ public class DiffController {
         model.addAttribute("currentUser", account);
 
         return "board/all-operation-board";
+    }
+
+    private boolean isTechnicalStatus(Operation operation) {
+        if (operation.getStatus() == null || operation.getStatus().getName() == null) {
+            return false;
+        }
+        String statusName = operation.getStatus().getName();
+        return TECHNICAL.matches(statusName)
+                || TECHNICAL2.matches(statusName)
+                || TECHNICAL3.matches(statusName);
+    }
+
+    private Map<UUID, String> buildOperationDisplayNames(List<Operation> operations) {
+        Map<UUID, String> displayNames = new LinkedHashMap<>();
+        for (Operation operation : operations) {
+            String displayName = operation.getStatus().getDescription();
+            if (Boolean.TRUE.equals(operation.getIsRollback()) && isTechnicalStatus(operation)) {
+                displayName = operationService.getPreviousStatus(operation.getStatus());
+            }
+            displayNames.put(operation.getId(), displayName);
+        }
+        return displayNames;
     }
 
     @GetMapping("/ready-board-temp")

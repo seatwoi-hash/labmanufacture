@@ -29,6 +29,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
@@ -103,5 +104,35 @@ public class OperationServiceUnitTest {
         ArgumentCaptor<Operation> savedOperation = ArgumentCaptor.forClass(Operation.class);
         verify(operationRepository, times(1)).save(savedOperation.capture());
         assertEquals(savedOperation.getValue().getCreatedTime(), LocalDateTime.now(clock));
+        assertFalse(savedOperation.getValue().getIsRollback());
+    }
+
+    @Test
+    public void completeRollbackOperationMarksNewVersionAsRollback() {
+        UUID sourceId = UUID.randomUUID();
+        UUID resultId = UUID.randomUUID();
+        Operation source = Operation.builder()
+                .id(sourceId)
+                .device(Device.builder().id(UUID.randomUUID()).serialNumber("SN-2").build())
+                .isDeleted(false)
+                .build();
+        OperationStatus targetStatus = OperationStatus.builder().name("Technical").build();
+        Account actor = Account.builder().username("admin").build();
+
+        when(operationRepository.findByIdWithLock(sourceId)).thenReturn(Optional.of(source));
+        when(deviceStatusService.findByName("Technical")).thenReturn(targetStatus);
+        when(operationRepository.save(any(Operation.class))).thenAnswer(invocation -> {
+            Operation operation = invocation.getArgument(0);
+            operation.setId(resultId);
+            return operation;
+        });
+
+        UUID actualId = service.completeRollbackOperation(
+                sourceId, actor, "Technical", "Возвращён - повторная проверка");
+
+        assertEquals(actualId, resultId);
+        ArgumentCaptor<Operation> savedOperation = ArgumentCaptor.forClass(Operation.class);
+        verify(operationRepository).save(savedOperation.capture());
+        assertTrue(savedOperation.getValue().getIsRollback());
     }
 }
