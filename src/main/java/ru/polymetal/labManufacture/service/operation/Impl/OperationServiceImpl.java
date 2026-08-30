@@ -88,24 +88,32 @@ public class  OperationServiceImpl implements OperationService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public UUID completeOperationWithDescription(UUID deviceId, Account account,
                                                  String targetStatus, String description) {
-        return performOperation(deviceId, account, targetStatus, description);
+        return performOperation(deviceId, account, targetStatus, description, false);
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public UUID completeRollbackOperation(UUID deviceId, Account account,
+                                          String targetStatus, String description) {
+        return performOperation(deviceId, account, targetStatus, description, true);
     }
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public UUID completeOperationWithoutDescription(UUID deviceId, Account account,
                                                     String targetStatus) {
-        return performOperation(deviceId, account, targetStatus, "");
+        return performOperation(deviceId, account, targetStatus, "", false);
     }
 
     private UUID performOperation(UUID operationId, Account account,
-                                  String targetStatus, String description) {
+                                  String targetStatus, String description, boolean rollback) {
 
         Operation operation = operationRepository.findByIdWithLock(operationId)
                 .orElseThrow(() -> new IllegalArgumentException("Операция по этому устройству не найдена"));
 
         OperationStatus newStatus = deviceStatusService.findByName(targetStatus);
-        Operation newOperation = createNewDeviceVersion(operation, account, newStatus, description);
+        Operation newOperation = createNewDeviceVersion(
+                operation, account, newStatus, description, rollback);
         markDeviceAsDeleted(operation);
         Operation savedOperation = operationRepository.save(newOperation);
         return savedOperation.getId();
@@ -157,6 +165,18 @@ public class  OperationServiceImpl implements OperationService {
                 .orElse("Неизвестный следующий статус");
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public String getPreviousStatus(OperationStatus status) {
+        if (status == null || status.getName() == null) {
+            return "Неизвестная предыдущая операция";
+        }
+        return operationStatusRouteRepository.findFirstByCurrentStatus_NameOrderById(status.getName())
+                .map(OperationStatusRoute::getPreviousOperationName)
+                .filter(name -> !name.isBlank())
+                .orElse("Неизвестная предыдущая операция");
+    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -170,6 +190,21 @@ public class  OperationServiceImpl implements OperationService {
     public List<Operation> findAll() {
 
         return operationRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Operation> findActiveOperationsForRollback() {
+        return operationRepository.findActiveOperationsForRollback();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Operation> findRollbackTargetsByDeviceIds(Collection<UUID> deviceIds) {
+        if (deviceIds == null || deviceIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return operationRepository.findRollbackTargetsByDeviceIds(deviceIds);
     }
 
 
@@ -196,7 +231,8 @@ public class  OperationServiceImpl implements OperationService {
     }
 
     private Operation createNewDeviceVersion(Operation source, Account account,
-                                             OperationStatus newStatus, String description) {
+                                             OperationStatus newStatus, String description,
+                                             boolean rollback) {
 
         Operation newOperation = new Operation();
         Device device = source.getDevice();
@@ -205,6 +241,7 @@ public class  OperationServiceImpl implements OperationService {
         newOperation.setCreatedTime(LocalDateTime.now(clock));
         newOperation.setAccount(account);
         newOperation.setStatus(newStatus);
+        newOperation.setIsRollback(rollback);
 
         return newOperation;
     }

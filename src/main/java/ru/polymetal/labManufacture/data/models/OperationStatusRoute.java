@@ -43,4 +43,7 @@ public class OperationStatusRoute {
 
     @Column(name = "next_operation_name", nullable = false, length = 100)
     private String nextOperationName;
+
+    @Column(name = "previous_operation_name", length = 100)
+    private String previousOperationName;
 }

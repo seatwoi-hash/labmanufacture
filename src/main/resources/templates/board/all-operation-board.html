@@ -18,6 +18,16 @@
             background-color: #f6e0e2 !important;
         }
 
+        .table-rollback,
+        .table-rollback > * {
+            background-color: #dff3ff !important;
+        }
+
+        .table-rollback:hover,
+        .table-rollback:hover > * {
+            background-color: #ccecff !important;
+        }
+
         .device-table {
             background: white;
             border-radius: 12px;
@@ -186,7 +196,7 @@
                             <tbody>
 
                             <tr th:each="operation : ${operations}"
-                                th:classappend="${#strings.containsIgnoreCase(operation.status.name, 'Fail')} ? ' table-fail' : ''">
+                                th:classappend="${operation.isRollback == true} ? ' table-rollback' : (${#strings.containsIgnoreCase(operation.status.name, 'Fail')} ? ' table-fail' : '')">
                                 <td>
                                     <span class="device-sn" th:text="${operation.device.getSerialNumber()}"></span>
                                 </td>
@@ -200,7 +210,7 @@
                                 </td>
                                 <td>
                                 <span class="device-sn"
-                                      th:text="${operation.status.description}">
+                                      th:text="${operationDisplayNames[operation.id]}">
                                 </span>
                                 </td>
 

@@ -195,8 +195,8 @@
 
                                 <td>
                                 <span class="device-op"
-                                      th:if="${device.displayStatus != null}"
-                                      th:text="${device.displayStatus.status.description}">
+                                      th:if="${deviceDisplayNames[device.id] != null}"
+                                      th:text="${deviceDisplayNames[device.id]}">
                                 </span>
                                 </td>
 

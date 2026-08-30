@@ -76,20 +76,16 @@ public class Device {
             return null;
         }
 
-        Operation lastOperation = operations.get(0);
-
-        if (lastOperation == null || lastOperation.getStatus() == null) {
-            return lastOperation;
+        for (Operation operation : operations) {
+            if (operation == null || operation.getStatus() == null) {
+                continue;
+            }
+            if (!isTechnicalStatus(operation.getStatus().getName())) {
+                return operation;
+            }
         }
 
-        String lastStatus = lastOperation.getStatus().getName();
-
-        if (isTechnicalStatus(lastStatus) && operations.size() >= 2) {
-            Operation secondLastOperation = operations.get(1);
-            return secondLastOperation != null ? secondLastOperation : lastOperation;
-        }
-
-        return lastOperation;
+        return null;
     }
 
     private boolean isTechnicalStatus(String status) {

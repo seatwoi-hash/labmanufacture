@@ -15,9 +15,9 @@ public class DeviceSubTypeData {
 
         DeviceSubType deviceSubType = new DeviceSubType();
 
-        deviceSubType.setIsSideTwo(isTestTwo);
+        deviceSubType.setIsTestTwo(isTestTwo);
         deviceSubType.setIsSideTwo(isSideTwo);
-        deviceSubType.setIsSideTwo(isInstallationOne);
+        deviceSubType.setIsInstallationOne(isInstallationOne);
         deviceSubType.setName(name);
         deviceSubType.setVersionType(versionType);
         deviceSubType.setSnType(snType);

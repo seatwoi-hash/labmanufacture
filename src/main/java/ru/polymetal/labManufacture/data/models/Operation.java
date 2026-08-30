@@ -65,6 +65,10 @@ public class Operation {
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
+    @Builder.Default
+    @Column(name = "is_rollback", nullable = false)
+    private Boolean isRollback = false;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
