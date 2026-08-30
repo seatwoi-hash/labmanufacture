@@ -28,6 +28,19 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+### Local environment and secrets ###
 .env
+.env.*
+!.env.example
+
+### Runtime data ###
+/logs/
+/nextcloud-data/
+*.log
+
+### OS-generated files ###
+.DS_Store
+Thumbs.db
+
 ### VS Code ###
 .vscode/

@@ -97,4 +97,6 @@ public interface OperationRepository extends JpaRepository<Operation, UUID> {
             String serialNumber,
             String statusName
     );
+
+    Optional<Operation> findFirstByDevice_IdAndIsDeletedTrueOrderByDeletedAtDesc(UUID deviceId);
 }

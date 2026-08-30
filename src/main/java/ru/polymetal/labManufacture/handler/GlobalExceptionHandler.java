@@ -2,10 +2,14 @@ package ru.polymetal.labManufacture.handler;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.polymetal.labManufacture.exception.DeviceTypeNotFoundException;
 import ru.polymetal.labManufacture.exception.OperationNotFoundException;
+import ru.polymetal.labManufacture.exception.OperationRollbackException;
 import ru.polymetal.labManufacture.exception.UserNotFoundException;
 
 /**
@@ -25,6 +29,12 @@ public class GlobalExceptionHandler {
     public String handleOperationNotFound(OperationNotFoundException ex, Model model) {
         model.addAttribute("error", ex.getMessage());
         return "redirect:/main";
+    }
+
+    @ExceptionHandler(OperationRollbackException.class)
+    @ResponseBody
+    public ResponseEntity<String> handleOperationRollback(OperationRollbackException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
     @ExceptionHandler(DeviceTypeNotFoundException.class)
