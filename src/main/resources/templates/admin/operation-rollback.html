@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Возврат операций</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <style>
+        .rollback-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+            overflow: hidden;
+        }
+        .rollback-header {
+            padding: 1.5rem 2rem;
+            color: #fff;
+            background: #1d7acc;
+        }
+        .device-sn { font-family: 'Courier New', monospace; font-weight: 600; }
+        .rollback-controls { background: #fff; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e9ecef; }
+        .nav-tabs .nav-link.active { color: #1d7acc; font-weight: 600; }
+        .sort-link { color: #495057; text-decoration: none; white-space: nowrap; }
+        .sort-link:hover { color: #1d7acc; }
+        .rollback-modal .modal-header { background: #1d7acc; color: #fff; }
+        .rollback-modal .form-control { border: 2px solid #1d7acc; }
+        .rollback-modal .form-control:focus {
+            border-color: #0b5ed7;
+            box-shadow: 0 0 0 .2rem rgba(29, 122, 204, .2);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: home-button}"></div>
+<div th:replace="~{fragments :: sidebar}"></div>
+<div th:replace="~{fragments :: user-menu}"></div>
+
+<div class="main-content" sec:authorize="hasAuthority('ROLE_ADMIN')">
+    <main class="page-content">
+        <div class="container-fluid">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+            <div class="rollback-card">
+                <div class="rollback-header">
+                    <h4 class="mb-1"><i class="fas fa-rotate-left me-2"></i>Возврат операции</h4>
+                    <div>Выберите текущую операцию платы и обязательно укажите причину возврата.</div>
+                </div>
+
+                <div class="rollback-controls">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link" th:classappend="${activeTab == 'production'} ? ' active'"
+                               th:href="@{/admin/operations/rollback(tab='production',search=${search},sort=${sort},direction=${direction})}">
+                                В производстве
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:classappend="${activeTab == 'ready'} ? ' active'"
+                               th:href="@{/admin/operations/rollback(tab='ready',search=${search},sort=${sort},direction=${direction})}">
+                                Готовые
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="row g-2">
+                        <div class="col-md-8 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input class="form-control" id="searchInput" type="search"
+                                       placeholder="Поиск по серийному номеру">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" th:if="${not #lists.isEmpty(operations)}">
+                    <table class="table table-hover align-middle mb-0" id="deviceTable">
+                        <thead>
+                        <tr>
+                            <th>
+                                <a class="sort-link"
+                                   th:href="@{/admin/operations/rollback(tab=${activeTab},search=${search},sort='serial',direction=${sort == 'serial' and direction == 'asc' ? 'desc' : 'asc'})}">
+                                    Серийный номер <i class="fas fa-sort"></i>
+                                </a>
+                            </th>
+                            <th>Тип платы</th>
+                            <th>
+                                <a class="sort-link"
+                                   th:href="@{/admin/operations/rollback(tab=${activeTab},search=${search},sort='status',direction=${sort == 'status' and direction == 'asc' ? 'desc' : 'asc'})}">
+                                    Находится в <i class="fas fa-sort"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="sort-link"
+                                   th:href="@{/admin/operations/rollback(tab=${activeTab},search=${search},sort='date',direction=${sort == 'date' and direction == 'asc' ? 'desc' : 'asc'})}">
+                                    Дата <i class="fas fa-sort"></i>
+                                </a>
+                            </th>
+                            <th>Этап возврата</th>
+                            <th>Действие</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="operation : ${operations}">
+                            <td class="device-sn" th:text="${operation.device.serialNumber}"></td>
+                            <td th:text="${operation.device.subtype.name}"></td>
+                            <td th:text="${operationDisplayNames[operation.id]}"></td>
+                            <td th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}"></td>
+                            <td>
+                                <select class="form-select rollback-target-select" required
+                                        th:disabled="${#lists.isEmpty(rollbackTargets[operation.device.id])}">
+                                    <option value="" selected disabled>Выберите этап</option>
+                                    <option th:each="target : ${rollbackTargets[operation.device.id]}"
+                                            th:value="${target.id}"
+                                            th:text="${rollbackTargetNames[target.id] + ' — ' + #temporals.format(target.createdTime, 'dd.MM.yyyy HH:mm')}">
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary text-nowrap rollback-button" type="button"
+                                        data-bs-toggle="modal" data-bs-target="#rollbackModal"
+                                        th:attr="data-operation-id=${operation.id},data-serial-number=${operation.device.serialNumber}"
+                                        th:disabled="${#lists.isEmpty(rollbackTargets[operation.device.id])}">
+                                    <i class="fas fa-rotate-left me-1"></i> Вернуть
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-5 text-center text-muted" th:if="${#lists.isEmpty(operations)}">
+                    Платы по заданным условиям не найдены.
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="modal fade rollback-modal" id="rollbackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{/admin/operations/rollback}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-rotate-left me-2"></i>Возврат операции
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <div><strong>Плата:</strong> <span id="rollbackSerialNumber"></span></div>
+                        <div><strong>Вернуть на этап:</strong> <span id="rollbackStageName"></span></div>
+                    </div>
+
+                    <label for="rollbackComment" class="form-label text-primary fw-semibold">
+                        Комментарий возврата <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" id="rollbackComment" name="comment" rows="4"
+                              maxlength="1000" required
+                              placeholder="Обязательно укажите причину возврата"></textarea>
+
+                    <input type="hidden" id="rollbackOperationId" name="operationId">
+                    <input type="hidden" id="rollbackTargetOperationId" name="targetOperationId">
+                    <input type="hidden" name="tab" th:value="${activeTab}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-rotate-left me-1"></i> Подтвердить возврат
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script>
+    function initSearch() {
+
+        const searchInput =
+            document.getElementById('searchInput');
+
+        if (!searchInput) {
+            return;
+        }
+
+        searchInput.addEventListener(
+            'input',
+            function () {
+
+                applySearch();
+            }
+        );
+    }
+
+
+    function applySearch() {
+
+        const searchInput =
+            document.getElementById('searchInput');
+
+        if (!searchInput) {
+            return;
+        }
+
+        const searchTerm =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+
+        const rows =
+            document.querySelectorAll(
+                '#deviceTable tbody tr'
+            );
+
+
+        rows.forEach(row => {
+
+            const serialElement =
+                row.querySelector('.device-sn');
+
+            if (!serialElement) {
+                return;
+            }
+
+
+            const serialNumber =
+                serialElement
+                    .textContent
+                    .toLowerCase();
+
+
+            if (
+                serialNumber.includes(searchTerm)
+            ) {
+
+                row.style.display = '';
+
+            } else {
+
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    initSearch();
+
+    const rollbackModal = document.getElementById('rollbackModal');
+
+    rollbackModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+        const row = button.closest('tr');
+        const targetSelect = row.querySelector('.rollback-target-select');
+
+        if (!targetSelect.value) {
+            event.preventDefault();
+            targetSelect.classList.add('is-invalid');
+            targetSelect.focus();
+            return;
+        }
+
+        targetSelect.classList.remove('is-invalid');
+        document.getElementById('rollbackOperationId').value = button.dataset.operationId;
+        document.getElementById('rollbackTargetOperationId').value = targetSelect.value;
+        document.getElementById('rollbackSerialNumber').textContent = button.dataset.serialNumber;
+        document.getElementById('rollbackStageName').textContent =
+            targetSelect.options[targetSelect.selectedIndex].text;
+        document.getElementById('rollbackComment').value = '';
+    });
+
+    rollbackModal.addEventListener('shown.bs.modal', () => {
+        document.getElementById('rollbackComment').focus();
+    });
+</script>
+</body>
+</html>
