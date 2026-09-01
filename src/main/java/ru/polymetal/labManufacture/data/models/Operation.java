@@ -69,6 +69,9 @@ public class Operation {
     @Column(name = "is_rollback", nullable = false)
     private Boolean isRollback = false;
 
+    @Column(name = "rolled_back_operation_id")
+    private UUID rolledBackOperationId;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 

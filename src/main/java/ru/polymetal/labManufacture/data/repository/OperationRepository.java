@@ -101,6 +101,17 @@ public interface OperationRepository extends JpaRepository<Operation, UUID> {
 
     Optional<Operation> findFirstByDevice_IdAndIsDeletedTrueOrderByDeletedAtDesc(UUID deviceId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT o FROM Operation o WHERE o.device.id = :deviceId AND o.isDeleted = false")
+    Optional<Operation> findActiveByDeviceIdWithLock(@Param("deviceId") UUID deviceId);
+
+    @Query("SELECT o FROM Operation o " +
+            "JOIN FETCH o.status " +
+            "JOIN FETCH o.account " +
+            "WHERE o.device.id = :deviceId " +
+            "ORDER BY o.createdTime DESC")
+    List<Operation> findHistoryByDeviceId(@Param("deviceId") UUID deviceId);
+
     @Query("SELECT o FROM Operation o " +
             "JOIN FETCH o.device d " +
             "JOIN FETCH d.subtype " +
@@ -115,6 +126,9 @@ public interface OperationRepository extends JpaRepository<Operation, UUID> {
             "JOIN FETCH o.device d " +
             "JOIN FETCH o.status " +
             "WHERE o.isDeleted = true AND d.id IN :deviceIds " +
+            "AND COALESCE(o.isRollback, false) = false " +
+            "AND NOT EXISTS (SELECT rollbackOperation.id FROM Operation rollbackOperation " +
+            "WHERE rollbackOperation.rolledBackOperationId = o.id) " +
             "ORDER BY o.createdTime DESC")
     List<Operation> findRollbackTargetsByDeviceIds(@Param("deviceIds") Collection<UUID> deviceIds);
 }

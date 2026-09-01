@@ -19,6 +19,7 @@ import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.device.DeviceService;
 import ru.polymetal.labManufacture.service.operation.OperationQueryService;
+import ru.polymetal.labManufacture.service.operation.OperationRollbackService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -57,6 +61,9 @@ public class DiffControllerUnitTest {
     @Mock
     private OperationQueryService operationQueryService;
 
+    @Mock
+    private OperationRollbackService operationRollbackService;
+
 
     @BeforeMethod
     public void setUp() {
@@ -68,7 +75,8 @@ public class DiffControllerUnitTest {
                 deviceStatusService,
                 deviceSubTypeService,
                 deviceService,
-                operationQueryService
+                operationQueryService,
+                operationRollbackService
         );
 
         mockMvc = MockMvcBuilders
@@ -242,6 +250,49 @@ public class DiffControllerUnitTest {
                 .andExpect(model().attribute("operationDisplayNames", Map.of(
                         productionOperation.getId(), productionOperation.getStatus().getDescription(),
                         technicalRollback.getId(), "Тестировка №2")));
+    }
+
+    @Test
+    public void operationBoardExposesCancellationOnlyForEligibleLastOperation() throws Exception {
+        UUID accountId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        Account account = Account.builder().id(accountId).username("operator").build();
+        Operation operation = Operation.builder()
+                .id(operationId)
+                .device(Device.builder().id(UUID.randomUUID()).serialNumber("CANCEL-001").build())
+                .status(OperationStatus.builder().name("Side2").description("Сторона 2").build())
+                .account(account)
+                .createdTime(LocalDateTime.of(2026, 8, 31, 11, 50))
+                .isRollback(false)
+                .build();
+
+        when(operationService.findBySerialNumber("CANCEL-001")).thenReturn(List.of(operation));
+        when(accountRepository.findByUsername("operator")).thenReturn(Optional.of(account));
+        when(operationRollbackService.canCancelOwnLastOperation(operationId, account)).thenReturn(true);
+
+        mockMvc.perform(get("/device/operation-board/CANCEL-001")
+                        .principal(new UsernamePasswordAuthenticationToken("operator", null)))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("cancelableOperationId", operationId));
+    }
+
+    @Test
+    public void cancelOperationDelegatesToRollbackServiceAndRedirectsToHistory() throws Exception {
+        UUID accountId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        Account account = Account.builder().id(accountId).username("operator").build();
+        when(accountRepository.findByUsername("operator")).thenReturn(Optional.of(account));
+
+        mockMvc.perform(post("/device/operation-board/CANCEL-001/cancel")
+                        .param("operationId", operationId.toString())
+                        .param("comment", "Ошибка проверки")
+                        .principal(new UsernamePasswordAuthenticationToken("operator", null)))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/device/operation-board/CANCEL-001"))
+                .andExpect(flash().attribute("success", "Операция успешно отменена"));
+
+        verify(operationRollbackService).cancelOwnLastOperation(
+                operationId, account, "Ошибка проверки");
     }
 
 }

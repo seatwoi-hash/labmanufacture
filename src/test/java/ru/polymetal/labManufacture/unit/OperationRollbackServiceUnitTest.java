@@ -12,6 +12,7 @@ import ru.polymetal.labManufacture.data.models.DeviceSubType;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.models.OperationStatus;
 import ru.polymetal.labManufacture.data.models.OperationStatusRoute;
+import ru.polymetal.labManufacture.data.models.Role;
 import ru.polymetal.labManufacture.data.repository.OperationRepository;
 import ru.polymetal.labManufacture.data.repository.OperationStatusRouteRepository;
 import ru.polymetal.labManufacture.exception.OperationRollbackException;
@@ -20,8 +21,13 @@ import ru.polymetal.labManufacture.service.operation.SubtypeOperationRoutePolicy
 import ru.polymetal.labManufacture.service.operation.Impl.OperationRollbackServiceImpl;
 
 import java.util.Optional;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -30,6 +36,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.expectThrows;
 
 /**
@@ -57,7 +65,8 @@ public class OperationRollbackServiceUnitTest {
     public void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
         rollbackService = new OperationRollbackServiceImpl(
-                operationRepository, routeRepository, operationService, subtypeOperationRoutePolicy);
+                operationRepository, routeRepository, operationService, subtypeOperationRoutePolicy,
+                Clock.fixed(Instant.parse("2026-08-31T12:00:00Z"), ZoneOffset.UTC));
         when(routeRepository.findFirstByCurrentStatus_NameOrderById(anyString()))
                 .thenReturn(Optional.of(operationStatusRoute));
         when(operationStatusRoute.getNextOperationName()).thenReturn("Разрешённый этап");
@@ -85,14 +94,14 @@ public class OperationRollbackServiceUnitTest {
                 .thenReturn(Optional.of(previous));
         when(routeRepository.areAdjacent(currentStatus.getId(), previousStatus.getId())).thenReturn(true);
         when(operationService.completeRollbackOperation(
-                operationId, account, "Side2", "Возвращён - ошибка монтажа"))
+                operationId, account, "Side2", "Возвращён - ошибка монтажа", operationId))
                 .thenReturn(resultId);
 
         UUID actual = rollbackService.rollback(operationId, account, " ошибка монтажа ");
 
         assertEquals(actual, resultId);
         verify(operationService).completeRollbackOperation(
-                operationId, account, "Side2", "Возвращён - ошибка монтажа");
+                operationId, account, "Side2", "Возвращён - ошибка монтажа", operationId);
     }
 
     @Test
@@ -114,7 +123,7 @@ public class OperationRollbackServiceUnitTest {
                 () -> rollbackService.rollback(operationId, account, "invalid"));
 
         verify(operationService, never()).completeRollbackOperation(
-                operationId, account, previousStatus.getName(), "Возвращён - invalid");
+                operationId, account, previousStatus.getName(), "Возвращён - invalid", operationId);
     }
 
     @Test
@@ -151,7 +160,7 @@ public class OperationRollbackServiceUnitTest {
         when(operationService.findById(operationId)).thenReturn(Optional.of(current));
         when(operationService.findById(targetOperationId)).thenReturn(Optional.of(target));
         when(operationService.completeRollbackOperation(
-                operationId, account, targetStatus.getName(), "Возвращён - повторная проверка"))
+                operationId, account, targetStatus.getName(), "Возвращён - повторная проверка", operationId))
                 .thenReturn(resultId);
 
         UUID actual = rollbackService.rollbackTo(
@@ -159,7 +168,7 @@ public class OperationRollbackServiceUnitTest {
 
         assertEquals(actual, resultId);
         verify(operationService).completeRollbackOperation(
-                operationId, account, targetStatus.getName(), "Возвращён - повторная проверка");
+                operationId, account, targetStatus.getName(), "Возвращён - повторная проверка", operationId);
         verify(routeRepository, never()).areAdjacent(
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
@@ -209,7 +218,7 @@ public class OperationRollbackServiceUnitTest {
         when(operationService.findById(operationId)).thenReturn(Optional.of(current));
         when(operationService.findById(targetOperationId)).thenReturn(Optional.of(target));
         when(operationService.completeRollbackOperation(
-                operationId, account, targetStatusName, "Возвращён - проверка маршрута"))
+                operationId, account, targetStatusName, "Возвращён - проверка маршрута", operationId))
                 .thenReturn(resultId);
 
         UUID actual = rollbackService.rollbackTo(
@@ -220,7 +229,7 @@ public class OperationRollbackServiceUnitTest {
         assertEquals(device.getSubtype().getIsInstallationOne(), isInstallationOne);
         assertEquals(device.getSubtype().getIsTestTwo(), isTestTwo);
         verify(operationService).completeRollbackOperation(
-                operationId, account, targetStatusName, "Возвращён - проверка маршрута");
+                operationId, account, targetStatusName, "Возвращён - проверка маршрута", operationId);
     }
 
     @Test
@@ -255,7 +264,156 @@ public class OperationRollbackServiceUnitTest {
 
         verify(operationService, never()).completeRollbackOperation(
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString());
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    public void authorCanCancelLastOperationWithinFifteenMinutes() {
+        UUID accountId = UUID.randomUUID();
+        UUID deviceId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        UUID previousOperationId = UUID.randomUUID();
+        UUID rollbackOperationId = UUID.randomUUID();
+        Account author = Account.builder().id(accountId).username("operator").roles(Set.of()).build();
+        Device device = Device.builder().id(deviceId).build();
+        OperationStatus currentStatus = status("Side2");
+        OperationStatus previousStatus = status("Side1");
+        Operation current = operation(
+                operationId, device, currentStatus, author, false,
+                LocalDateTime.of(2026, 8, 31, 11, 50));
+        Operation previous = operation(
+                previousOperationId, device, previousStatus, author, true,
+                LocalDateTime.of(2026, 8, 31, 11, 40));
+        List<Operation> history = List.of(current, previous);
+
+        when(operationService.findById(operationId)).thenReturn(Optional.of(current));
+        when(operationRepository.findHistoryByDeviceId(deviceId)).thenReturn(history);
+        when(operationRepository.findActiveByDeviceIdWithLock(deviceId)).thenReturn(Optional.of(current));
+        when(operationService.completeRollbackOperation(
+                operationId, author, previousStatus.getName(),
+                "Возвращён - Ошибка выполнения ОТК", operationId))
+                .thenReturn(rollbackOperationId);
+
+        assertTrue(rollbackService.canCancelOwnLastOperation(operationId, author));
+        assertEquals(
+                rollbackService.cancelOwnLastOperation(
+                        operationId, author, "Ошибка выполнения ОТК"), rollbackOperationId);
+        verify(operationService).completeRollbackOperation(
+                operationId, author, previousStatus.getName(),
+                "Возвращён - Ошибка выполнения ОТК", operationId);
+    }
+
+    @Test
+    public void hiddenTechnicalOperationDoesNotBlockCancellationOfLastVisibleOperation() {
+        UUID accountId = UUID.randomUUID();
+        UUID deviceId = UUID.randomUUID();
+        UUID requestedOperationId = UUID.randomUUID();
+        UUID activeTechnicalId = UUID.randomUUID();
+        Account author = Account.builder().id(accountId).username("quality").roles(Set.of()).build();
+        Device device = Device.builder().id(deviceId).build();
+        Operation activeTechnical = operation(
+                activeTechnicalId, device, status("Technical"), author, false,
+                LocalDateTime.of(2026, 8, 31, 11, 51));
+        Operation requested = operation(
+                requestedOperationId, device, status("Quality_check_№1"), author, true,
+                LocalDateTime.of(2026, 8, 31, 11, 50));
+        Operation previous = operation(
+                UUID.randomUUID(), device, status("Side2"), author, true,
+                LocalDateTime.of(2026, 8, 31, 11, 40));
+        List<Operation> history = List.of(activeTechnical, requested, previous);
+
+        when(operationService.findById(requestedOperationId)).thenReturn(Optional.of(requested));
+        when(operationRepository.findHistoryByDeviceId(deviceId)).thenReturn(history);
+        when(operationRepository.findActiveByDeviceIdWithLock(deviceId))
+                .thenReturn(Optional.of(activeTechnical));
+        when(operationService.completeRollbackOperation(
+                activeTechnicalId, author, previous.getStatus().getName(),
+                "Возвращён - Ошибка выполнения ОТК", requestedOperationId))
+                .thenReturn(UUID.randomUUID());
+
+        assertTrue(rollbackService.canCancelOwnLastOperation(requestedOperationId, author));
+        rollbackService.cancelOwnLastOperation(
+                requestedOperationId, author, "Ошибка выполнения ОТК");
+
+        verify(operationService).completeRollbackOperation(
+                activeTechnicalId, author, previous.getStatus().getName(),
+                "Возвращён - Ошибка выполнения ОТК", requestedOperationId);
+    }
+
+    @Test
+    public void cancellationIsUnavailableAfterFifteenMinutes() {
+        Account author = Account.builder().id(UUID.randomUUID()).username("operator").roles(Set.of()).build();
+        Device device = Device.builder().id(UUID.randomUUID()).build();
+        Operation expired = operation(
+                UUID.randomUUID(), device, status("Side2"), author, false,
+                LocalDateTime.of(2026, 8, 31, 11, 44, 59));
+        Operation previous = operation(
+                UUID.randomUUID(), device, status("Side1"), author, true,
+                LocalDateTime.of(2026, 8, 31, 11, 30));
+
+        when(operationService.findById(expired.getId())).thenReturn(Optional.of(expired));
+        when(operationRepository.findHistoryByDeviceId(device.getId()))
+                .thenReturn(List.of(expired, previous));
+
+        assertFalse(rollbackService.canCancelOwnLastOperation(expired.getId(), author));
+    }
+
+    @Test
+    public void cancellationIsUnavailableToAnotherUserAndAdministrator() {
+        Account author = Account.builder().id(UUID.randomUUID()).username("operator").roles(Set.of()).build();
+        Account anotherUser = Account.builder().id(UUID.randomUUID()).username("quality").roles(Set.of()).build();
+        Role adminRole = new Role("admin", "Administrator");
+        Account admin = Account.builder()
+                .id(UUID.randomUUID()).username("admin").roles(Set.of(adminRole)).build();
+        Device device = Device.builder().id(UUID.randomUUID()).build();
+        Operation current = operation(
+                UUID.randomUUID(), device, status("Side2"), author, false,
+                LocalDateTime.of(2026, 8, 31, 11, 50));
+        Operation previous = operation(
+                UUID.randomUUID(), device, status("Side1"), author, true,
+                LocalDateTime.of(2026, 8, 31, 11, 40));
+
+        when(operationService.findById(current.getId())).thenReturn(Optional.of(current));
+        when(operationRepository.findHistoryByDeviceId(device.getId()))
+                .thenReturn(List.of(current, previous));
+
+        assertFalse(rollbackService.canCancelOwnLastOperation(current.getId(), anotherUser));
+        assertFalse(rollbackService.canCancelOwnLastOperation(current.getId(), admin));
+    }
+
+    @Test
+    public void cancellationIsUnavailableForNonLastVisibleOperation() {
+        Account author = Account.builder().id(UUID.randomUUID()).username("operator").roles(Set.of()).build();
+        Device device = Device.builder().id(UUID.randomUUID()).build();
+        Operation latest = operation(
+                UUID.randomUUID(), device, status("Side2"), author, false,
+                LocalDateTime.of(2026, 8, 31, 11, 55));
+        Operation requested = operation(
+                UUID.randomUUID(), device, status("Side1"), author, true,
+                LocalDateTime.of(2026, 8, 31, 11, 50));
+        Operation previous = operation(
+                UUID.randomUUID(), device, status("created"), author, true,
+                LocalDateTime.of(2026, 8, 31, 11, 40));
+
+        when(operationService.findById(requested.getId())).thenReturn(Optional.of(requested));
+        when(operationRepository.findHistoryByDeviceId(device.getId()))
+                .thenReturn(List.of(latest, requested, previous));
+
+        assertFalse(rollbackService.canCancelOwnLastOperation(requested.getId(), author));
+    }
+
+    @Test
+    public void cancellationOperationCannotBeCancelledAgain() {
+        Account author = Account.builder().id(UUID.randomUUID()).username("operator").roles(Set.of()).build();
+        Operation rollback = Operation.builder()
+                .id(UUID.randomUUID())
+                .account(author)
+                .isRollback(true)
+                .build();
+        when(operationService.findById(rollback.getId())).thenReturn(Optional.of(rollback));
+
+        assertFalse(rollbackService.canCancelOwnLastOperation(rollback.getId(), author));
     }
 
     private OperationStatus status(String name) {
@@ -267,6 +425,18 @@ public class OperationRollbackServiceUnitTest {
                 .device(Device.builder().id(deviceId).build())
                 .status(status)
                 .isDeleted(deleted)
+                .build();
+    }
+
+    private Operation operation(UUID id, Device device, OperationStatus status,
+                                Account account, boolean deleted, LocalDateTime createdTime) {
+        return Operation.builder()
+                .id(id)
+                .device(device)
+                .status(status)
+                .account(account)
+                .isDeleted(deleted)
+                .createdTime(createdTime)
                 .build();
     }
 }

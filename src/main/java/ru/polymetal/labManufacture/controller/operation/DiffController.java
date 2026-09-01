@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.CREATE;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.READY;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.SIDE1;
@@ -26,11 +27,13 @@ import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.exception.OperationNotFoundException;
+import ru.polymetal.labManufacture.exception.OperationRollbackException;
 import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.device.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.operation.OperationQueryService;
+import ru.polymetal.labManufacture.service.operation.OperationRollbackService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -54,16 +57,18 @@ public class DiffController {
     private final DeviceSubTypeService deviceSubTypeService;
     private final DeviceService deviceService;
     private final OperationQueryService operationQueryService;
+    private final OperationRollbackService operationRollbackService;
 
 
 
-    public DiffController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, DeviceService deviceService, OperationQueryService operationQueryService) {
+    public DiffController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, DeviceService deviceService, OperationQueryService operationQueryService, OperationRollbackService operationRollbackService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
         this.deviceStatusService = deviceStatusService;
         this.deviceSubTypeService = deviceSubTypeService;
         this.deviceService = deviceService;
         this.operationQueryService = operationQueryService;
+        this.operationRollbackService = operationRollbackService;
     }
 
     @GetMapping("/mone-board")
@@ -216,17 +221,42 @@ public class DiffController {
                 .sorted(Comparator.comparing(Operation::getCreatedTime))
                 .collect(Collectors.toList());
 
-        model.addAttribute("operations", operations);
-        model.addAttribute("operationDisplayNames", buildOperationDisplayNames(operations));
-
         Account account =
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
+        UUID cancelableOperationId = null;
+        if (!operations.isEmpty()) {
+            Operation lastVisibleOperation = operations.get(operations.size() - 1);
+            if (operationRollbackService.canCancelOwnLastOperation(
+                    lastVisibleOperation.getId(), account)) {
+                cancelableOperationId = lastVisibleOperation.getId();
+            }
+        }
 
+        model.addAttribute("operations", operations);
+        model.addAttribute("operationDisplayNames", buildOperationDisplayNames(operations));
+        model.addAttribute("cancelableOperationId", cancelableOperationId);
         model.addAttribute("currentUser", account);
 
         return "board/all-operation-board";
+    }
+
+    @PostMapping("/operation-board/{sn}/cancel")
+    public String cancelOwnLastOperation(@PathVariable String sn,
+                                         @RequestParam UUID operationId,
+                                         @RequestParam String comment,
+                                         Authentication authentication,
+                                         RedirectAttributes redirectAttributes) {
+        Account account = accountRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+        try {
+            operationRollbackService.cancelOwnLastOperation(operationId, account, comment);
+            redirectAttributes.addFlashAttribute("success", "Операция успешно отменена");
+        } catch (OperationRollbackException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/device/operation-board/" + sn;
     }
 
     private boolean isTechnicalStatus(Operation operation) {
