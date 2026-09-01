@@ -128,11 +128,12 @@ public class OperationServiceUnitTest {
         });
 
         UUID actualId = service.completeRollbackOperation(
-                sourceId, actor, "Technical", "Возвращён - повторная проверка");
+                sourceId, actor, "Technical", "Возвращён - повторная проверка", sourceId);
 
         assertEquals(actualId, resultId);
         ArgumentCaptor<Operation> savedOperation = ArgumentCaptor.forClass(Operation.class);
         verify(operationRepository).save(savedOperation.capture());
         assertTrue(savedOperation.getValue().getIsRollback());
+        assertEquals(savedOperation.getValue().getRolledBackOperationId(), sourceId);
     }
 }

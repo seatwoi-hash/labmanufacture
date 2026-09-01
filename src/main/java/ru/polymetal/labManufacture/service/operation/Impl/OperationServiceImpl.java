@@ -88,32 +88,35 @@ public class  OperationServiceImpl implements OperationService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public UUID completeOperationWithDescription(UUID deviceId, Account account,
                                                  String targetStatus, String description) {
-        return performOperation(deviceId, account, targetStatus, description, false);
+        return performOperation(deviceId, account, targetStatus, description, false, null);
     }
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public UUID completeRollbackOperation(UUID deviceId, Account account,
-                                          String targetStatus, String description) {
-        return performOperation(deviceId, account, targetStatus, description, true);
+                                          String targetStatus, String description,
+                                          UUID rolledBackOperationId) {
+        return performOperation(
+                deviceId, account, targetStatus, description, true, rolledBackOperationId);
     }
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public UUID completeOperationWithoutDescription(UUID deviceId, Account account,
                                                     String targetStatus) {
-        return performOperation(deviceId, account, targetStatus, "", false);
+        return performOperation(deviceId, account, targetStatus, "", false, null);
     }
 
     private UUID performOperation(UUID operationId, Account account,
-                                  String targetStatus, String description, boolean rollback) {
+                                  String targetStatus, String description, boolean rollback,
+                                  UUID rolledBackOperationId) {
 
         Operation operation = operationRepository.findByIdWithLock(operationId)
                 .orElseThrow(() -> new IllegalArgumentException("Операция по этому устройству не найдена"));
 
         OperationStatus newStatus = deviceStatusService.findByName(targetStatus);
         Operation newOperation = createNewDeviceVersion(
-                operation, account, newStatus, description, rollback);
+                operation, account, newStatus, description, rollback, rolledBackOperationId);
         markDeviceAsDeleted(operation);
         Operation savedOperation = operationRepository.save(newOperation);
         return savedOperation.getId();
@@ -232,7 +235,7 @@ public class  OperationServiceImpl implements OperationService {
 
     private Operation createNewDeviceVersion(Operation source, Account account,
                                              OperationStatus newStatus, String description,
-                                             boolean rollback) {
+                                             boolean rollback, UUID rolledBackOperationId) {
 
         Operation newOperation = new Operation();
         Device device = source.getDevice();
@@ -242,6 +245,7 @@ public class  OperationServiceImpl implements OperationService {
         newOperation.setAccount(account);
         newOperation.setStatus(newStatus);
         newOperation.setIsRollback(rollback);
+        newOperation.setRolledBackOperationId(rolledBackOperationId);
 
         return newOperation;
     }

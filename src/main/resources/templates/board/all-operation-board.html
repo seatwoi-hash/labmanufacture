@@ -28,6 +28,20 @@
             background-color: #ccecff !important;
         }
 
+        .rollback-modal .modal-header {
+            background: #1d7acc;
+            color: #fff;
+        }
+
+        .rollback-modal .form-control {
+            border: 2px solid #1d7acc;
+        }
+
+        .rollback-modal .form-control:focus {
+            border-color: #0b5ed7;
+            box-shadow: 0 0 0 .2rem rgba(29, 122, 204, .2);
+        }
+
         .device-table {
             background: white;
             border-radius: 12px;
@@ -148,6 +162,8 @@
     <!-- Основной контент -->
     <main class="page-content">
         <div class="container-fluid">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
             <!-- Поиск -->
             <div class="search-container">
                 <div class="row align-items-center">
@@ -191,6 +207,7 @@
                                     <i class="fas fa-sort float-end mt-1"></i>
                                 </th>
                                 <th>Фамилия</th>
+                                <th>Действие</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -221,6 +238,17 @@
                                 <td>
                                     <span class="device-sn" th:text="${operation.account.lastName}"></span>
                                 </td>
+                                <td>
+                                    <div th:if="${cancelableOperationId == operation.id}">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger text-nowrap author-rollback-button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#authorRollbackModal"
+                                                th:attr="data-operation-id=${operation.id},data-serial-number=${operation.device.serialNumber}">
+                                            <i class="fas fa-rotate-left me-1"></i> Отменить
+                                        </button>
+                                    </div>
+                                </td>
 
                             </tr>
 
@@ -232,7 +260,7 @@
 
                                 <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
                                     class="table-active">
-                                    <td colspan="5">
+                                    <td colspan="6">
                                         <div class="ms-3">
                                             <!-- PDF ссылка - используем firstDevice -->
                                             <a th:if="${firstDevice != null && firstDevice.getUrlPDF() != null && !firstDevice.getUrlPDF().isEmpty()}"
@@ -273,7 +301,7 @@
 
                                 <tr th:if="${not operations.empty}" th:with="firstDevice=${operations[0].getDevice()}"
                                     class="table-active">
-                                    <td colspan="5">
+                                    <td colspan="6">
                                         <div class="ms-3">
                                             <!-- PDF ссылка - используем firstDevice -->
                                             <a th:if="${firstDevice != null && firstDevice.getUrlPDFRead() != null && !firstDevice.getUrlPDFRead().isEmpty()}"
@@ -321,6 +349,43 @@
         </div>
     </main>
 </div>
+
+<div class="modal fade rollback-modal" id="authorRollbackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="authorRollbackForm" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-rotate-left me-2"></i>Отмена операции
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <strong>Плата:</strong> <span id="authorRollbackSerialNumber"></span>
+                    </div>
+
+                    <label for="authorRollbackComment" class="form-label text-primary fw-semibold">
+                        Комментарий возврата <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" id="authorRollbackComment" name="comment" rows="4"
+                              maxlength="1000" required
+                              placeholder="Обязательно укажите причину возврата"></textarea>
+
+                    <input type="hidden" id="authorRollbackOperationId" name="operationId">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-rotate-left me-1"></i> Подтвердить возврат
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div th:replace="~{fragments :: scripts}"></div>
 
 
@@ -334,8 +399,28 @@
         initSearch();
         initSort();
         applySavedSort();
+        initAuthorRollbackModal();
         startAutoRefresh();
     });
+
+    function initAuthorRollbackModal() {
+        const modal = document.getElementById('authorRollbackModal');
+        if (!modal || modal.dataset.initialized === 'true') return;
+        modal.dataset.initialized = 'true';
+
+        modal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            if (!button) return;
+            document.getElementById('authorRollbackOperationId').value = button.dataset.operationId;
+            document.getElementById('authorRollbackSerialNumber').textContent = button.dataset.serialNumber;
+            document.getElementById('authorRollbackComment').value = '';
+            document.getElementById('authorRollbackForm').action = window.location.pathname + '/cancel';
+        });
+
+        modal.addEventListener('shown.bs.modal', () => {
+            document.getElementById('authorRollbackComment').focus();
+        });
+    }
 
     function initTooltips() {
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(element => {

@@ -27,7 +27,8 @@ public interface OperationService {
                                           String targetStatus, String description);
 
     UUID completeRollbackOperation(UUID deviceId, Account account,
-                                   String targetStatus, String description);
+                                   String targetStatus, String description,
+                                   UUID rolledBackOperationId);
 
     UUID completeOperationWithoutDescription(UUID deviceId, Account account,
                                              String targetStatus);
