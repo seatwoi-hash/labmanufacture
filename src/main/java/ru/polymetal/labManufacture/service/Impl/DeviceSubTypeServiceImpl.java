@@ -86,6 +86,8 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
 
         if (zip != null && !zip.isEmpty()) {
             deviceSubType.setData(zip.getBytes());
+            deviceSubType.setArchiveOriginalName(zip.getOriginalFilename());
+            deviceSubType.setArchiveMimeType(zip.getContentType());
         }
 
         DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);
@@ -128,6 +130,8 @@ public class DeviceSubTypeServiceImpl implements DeviceSubTypeService {
 
         if (zip != null && !zip.isEmpty()) {
             deviceSubType.setData(zip.getBytes());
+            deviceSubType.setArchiveOriginalName(zip.getOriginalFilename());
+            deviceSubType.setArchiveMimeType(zip.getContentType());
         }
 
         DeviceSubType saved = deviceSubTypeRepository.save(deviceSubType);

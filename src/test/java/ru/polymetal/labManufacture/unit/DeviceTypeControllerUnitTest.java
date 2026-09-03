@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,13 +90,15 @@ public class DeviceTypeControllerUnitTest {
     public void downloadUsesEncodedSafeFilename() throws Exception {
         UUID id = UUID.randomUUID();
         DeviceSubType subtype = DeviceSubType.builder()
-                .id(id).name("Плата\"тест").data(new byte[]{1, 2, 3}).build();
+                .id(id).name("Плата\"тест").archiveOriginalName("project.tar.gz")
+                .data(new byte[]{1, 2, 3}).build();
         when(deviceSubTypeService.findById(id)).thenReturn(Optional.of(subtype));
 
         mockMvc.perform(get("/devicetype/{id}/download", id))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Length", "3"))
-                .andExpect(header().exists("Content-Disposition"));
+                .andExpect(header().string("Content-Disposition", containsString("altium-")))
+                .andExpect(header().string("Content-Disposition", containsString(".tar.gz")));
     }
 
     private UsernamePasswordAuthenticationToken authentication() {

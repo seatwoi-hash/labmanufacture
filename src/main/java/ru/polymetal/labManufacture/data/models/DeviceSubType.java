@@ -52,6 +52,12 @@ public class DeviceSubType {
     @Column(name = "file_name")
     private String fileName;
 
+    @Column(name = "archive_original_name", length = 512)
+    private String archiveOriginalName;
+
+    @Column(name = "archive_mime_type", length = 127)
+    private String archiveMimeType;
+
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;

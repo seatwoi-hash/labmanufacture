@@ -47,6 +47,12 @@ public class DeviceTypeController {
     private static final String ADD_VIEW = "usermenu/add-type-devices";
     private static final String EDIT_VIEW = "usermenu/edite-type-devices";
     private static final String REDIRECT_TO_LIST = "redirect:/devicetype/add";
+    private static final String[] ARCHIVE_EXTENSIONS = {
+            ".tar.gz", ".tar.bz2", ".tar.xz", ".tar.zst",
+            ".zip", ".rar", ".7z", ".tar", ".gz", ".tgz",
+            ".bz2", ".tbz", ".tbz2", ".xz", ".txz", ".zst", ".tzst",
+            ".cab", ".arj", ".lha", ".lzh"
+    };
 
     private final DeviceSubTypeService deviceSubTypeService;
     private final AccountService accountService;
@@ -141,12 +147,15 @@ public class DeviceTypeController {
             return ResponseEntity.notFound().build();
         }
 
+        String archiveName = "altium-" + subtype.getName()
+                + archiveExtension(subtype.getArchiveOriginalName());
         ContentDisposition disposition = ContentDisposition.attachment()
-                .filename("altium-" + safeFilename(subtype.getName()) + ".zip", StandardCharsets.UTF_8)
+                .filename(safeFilename(archiveName), StandardCharsets.UTF_8)
                 .build();
+        MediaType archiveMediaType = parseMediaTypeOrDefault(subtype.getArchiveMimeType());
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(archiveMediaType)
                 .contentLength(data.length)
                 .body(data);
     }
@@ -187,6 +196,18 @@ public class DeviceTypeController {
         return value.replaceAll("[\\r\\n\\\"\\\\/]", "_");
     }
 
+    private String archiveExtension(String filename) {
+        if (filename != null) {
+            String normalized = filename.toLowerCase(Locale.ROOT);
+            for (String extension : ARCHIVE_EXTENSIONS) {
+                if (normalized.endsWith(extension)) {
+                    return extension;
+                }
+            }
+        }
+        return ".zip";
+    }
+
     private String validateUploads(MultipartFile file, MultipartFile archive, boolean pdfRequired) {
         if (pdfRequired && (file == null || file.isEmpty())) {
             return "PDF-файл обязателен";
@@ -194,11 +215,21 @@ public class DeviceTypeController {
         if (file != null && !file.isEmpty() && !hasExtension(file, ".pdf")) {
             return "Допустим только PDF-файл";
         }
-        if (archive != null && !archive.isEmpty()
-                && !hasExtension(archive, ".zip", ".rar", ".7z", ".tar", ".gz", ".tgz")) {
+        if (archive != null && !archive.isEmpty() && !hasExtension(archive, ARCHIVE_EXTENSIONS)) {
             return "Недопустимый формат архива";
         }
         return null;
+    }
+
+    private MediaType parseMediaTypeOrDefault(String mimeType) {
+        if (mimeType == null || mimeType.isBlank()) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+        try {
+            return MediaType.parseMediaType(mimeType);
+        } catch (IllegalArgumentException exception) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
     }
 
     private boolean hasExtension(MultipartFile file, String... extensions) {
