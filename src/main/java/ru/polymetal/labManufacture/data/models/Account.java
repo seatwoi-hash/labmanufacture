@@ -35,6 +35,7 @@ public class Account {
     @Column(name = "id")
     private UUID id;
 
+    @EqualsAndHashCode.Include
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
 
