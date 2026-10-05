@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <title>Создание передней части моноблока</title>
+    <style>
+        .assembly-form-container {
+            width: 100%;
+            max-width: 760px;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .assembly-form-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #1d7acc;
+            text-align: center;
+        }
+
+        .assembly-form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-left: 4px solid #1d7acc;
+            border-radius: 8px;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .form-label {
+            display: block;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .form-control:focus {
+            border-color: #1d7acc;
+            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+        }
+
+        .form-select:focus {
+            border-color: #1d7acc;
+            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+        }
+
+        .board-selection-fields {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .board-selection-fields.active {
+            display: flex;
+            animation: reveal-fields 0.25s ease;
+        }
+
+        @keyframes reveal-fields {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-submit {
+            padding: 0.8rem 2rem;
+            border: none;
+            background: linear-gradient(135deg, #1d7acc, #1669b8);
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #1669b8, #125b9e);
+            color: white;
+            box-shadow: 0 5px 15px rgba(29, 122, 204, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: home-button}"></div>
+<div th:replace="~{fragments :: user-menu}"></div>
+<div th:replace="~{fragments :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="assembly-form-container">
+        <div class="assembly-form-header">
+            <h1><i class="fas fa-cube me-2"></i>Создание</h1>
+            <p class="mb-0 text-muted">Сборка передней части моноблока</p>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <form id="frontAssemblyForm" th:action="@{/device/front-assembly/create}" method="post">
+            <div class="assembly-form-section">
+                <div>
+                    <label for="caseId" class="form-label required-field">ID корпуса</label>
+                    <input id="caseId"
+                           name="caseId"
+                           class="form-control"
+                           type="text"
+                           placeholder="Введите ID корпуса"
+                           autocomplete="off"
+                           required>
+                </div>
+
+                <div>
+                    <label for="frontAssemblyType" class="form-label required-field">
+                        Тип передней части моноблока
+                    </label>
+                    <select id="frontAssemblyType"
+                            name="frontAssemblyType"
+                            class="form-select"
+                            required>
+                        <option value="" selected disabled>Выберите тип передней части моноблока</option>
+                        <option th:each="assemblyType : ${frontAssemblyTypes}"
+                                th:value="${assemblyType.id}"
+                                th:text="${assemblyType.name}"
+                                th:attr="data-motherboard-subtype=${assemblyType.motherboardSubtype.id},data-keyboard-subtype=${assemblyType.keyboardBoardSubtype.id}">
+                        </option>
+                    </select>
+                </div>
+
+                <div id="boardSelectionFields" class="board-selection-fields">
+                    <div>
+                        <label for="motherboardSerialNumber" class="form-label required-field">
+                            Плата материнская
+                        </label>
+                        <select id="motherboardSerialNumber"
+                                name="motherboardSerialNumber"
+                                class="form-select"
+                                disabled
+                                required>
+                            <option value="" selected disabled>Выберите материнскую плату</option>
+                            <option th:each="board : ${boards}"
+                                    th:value="${board.serialNumber}"
+                                    th:attr="data-subtype-id=${board.subtype.id}"
+                                    th:text="${board.serialNumber + ' — ' + board.subtype.name}"></option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="keyboardBoardSerialNumber" class="form-label required-field">
+                            Плата клавиатуры
+                        </label>
+                        <select id="keyboardBoardSerialNumber"
+                                name="keyboardBoardSerialNumber"
+                                class="form-select"
+                                disabled
+                                required>
+                            <option value="" selected disabled>Выберите плату клавиатуры</option>
+                            <option th:each="board : ${boards}"
+                                    th:value="${board.serialNumber}"
+                                    th:attr="data-subtype-id=${board.subtype.id}"
+                                    th:text="${board.serialNumber + ' — ' + board.subtype.name}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end pt-3 border-top">
+                <button type="submit" class="btn btn-submit">
+                    Собрать
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<div th:replace="~{fragments :: scripts}"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const typeSelect = document.getElementById('frontAssemblyType');
+        const boardFields = document.getElementById('boardSelectionFields');
+        const boardInputs = boardFields.querySelectorAll('select');
+
+        function filterBoardOptions(select, subtypeId) {
+            Array.from(select.options).forEach(option => {
+                if (!option.value) {
+                    option.hidden = false;
+                    return;
+                }
+                option.hidden = option.dataset.subtypeId !== subtypeId;
+            });
+            select.value = '';
+        }
+
+        function updateBoardFields() {
+            const typeSelected = typeSelect.value !== '';
+            boardFields.classList.toggle('active', typeSelected);
+            boardInputs.forEach(input => {
+                input.disabled = !typeSelected;
+                if (!typeSelected) {
+                    input.value = '';
+                }
+            });
+
+            if (typeSelected) {
+                const selectedType = typeSelect.options[typeSelect.selectedIndex];
+                filterBoardOptions(boardInputs[0], selectedType.dataset.motherboardSubtype);
+                filterBoardOptions(boardInputs[1], selectedType.dataset.keyboardSubtype);
+            }
+        }
+
+        typeSelect.addEventListener('change', updateBoardFields);
+        updateBoardFields();
+    });
+</script>
+</body>
+</html>

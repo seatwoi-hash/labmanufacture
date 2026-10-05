@@ -53,7 +53,24 @@
                 </a>
             </li>
             <li sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_DEVELOPER')">
+                <hr class="dropdown-divider">
+            </li>
+            <li sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_DEVELOPER')">
+                <h6 class="dropdown-header text-secondary">Платы</h6>
+            </li>
+            <li sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_DEVELOPER')">
                 <a class="dropdown-item-user" href="/devicetype/add"><i class="fa-solid fa-bacon"></i> Тип платы</a>
+            </li>
+            <li sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <hr class="dropdown-divider">
+            </li>
+            <li sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <h6 class="dropdown-header text-secondary">Сборки</h6>
+            </li>
+            <li sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <a class="dropdown-item-user" href="/device/front-assembly/type">
+                    <i class="fas fa-cube"></i> Тип передней части моноблока
+                </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
@@ -80,9 +97,9 @@
             <div class="section-header" data-section="platy">
                 <i class="fas fa-microchip"></i>
                 <span>Платы</span>
-               <i class="fas fa-chevron-down section-arrow rotated"></i>
+               <i class="fas fa-chevron-down section-arrow"></i>
             </div>
-            <div class="section-content platy-section active">
+            <div class="section-content platy-section">
 
             <button class="side-btn"
                          sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_ADMIN', 'ROLE_DEVELOPER')"
@@ -233,12 +250,47 @@
                 <i class="fas fa-chevron-down section-arrow"></i>
             </div>
             <div class="section-content ustroistva-section">
-                <button class="side-btn">Сборка корпуса</button>
-                <button class="side-btn">Установка плат</button>
-                <button class="side-btn">Панель управления</button>
-                <button class="side-btn">Финальная сборка</button>
-                <button class="side-btn">Тестирование устройства</button>
-                <button class="side-btn">Упаковка</button>
+                <div class="side-subsection">
+                    <button class="side-btn side-subsection-toggle"
+                            type="button"
+                            data-subsection="monoblock-front-assembly"
+                            aria-expanded="false">
+                        <span>Сборка передней части моноблока</span>
+                        <i class="fas fa-chevron-down subsection-arrow"></i>
+                    </button>
+                    <div class="side-subsection-content">
+                        <button class="side-btn"
+                                type="button"
+                                onclick="window.location.href='/device/front-assembly/create'">
+                            Создание
+                        </button>
+                        <button class="side-btn"
+                                type="button"
+                                onclick="window.location.href='/device/front-assembly/otk'">
+                            ОТК
+                        </button>
+                        <button class="side-btn"
+                                type="button"
+                                onclick="window.location.href='/device/front-assembly/repair'">
+                            Ремонт
+                        </button>
+                        <button class="side-btn"
+                                type="button"
+                                onclick="window.location.href='/device/front-assembly/testing'">
+                            Тестирование
+                        </button>
+                        <button class="side-btn"
+                                type="button"
+                                onclick="window.location.href='/device/front-assembly/diagnostics'">
+                            Диагностика
+                        </button>
+                        <button class="side-btn"
+                                type="button"
+                                onclick="window.location.href='/device/front-assembly/ready'">
+                            Готовые сборки
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -273,6 +325,35 @@
             </div>
         </div>
     </div>
+    <script>
+        (function restoreSidebarState() {
+            const sidebar = document.getElementById('sideButtons');
+            if (!sidebar) return;
+
+            sidebar.querySelectorAll('.section-header').forEach(function (header, index) {
+                const sectionName = header.getAttribute('data-section') || 'section-' + index;
+                const expanded = localStorage.getItem('sidebar-section-' + sectionName) === 'true';
+                const content = header.nextElementSibling;
+                const arrow = header.querySelector('.section-arrow');
+
+                content.classList.toggle('active', expanded);
+                arrow.classList.toggle('rotated', expanded);
+            });
+
+            sidebar.querySelectorAll('.side-subsection-toggle').forEach(function (toggle) {
+                const subsectionName = toggle.getAttribute('data-subsection');
+                const expanded = localStorage.getItem('sidebar-subsection-' + subsectionName) === 'true';
+                const content = toggle.nextElementSibling;
+                const arrow = toggle.querySelector('.subsection-arrow');
+
+                content.classList.toggle('active', expanded);
+                arrow.classList.toggle('rotated', expanded);
+                toggle.setAttribute('aria-expanded', expanded);
+            });
+
+            sidebar.classList.add('sidebar-state-ready');
+        })();
+    </script>
 </div>
 
 <div th:fragment="scripts">
@@ -317,18 +398,8 @@
 
                 const sectionHeaders = document.querySelectorAll('.section-header');
 
-                function shouldExpandSection(sectionName, hasSavedState) {
-                    if (hasSavedState) {
-                        const savedState = localStorage.getItem('sidebar-section-' + sectionName);
-                        return savedState === 'true';
-                    }
-                    const header = document.querySelector(`[data-section="${sectionName}"]`);
-                    if (!header) return false;
-
-                    const sectionContent = header.nextElementSibling;
-                    const arrow = header.querySelector('.section-arrow');
-
-                    return sectionContent.classList.contains('active') || arrow.classList.contains('rotated');
+                function shouldExpandSection(sectionName) {
+                    return localStorage.getItem('sidebar-section-' + sectionName) === 'true';
                 }
 
                 sectionHeaders.forEach(header => {
@@ -336,9 +407,7 @@
                     const arrow = header.querySelector('.section-arrow');
                     const sectionName = header.getAttribute('data-section') || 'section-' + Array.from(sectionHeaders).indexOf(header);
 
-                    const hasSavedState = localStorage.getItem('sidebar-section-' + sectionName) !== null;
-
-                    const shouldExpand = shouldExpandSection(sectionName, hasSavedState);
+                    const shouldExpand = shouldExpandSection(sectionName);
 
                     if (shouldExpand) {
                         sectionContent.classList.add('active');
@@ -346,11 +415,6 @@
                     } else {
                         sectionContent.classList.remove('active');
                         arrow.classList.remove('rotated');
-                    }
-
-                    if (!hasSavedState) {
-                        const isCurrentlyExpanded = sectionContent.classList.contains('active');
-                        localStorage.setItem('sidebar-section-' + sectionName, isCurrentlyExpanded);
                     }
 
                     header.addEventListener('click', function () {
@@ -363,6 +427,25 @@
 
                         const isCurrentlyExpanded = currentSectionContent.classList.contains('active');
                         localStorage.setItem('sidebar-section-' + currentSectionName, isCurrentlyExpanded);
+                    });
+                });
+
+                document.querySelectorAll('.side-subsection-toggle').forEach(toggle => {
+                    const subsectionName = toggle.getAttribute('data-subsection');
+                    const subsectionContent = toggle.nextElementSibling;
+                    const subsectionArrow = toggle.querySelector('.subsection-arrow');
+                    const storageKey = 'sidebar-subsection-' + subsectionName;
+                    const isExpanded = localStorage.getItem(storageKey) === 'true';
+
+                    subsectionContent.classList.toggle('active', isExpanded);
+                    subsectionArrow.classList.toggle('rotated', isExpanded);
+                    toggle.setAttribute('aria-expanded', isExpanded);
+
+                    toggle.addEventListener('click', function () {
+                        const expanded = subsectionContent.classList.toggle('active');
+                        subsectionArrow.classList.toggle('rotated', expanded);
+                        this.setAttribute('aria-expanded', expanded);
+                        localStorage.setItem(storageKey, expanded);
                     });
                 });
 

@@ -233,8 +233,11 @@ body {
 }
 
 .section-arrow {
-    transition: transform 0.3s ease;
     font-size: 0.9rem;
+}
+
+.side-buttons.sidebar-state-ready .section-arrow {
+    transition: transform 0.3s ease;
 }
 
 .section-arrow.rotated {
@@ -244,8 +247,11 @@ body {
 .section-content {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
     background: #f8f9fa;
+}
+
+.side-buttons.sidebar-state-ready .section-content {
+    transition: max-height 0.3s ease;
 }
 
 .section-content.active {
@@ -279,6 +285,49 @@ body {
     background: linear-gradient(135deg, #1d7acc, #1d7acc);
     color: white;
     box-shadow: 0 4px 8px rgba(29, 122, 204, 0.3);
+}
+
+.side-subsection-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #e3f2fd;
+    color: #1d7acc;
+}
+
+.side-subsection-toggle:hover {
+    background: #d4eafb;
+}
+
+.side-subsection-toggle span {
+    flex: 1;
+}
+
+.subsection-arrow {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+}
+
+.side-buttons.sidebar-state-ready .subsection-arrow {
+    transition: transform 0.3s ease;
+}
+
+.subsection-arrow.rotated {
+    transform: rotate(180deg);
+}
+
+.side-subsection-content {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.side-buttons.sidebar-state-ready .side-subsection-content {
+    transition: max-height 0.3s ease;
+}
+
+.side-subsection-content.active {
+    max-height: 480px;
 }
 
 .menu-toggle {
