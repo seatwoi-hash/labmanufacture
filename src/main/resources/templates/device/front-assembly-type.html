@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тип передней части моноблока</title>
+    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .home-button {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            z-index: 1000;
+            display: flex;
+            width: 60px;
+            height: 60px;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 50%;
+            background-color: #1e40af;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .home-button:hover {
+            background-color: #1e3a8a;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            transform: scale(1.1);
+        }
+
+        .main-content {
+            min-height: 100vh;
+        }
+
+        .accounts-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .page-header h2 {
+            margin-bottom: 0.5rem;
+            color: #0d6efd;
+            font-weight: 700;
+        }
+
+        .accounts-table {
+            overflow: hidden;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            color: white;
+        }
+
+        .form-body {
+            padding: 1.5rem 2rem;
+            background: white;
+        }
+
+        .form-label {
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .accounts-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<button class="home-button" type="button" onclick="window.location.href='/'" aria-label="На главную">
+    <i class="fas fa-home"></i>
+</button>
+
+<main class="main-content">
+    <div class="accounts-container">
+        <div class="page-header">
+            <h2><i class="fas fa-cube me-2"></i>Тип передней части моноблока</h2>
+        </div>
+
+        <div class="accounts-table">
+            <div class="table-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-table me-2"></i>Сохранённые типы передней части моноблока
+                </h4>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Имя</th>
+                        <th>Описание</th>
+                        <th>Материнская плата</th>
+                        <th>Плата клавиатуры</th>
+                        <th class="text-center">Инструкция</th>
+                        <th class="text-center">Сборочная схема</th>
+                        <th>Дата создания</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="assemblyType : ${frontAssemblyTypeList}">
+                        <td><strong th:text="${assemblyType.name}"></strong></td>
+                        <td th:text="${assemblyType.description}"></td>
+                        <td th:text="${assemblyType.motherboardSubtype.name}"></td>
+                        <td th:text="${assemblyType.keyboardBoardSubtype.name}"></td>
+                        <td class="text-center">
+                            <span th:if="${assemblyType.assemblyInstruction != null}"
+                                  class="text-success"
+                                  th:title="${assemblyType.assemblyInstructionFileName}">
+                                <i class="fas fa-file-pdf fa-lg"></i>
+                            </span>
+                            <span th:unless="${assemblyType.assemblyInstruction != null}" class="text-muted">
+                                <i class="fas fa-times-circle fa-lg" title="Файл не загружен"></i>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${assemblyType.assemblyDiagram != null}"
+                                  class="text-success"
+                                  th:title="${assemblyType.assemblyDiagramFileName}">
+                                <i class="fas fa-file-pdf fa-lg"></i>
+                            </span>
+                            <span th:unless="${assemblyType.assemblyDiagram != null}" class="text-muted">
+                                <i class="fas fa-times-circle fa-lg" title="Файл не загружен"></i>
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(assemblyType.createdAt, 'dd.MM.yyyy')}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(frontAssemblyTypeList)}">
+                        <td colspan="7" class="py-4 text-center text-muted">
+                            Сохранённых типов пока нет
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="border-top">
+                <div class="px-4 py-3 bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Добавить тип передней части моноблока
+                    </h5>
+                </div>
+
+                <div class="form-body">
+                <div th:if="${param.success}" class="alert alert-success">
+                    Тип передней части моноблока сохранён
+                </div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+                <form id="frontAssemblyTypeForm"
+                      class="row g-4"
+                      method="post"
+                      th:action="@{/device/front-assembly/type}"
+                      th:object="${frontAssemblyType}"
+                      enctype="multipart/form-data">
+                    <div th:if="${#fields.hasAnyErrors()}" class="col-12 alert alert-danger mb-0">
+                        <div th:each="fieldError : ${#fields.allErrors()}" th:text="${fieldError}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="typeName" class="form-label required-field">
+                            <i class="fas fa-tag me-1"></i>Имя
+                        </label>
+                        <input id="typeName"
+                               name="name"
+                               class="form-control"
+                               type="text"
+                               th:field="*{name}"
+                               placeholder="Введите имя типа"
+                               autocomplete="off"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="typeDescription" class="form-label required-field">
+                            <i class="fas fa-align-left me-1"></i>Описание
+                        </label>
+                        <input id="typeDescription"
+                               name="description"
+                               class="form-control"
+                               type="text"
+                               th:field="*{description}"
+                               placeholder="Введите описание"
+                               autocomplete="off"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="motherboardType" class="form-label required-field">
+                            <i class="fas fa-microchip me-1"></i>Плата материнская
+                        </label>
+                        <select id="motherboardType"
+                                class="form-select"
+                                th:field="*{motherboardTypeId}"
+                                required>
+                            <option value="" selected disabled>Выберите тип платы</option>
+                            <option th:each="subtype : ${subtypeList}"
+                                    th:value="${subtype.id}"
+                                    th:text="${subtype.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="keyboardBoardType" class="form-label required-field">
+                            <i class="fas fa-keyboard me-1"></i>Плата клавиатуры
+                        </label>
+                        <select id="keyboardBoardType"
+                                class="form-select"
+                                th:field="*{keyboardBoardTypeId}"
+                                required>
+                            <option value="" selected disabled>Выберите тип платы</option>
+                            <option th:each="subtype : ${subtypeList}"
+                                    th:value="${subtype.id}"
+                                    th:text="${subtype.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="assemblyInstruction" class="form-label">
+                            <i class="fas fa-file-pdf me-1"></i>Инструкция сборки передней части
+                        </label>
+                        <input id="assemblyInstruction"
+                               name="assemblyInstruction"
+                               class="form-control"
+                               type="file"
+                               accept="application/pdf,.pdf">
+                        <div class="form-text">Необязательный файл, допустимый формат: PDF</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="assemblyDiagram" class="form-label">
+                            <i class="fas fa-file-pdf me-1"></i>Сборочная схема
+                        </label>
+                        <input id="assemblyDiagram"
+                               name="assemblyDiagram"
+                               class="form-control"
+                               type="file"
+                               accept="application/pdf,.pdf">
+                        <div class="form-text">Необязательный файл, допустимый формат: PDF</div>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end pt-3 border-top">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-2"></i>Сохранить
+                        </button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

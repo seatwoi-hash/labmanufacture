@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Этап сборки</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <style>
+        .device-table {
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-input {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #1d7acc;
+            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+        }
+
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            color: #6c757d;
+            transform: translateY(-50%);
+        }
+
+        .table-header {
+            padding: 1.5rem 2rem;
+            background: #1d7acc;
+            color: white;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            padding: 3rem 2rem;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        .empty-state i {
+            margin-bottom: 1rem;
+            color: #dee2e6;
+            font-size: 4rem;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: home-button}"></div>
+<div th:replace="~{fragments :: sidebar}"></div>
+<div th:replace="~{fragments :: user-menu}"></div>
+
+<div class="main-content">
+    <header class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-cube me-2"></i><span th:text="${pageTitle}">Этап сборки</span></h1>
+            <div class="header-actions">
+                <span class="badge bg-primary fs-6 mb-3">
+                    Сборок: <span th:text="${operations.size()}">0</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container-fluid">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <div class="search-container">
+                <div class="position-relative">
+                    <input id="searchInput"
+                           type="text"
+                           class="form-control search-input"
+                           placeholder="Поиск по ID корпуса или SN платы...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+
+            <div class="device-table" th:if="${not operations.empty}">
+                <div class="table-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0" th:text="${tableTitle}">Сборки</h4>
+                        <span class="badge bg-light text-dark fs-6">
+                            <i class="fas fa-list me-1"></i>
+                            <span th:text="${operations.size()}">0</span> сборок
+                        </span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="assemblyTable">
+                        <thead>
+                        <tr>
+                            <th>ID корпуса</th>
+                            <th>SN материнской платы</th>
+                            <th>SN платы клавиатуры</th>
+                            <th>Дата создания</th>
+                            <th>Статус</th>
+                            <th th:if="${stage != 'ready'}">Действия</th>
+                            <th class="text-center">Файл</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="operation : ${operations}" th:with="assembly=${operation.frontAssembly}">
+                            <td th:text="${assembly.caseId}"></td>
+                            <td th:text="${assembly.motherboardSerialNumber}"></td>
+                            <td th:text="${assembly.keyboardBoardSerialNumber}"></td>
+                            <td th:text="${#temporals.format(assembly.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                            <td th:text="${operation.status.description}"></td>
+                            <td th:if="${stage != 'ready'}">
+                                <form th:if="${stage == 'repair'}" th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post">
+                                    <input type="hidden" name="action" value="complete"><input type="hidden" name="returnTo" value="repair">
+                                    <button class="btn btn-success" type="submit">Ремонт завершён</button>
+                                </form>
+                                <div th:if="${stage == 'testing'}" class="d-flex gap-2">
+                                    <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post"><input type="hidden" name="action" value="passed"><input type="hidden" name="returnTo" value="testing"><button class="btn btn-success" type="submit">Пройдено</button></form>
+                                    <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post"><input type="hidden" name="action" value="failed"><input type="hidden" name="returnTo" value="testing"><button class="btn btn-danger" type="submit">Не пройдено</button></form>
+                                </div>
+                                <div th:if="${stage == 'diagnostics'}" class="d-flex gap-2">
+                                    <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post"><input type="hidden" name="action" value="test"><input type="hidden" name="returnTo" value="diagnostics"><button class="btn btn-primary" type="submit">На тестирование №2</button></form>
+                                    <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post"><input type="hidden" name="action" value="repair"><input type="hidden" name="returnTo" value="diagnostics"><button class="btn btn-warning" type="submit">В ремонт №2</button></form>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <a th:if="${assembly.fileUrl != null}"
+                                   th:href="${assembly.fileUrl}"
+                                   class="text-success"
+                                   target="_blank">
+                                    <i class="fas fa-cloud-download-alt fa-lg"></i>
+                                </a>
+                                <span th:unless="${assembly.fileUrl != null}" class="text-muted">
+                                    <i class="fas fa-times-circle fa-lg" title="Файл не загружен"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${operations.empty}">
+                <i class="fas fa-inbox"></i>
+                <h4 th:text="${emptyMessage}">Сборок пока нет</h4>
+                <p class="text-muted">Сборки появятся после перехода на этот этап</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments :: scripts}"></div>
+<script>
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+        document.querySelectorAll('#assemblyTable tbody tr').forEach(row => {
+            row.hidden = !row.textContent.toLowerCase().includes(query);
+        });
+    });
+</script>
+</body>
+</html>

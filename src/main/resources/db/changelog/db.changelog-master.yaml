@@ -27,3 +27,9 @@ databaseChangeLog:
       file: db/changelog/v1.12/db.changelog-v1.12.yaml
   - include:
       file: db/changelog/v1.13/db.changelog-v1.13.yaml
+  - include:
+      file: db/changelog/v1.14/db.changelog-v1.14.yaml
+  - include:
+      file: db/changelog/v1.15/db.changelog-v1.15.yaml
+  - include:
+      file: db/changelog/v1.16/db.changelog-v1.16.yaml
