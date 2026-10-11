@@ -200,6 +200,10 @@ body {
     transition: transform 0.3s ease;
 }
 
+.side-buttons:not(.sidebar-state-ready) {
+    visibility: hidden;
+}
+
 /* Стили для разделов */
 .side-section {
     margin-bottom: 5px;
@@ -285,6 +289,11 @@ body {
     background: linear-gradient(135deg, #1d7acc, #1d7acc);
     color: white;
     box-shadow: 0 4px 8px rgba(29, 122, 204, 0.3);
+}
+
+.side-subsection-content > a.side-btn {
+    display: block;
+    text-decoration: none;
 }
 
 .side-subsection-toggle {

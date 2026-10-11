@@ -9,7 +9,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import ru.polymetal.labManufacture.constant.DeviceStatusCodes;
-import ru.polymetal.labManufacture.controller.operation.DiffController;
+import ru.polymetal.labManufacture.controller.operation.board.DiffController;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;
@@ -23,6 +23,7 @@ import ru.polymetal.labManufacture.service.operation.OperationRollbackService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -171,14 +172,69 @@ public class DiffControllerUnitTest {
         OperationStatus sideOne = OperationStatus.builder()
                 .name(DeviceStatusCodes.SIDE1.getCode())
                 .build();
-        Operation latestTechnical = Operation.builder().status(technical).build();
-        Operation previousTechnical = Operation.builder().status(technicalTwo).build();
-        Operation productionOperation = Operation.builder().status(sideOne).build();
+        Operation latestTechnical = Operation.builder()
+                .status(technical)
+                .createdTime(LocalDateTime.of(2026, 8, 30, 12, 0))
+                .build();
+        Operation previousTechnical = Operation.builder()
+                .status(technicalTwo)
+                .createdTime(LocalDateTime.of(2026, 8, 30, 11, 0))
+                .build();
+        Operation productionOperation = Operation.builder()
+                .status(sideOne)
+                .createdTime(LocalDateTime.of(2026, 8, 30, 10, 0))
+                .build();
+        List<Operation> operations = List.of(
+                        productionOperation,
+                        latestTechnical,
+                        previousTechnical)
+                .stream()
+                .sorted(Comparator.comparing(Operation::getCreatedTime).reversed())
+                .toList();
         Device device = Device.builder()
-                .operations(List.of(latestTechnical, previousTechnical, productionOperation))
+                .operations(operations)
                 .build();
 
         org.testng.Assert.assertSame(device.getDisplayStatus(), productionOperation);
+    }
+
+    @Test
+    public void deviceDisplayStatusReturnsNewestNonTechnicalOperation() {
+        Operation newest = Operation.builder()
+                .status(OperationStatus.builder().name(DeviceStatusCodes.SIDE2.getCode()).build())
+                .createdTime(LocalDateTime.of(2026, 8, 30, 12, 0))
+                .build();
+        Operation older = Operation.builder()
+                .status(OperationStatus.builder().name(DeviceStatusCodes.SIDE1.getCode()).build())
+                .createdTime(LocalDateTime.of(2026, 8, 30, 10, 0))
+                .build();
+        Device device = Device.builder()
+                .operations(List.of(newest, older))
+                .build();
+
+        org.testng.Assert.assertSame(device.getDisplayStatus(), newest);
+    }
+
+    @Test
+    public void deviceDisplayStatusReturnsNullForMissingOperations() {
+        org.testng.Assert.assertNull(Device.builder().operations(null).build().getDisplayStatus());
+        org.testng.Assert.assertNull(Device.builder().operations(List.of()).build().getDisplayStatus());
+    }
+
+    @Test
+    public void deviceDisplayStatusReturnsNullWhenAllOperationsAreTechnical() {
+        Operation technical = Operation.builder()
+                .status(OperationStatus.builder().name(DeviceStatusCodes.TECHNICAL.getCode()).build())
+                .build();
+        Operation technicalTwo = Operation.builder()
+                .status(OperationStatus.builder().name(DeviceStatusCodes.TECHNICAL2.getCode()).build())
+                .build();
+
+        Device device = Device.builder()
+                .operations(List.of(technical, technicalTwo))
+                .build();
+
+        org.testng.Assert.assertNull(device.getDisplayStatus());
     }
 
     @Test

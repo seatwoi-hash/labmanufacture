@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.integration.controller.operation;
+package ru.polymetal.labManufacture.integration.controller.operation.board;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;

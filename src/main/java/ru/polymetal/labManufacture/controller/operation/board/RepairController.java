@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.controller.operation.board;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -196,6 +196,7 @@ public class RepairController {
 
 
     @PostMapping("/repair4-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPAIRMAN')")
     @ResponseBody
     public ResponseEntity<?> completeRepairFour(@RequestParam UUID deviceId,
                                                 @ModelAttribute("device") Operation device,

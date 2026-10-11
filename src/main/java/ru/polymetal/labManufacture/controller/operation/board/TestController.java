@@ -1,7 +1,8 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.controller.operation.board;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -85,6 +86,7 @@ public class TestController {
     }
 
     @PostMapping("/test-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESTERB')")
     @ResponseBody
     public ResponseEntity<?> completeTest(@RequestParam UUID deviceId,
                                           @RequestParam String action,
@@ -140,6 +142,7 @@ public class TestController {
     }
 
     @PostMapping("/test-board-two/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESTERB')")
     @ResponseBody
     public ResponseEntity<?> completeTestTwo(@RequestParam UUID deviceId,
                                              @RequestParam String action,

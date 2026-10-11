@@ -90,7 +90,7 @@
         <i class="fas fa-bars"></i>
     </button>
 
-    <div class="side-buttons" id="sideButtons">
+    <div class="side-buttons" id="sideButtons" style="visibility: hidden">
 
 
         <div class="side-section">
@@ -244,7 +244,9 @@
 
         <div class="side-section"
              sec:authorize="hasRole('ADMIN')">
-            <div class="section-header" data-section="ustroistva">
+            <div class="section-header"
+                 data-section="ustroistva"
+                 data-path-prefix="/device/front-assembly/">
                 <i class="fas fa-cube"></i>
                 <span>Устройства</span>
                 <i class="fas fa-chevron-down section-arrow"></i>
@@ -254,41 +256,30 @@
                     <button class="side-btn side-subsection-toggle"
                             type="button"
                             data-subsection="monoblock-front-assembly"
+                            data-path-prefix="/device/front-assembly/"
                             aria-expanded="false">
                         <span>Сборка передней части моноблока</span>
                         <i class="fas fa-chevron-down subsection-arrow"></i>
                     </button>
                     <div class="side-subsection-content">
-                        <button class="side-btn"
-                                type="button"
-                                onclick="window.location.href='/device/front-assembly/create'">
+                        <a class="side-btn" href="/device/front-assembly/create">
                             Создание
-                        </button>
-                        <button class="side-btn"
-                                type="button"
-                                onclick="window.location.href='/device/front-assembly/otk'">
+                        </a>
+                        <a class="side-btn" href="/device/front-assembly/otk">
                             ОТК
-                        </button>
-                        <button class="side-btn"
-                                type="button"
-                                onclick="window.location.href='/device/front-assembly/repair'">
+                        </a>
+                        <a class="side-btn" href="/device/front-assembly/repair">
                             Ремонт
-                        </button>
-                        <button class="side-btn"
-                                type="button"
-                                onclick="window.location.href='/device/front-assembly/testing'">
+                        </a>
+                        <a class="side-btn" href="/device/front-assembly/testing">
                             Тестирование
-                        </button>
-                        <button class="side-btn"
-                                type="button"
-                                onclick="window.location.href='/device/front-assembly/diagnostics'">
+                        </a>
+                        <a class="side-btn" href="/device/front-assembly/diagnostics">
                             Диагностика
-                        </button>
-                        <button class="side-btn"
-                                type="button"
-                                onclick="window.location.href='/device/front-assembly/ready'">
+                        </a>
+                        <a class="side-btn" href="/device/front-assembly/ready">
                             Готовые сборки
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -332,7 +323,10 @@
 
             sidebar.querySelectorAll('.section-header').forEach(function (header, index) {
                 const sectionName = header.getAttribute('data-section') || 'section-' + index;
-                const expanded = localStorage.getItem('sidebar-section-' + sectionName) === 'true';
+                const pathPrefix = header.getAttribute('data-path-prefix');
+                const isCurrentPath = pathPrefix && window.location.pathname.startsWith(pathPrefix);
+                const expanded = isCurrentPath
+                    || localStorage.getItem('sidebar-section-' + sectionName) === 'true';
                 const content = header.nextElementSibling;
                 const arrow = header.querySelector('.section-arrow');
 
@@ -342,7 +336,10 @@
 
             sidebar.querySelectorAll('.side-subsection-toggle').forEach(function (toggle) {
                 const subsectionName = toggle.getAttribute('data-subsection');
-                const expanded = localStorage.getItem('sidebar-subsection-' + subsectionName) === 'true';
+                const pathPrefix = toggle.getAttribute('data-path-prefix');
+                const isCurrentPath = pathPrefix && window.location.pathname.startsWith(pathPrefix);
+                const expanded = isCurrentPath
+                    || localStorage.getItem('sidebar-subsection-' + subsectionName) === 'true';
                 const content = toggle.nextElementSibling;
                 const arrow = toggle.querySelector('.subsection-arrow');
 
@@ -352,6 +349,7 @@
             });
 
             sidebar.classList.add('sidebar-state-ready');
+            sidebar.style.visibility = 'visible';
         })();
     </script>
 </div>
@@ -398,8 +396,10 @@
 
                 const sectionHeaders = document.querySelectorAll('.section-header');
 
-                function shouldExpandSection(sectionName) {
-                    return localStorage.getItem('sidebar-section-' + sectionName) === 'true';
+                function shouldExpandSection(header, sectionName) {
+                    const pathPrefix = header.getAttribute('data-path-prefix');
+                    return (pathPrefix && window.location.pathname.startsWith(pathPrefix))
+                        || localStorage.getItem('sidebar-section-' + sectionName) === 'true';
                 }
 
                 sectionHeaders.forEach(header => {
@@ -407,7 +407,7 @@
                     const arrow = header.querySelector('.section-arrow');
                     const sectionName = header.getAttribute('data-section') || 'section-' + Array.from(sectionHeaders).indexOf(header);
 
-                    const shouldExpand = shouldExpandSection(sectionName);
+                    const shouldExpand = shouldExpandSection(header, sectionName);
 
                     if (shouldExpand) {
                         sectionContent.classList.add('active');
@@ -435,7 +435,9 @@
                     const subsectionContent = toggle.nextElementSibling;
                     const subsectionArrow = toggle.querySelector('.subsection-arrow');
                     const storageKey = 'sidebar-subsection-' + subsectionName;
-                    const isExpanded = localStorage.getItem(storageKey) === 'true';
+                    const pathPrefix = toggle.getAttribute('data-path-prefix');
+                    const isCurrentPath = pathPrefix && window.location.pathname.startsWith(pathPrefix);
+                    const isExpanded = isCurrentPath || localStorage.getItem(storageKey) === 'true';
 
                     subsectionContent.classList.toggle('active', isExpanded);
                     subsectionArrow.classList.toggle('rotated', isExpanded);

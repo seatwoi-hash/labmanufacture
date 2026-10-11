@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.controller.operation.board;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -89,6 +90,7 @@ public class DiffController {
     }
 
     @PostMapping("/mone-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     @ResponseBody
     public ResponseEntity<?> completeMOne(@RequestParam UUID deviceId,
                                           Authentication authentication) {
@@ -129,6 +131,7 @@ public class DiffController {
     }
 
     @PostMapping("/mtwo-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     @ResponseBody
     public ResponseEntity<?> completeMTwo(@RequestParam UUID deviceId,
                                           Authentication authentication) {

@@ -1,7 +1,8 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.controller.operation.board;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,20 +11,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.INSTALLATION2;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_1_1;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_5_1_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_6;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TECHNICAL2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST_2;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Operation;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
-import ru.polymetal.labManufacture.exception.OperationNotFoundException;
 import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
-import ru.polymetal.labManufacture.service.DeviceSubTypeService;
 import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -31,33 +35,67 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * MVC-контроллер InstallationController.
+ * MVC-контроллер WashingController.
  *
  * @author Tatarinov Anton
  */
 @Controller
 @RequestMapping("/device")
-public class InstallationController {
+public class WashingController {
 
     private final AccountRepository accountRepository;
     private final OperationService operationService;
-    private final DeviceSubTypeService deviceSubTypeService;
     private final OperationQueryService operationQueryService;
 
-
-    public InstallationController(AccountRepository accountRepository, OperationService operationService,
-                                  DeviceSubTypeService deviceSubTypeService, OperationQueryService operationQueryService) {
+    public WashingController(AccountRepository accountRepository, OperationService operationService,
+                             OperationQueryService operationQueryService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
-        this.deviceSubTypeService = deviceSubTypeService;
         this.operationQueryService = operationQueryService;
     }
-
-    @GetMapping("/installation-board")
-    public String showInstallationDeviceForm(Model model, Authentication authentication) {
+    @GetMapping("/washing1-board")
+    public String showWashingOneDeviceForm(Model model, Authentication authentication) {
 
         List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_1.getCode(), QUALITY_CHECK_1_1.getCode()));
+                .findOperationsByStatusNames(Set.of(TEST_2.getCode(), TECHNICAL2.getCode()));
+        model.addAttribute("devices", devices);
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
+
+        model.addAttribute("currentUser", account);
+
+        return "operation/washing/washing1-board";
+    }
+
+
+    @PostMapping("/washing1-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'WASHER')")
+    @ResponseBody
+    public ResponseEntity<?> completeWashingOne(@RequestParam UUID deviceId,
+                                                @ModelAttribute("device") Operation device,
+                                                Authentication authentication) {
+
+        Account account =
+                accountRepository.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+
+
+        operationService.completeOperationWithDescription(deviceId, account, WASHING1.getCode() ,device.getDescription());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/washing2-board")
+    public String showWashingTwoDeviceForm(Model model, Authentication authentication) {
+
+        List<Operation> devices = operationQueryService
+                .findOperationsByStatusNames(Set.of(QUALITY_CHECK_5_1.getCode(), FAIL_QUALITY_CHECK_5_1_1.getCode()));
+
+        model.addAttribute("devices", devices);
+
 
         model.addAttribute("devices", devices);
 
@@ -65,68 +103,27 @@ public class InstallationController {
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        model.addAttribute("currentUser", account);
-
-        return "operation/installation/installation-board";
-    }
-
-
-    @PostMapping("/installation-board/complete")
-    @ResponseBody
-    public ResponseEntity<?> completeInstallation(@RequestParam UUID deviceId,
-                                                  @ModelAttribute("device") Operation device,
-                                                  Authentication authentication) {
-
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-        operationService.completeOperationWithDescription(deviceId, account, INSTALLATION.getCode(), device.getDescription());
-
-
-        return ResponseEntity.ok().build();
-
-    }
-
-    @GetMapping("/installation-board-two")
-    public String showInstallationTwoDeviceForm(Model model, Authentication authentication) {
-
-        List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(TEST.getCode()));
-
-        model.addAttribute("devices", devices);
-
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
         model.addAttribute("currentUser", account);
 
-        return "operation/installation/installation-board2";
+        return "operation/washing/washing2-board";
     }
 
 
-    @PostMapping("/installation-board-two/complete")
+    @PostMapping("/washing2-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'WASHER')")
     @ResponseBody
-    public ResponseEntity<?> completeInstallationTwo(@RequestParam UUID deviceId,
-                                                     @ModelAttribute("device") Operation device,
-                                                     Authentication authentication) {
-
-
-        Operation operation = operationService.findById(deviceId).orElseThrow(() -> new OperationNotFoundException());
-
-        Boolean isTestTwoById = deviceSubTypeService.findIsTestTwoById(operation);
+    public ResponseEntity<?> completeWashingTwo(@RequestParam UUID deviceId,
+                                                @ModelAttribute("device") Operation device,
+                                                Authentication authentication) {
 
         Account account =
                 accountRepository.findByUsername(authentication.getName())
                         .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
 
-        UUID operationIdTech = operationService.completeOperationWithDescription(deviceId, account, INSTALLATION2.getCode(), device.getDescription());
 
-
+        operationService.completeOperationWithDescription(deviceId, account, WASHING2.getCode(), device.getDescription());
 
         return ResponseEntity.ok().build();
-
     }
-
 }
