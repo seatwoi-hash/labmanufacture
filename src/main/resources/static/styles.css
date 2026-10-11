@@ -17,7 +17,7 @@ body {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    background: #0d6efd;
     border: none;
     color: white;
     display: flex;
@@ -63,9 +63,9 @@ body {
 }
 
 .dropdown-menu-user {
-    width: 300px;
-    padding: 1.5rem;
-    border-radius: 12px;
+    width: 270px;
+    padding: 1rem;
+    border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     border: none;
     font-size: 1.05rem;
@@ -74,9 +74,24 @@ body {
 .user-dropdown-header {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0;
-    margin-bottom: 1rem;
+    padding: 0.25rem 0 0.5rem;
+    margin-bottom: 0.5rem;
     border-bottom: 1px solid #dee2e6;
+}
+
+.avatar-circle {
+    display: flex;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin-right: 10px;
+    border-radius: 50%;
+    background-color: #3e68ea;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 .user-dropdown-avatar {
@@ -91,11 +106,11 @@ body {
 .user-dropdown-info h6 {
     margin-bottom: 0.2rem;
     font-weight: 600;
-    font-size: 1.2rem;
+    font-size: 1.05rem;
 }
 
 .user-dropdown-info p {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #6c757d;
     margin-bottom: 0;
 }
@@ -103,8 +118,8 @@ body {
 .dropdown-item-user {
     display: flex;
     align-items: center;
-    padding: 0.8rem 1rem;
-    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
     transition: all 0.2s;
     color: #495057;
     text-decoration: none;
@@ -135,7 +150,7 @@ body {
     transition: margin-left 0.3s ease;
 }
 
-/* Единая ширина списков производственных операций и поиска */
+/* Общие стили списков производственных операций и поиска */
 .main-content > .page-header,
 .main-content > .page-content {
     width: 100%;
@@ -154,19 +169,117 @@ body {
 
 .device-table .table {
     width: 100%;
+    min-width: 760px;
     margin-right: 0;
     margin-left: 0;
 }
 
+.device-table {
+    overflow: hidden;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.device-table .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-header {
+    padding: 1.25rem 1.5rem;
+    background: #1d7acc;
+    color: white;
+}
+
+.device-table .table th,
+.device-table .table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.device-table .table th {
+    border-top: none;
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+}
+
+.search-container {
+    position: relative;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-input {
+    min-height: 44px;
+    padding: 0.75rem 2.75rem 0.75rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    color: #6c757d;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+.empty-state {
+    padding: 3rem 2rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.empty-state i {
+    margin-bottom: 1rem;
+    color: #dee2e6;
+    font-size: 4rem;
+}
+
 /* Кнопки производственных операций всегда стоят по центру своей колонки */
 .device-table .action-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
     justify-content: center;
     text-align: center;
+    white-space: nowrap;
+}
+
+.device-table .action-buttons .btn,
+.device-table .action-buttons button,
+.device-table .action-buttons a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* Исходное оформление кнопки «Сделано» из main */
+.device-table .btn-complete {
+    border: none;
+    background: linear-gradient(135deg, #0b499b, #7fa5c9);
+    color: white;
+}
+
+.device-table .btn,
+.modal-footer .btn {
+    min-height: 38px;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
 }
 
 .device-table td:has(button),
 .device-table td:has(> .action-buttons) {
     text-align: center;
+    white-space: nowrap;
 }
 
 /* Единая подсветка отрицательных операций плат и сборок */
@@ -183,7 +296,7 @@ body {
 /* Название сортируемой колонки и значок сортировки всегда находятся в одной строке */
 th[onclick*="sortTable"],
 th:has(> .sort-link) {
-    min-width: 170px;
+    min-width: 140px;
     white-space: nowrap;
 }
 
@@ -212,6 +325,55 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
     white-space: nowrap;
 }
 
+/* Единая геометрия модальных окон; смысловые цвета задаются страницами. */
+.modal-content {
+    overflow: hidden;
+    border: none;
+    border-radius: 8px;
+}
+
+.modal-header {
+    min-height: 64px;
+    padding: 1rem 1.25rem;
+    border-bottom: none;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 1.25rem;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    padding: 1rem 1.25rem 1.25rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.modal-footer > * {
+    margin: 0;
+}
+
+/* Единое состояние фокуса для интерактивных элементов. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid rgba(29, 122, 204, 0.45);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(29, 122, 204, 0.18);
+}
+
+.form-control:focus,
+.form-select:focus,
+.search-input:focus {
+    border-color: #1d7acc;
+    box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
+}
+
 .welcome-section {
     max-width: 600px;
     margin-bottom: 3rem;
@@ -228,7 +390,7 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
 .action-btn {
     min-width: 200px;
     padding: 1.2rem 1.5rem;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 600;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
@@ -291,7 +453,7 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
     display: flex;
     align-items: center;
     padding: 12px 15px;
-    background: linear-gradient(135deg, #1d7acc, #1d7acc);
+    background: #1d7acc;
     color: white;
     font-weight: 600;
     cursor: pointer;
@@ -300,7 +462,7 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
 }
 
 .section-header:hover {
-    background: linear-gradient(135deg, #1669b8, #1669b8);
+    background: #1669b8;
 }
 
 .section-header i:first-child {
@@ -345,7 +507,7 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
     margin: 6px auto;
     padding: 10px 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     background: white;
     color: #495057;
     font-weight: 500;
@@ -363,7 +525,7 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
 }
 
 .side-btn.active {
-    background: linear-gradient(135deg, #1d7acc, #1d7acc);
+    background: #1d7acc;
     color: white;
     box-shadow: 0 4px 8px rgba(29, 122, 204, 0.3);
 }
@@ -425,7 +587,7 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    background: #0d6efd;
     border: none;
     color: white;
     align-items: center;
@@ -446,6 +608,7 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
 
     .main-content {
         margin-left: 0;
+        padding: 1.5rem;
     }
 
     .menu-toggle {
@@ -458,6 +621,64 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
 }
 
 @media (max-width: 576px) {
+    body {
+        padding-top: 70px;
+    }
+
+    .main-content {
+        padding: 1rem 0.75rem;
+    }
+
+    .table-header {
+        padding: 1rem;
+    }
+
+    .table-header .d-flex {
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+
+    .table-header h4 {
+        font-size: 1.1rem;
+    }
+
+    .search-container {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .device-table .table {
+        min-width: 680px;
+    }
+
+    .device-table .table th,
+    .device-table .table td {
+        padding: 0.75rem;
+    }
+
+    th[onclick*="sortTable"],
+    th:has(> .sort-link) {
+        min-width: 120px;
+    }
+
+    .modal-dialog {
+        margin: 0.75rem;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        flex-wrap: wrap;
+    }
+
+    .modal-footer .btn {
+        flex: 1 1 130px;
+    }
+
     .btn-container {
         flex-direction: column;
         width: 100%;
@@ -468,9 +689,9 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
     }
 
     .dropdown-menu-user {
-        width: 90%;
-        right: 5% !important;
-        left: 5% !important;
+        width: min(270px, calc(100vw - 2rem));
+        right: 1rem !important;
+        left: auto !important;
         transform: none !important;
         top: 80px !important;
     }
@@ -495,7 +716,7 @@ th[onclick*="sortTable"] [class*="fa-sort"] {
      width: 50px !important;
      height: 50px !important;
      border-radius: 50% !important;
-     background: linear-gradient(135deg, #0d6efd, #0a58ca) !important;
+     background: #0d6efd !important;
      border: none !important;
      color: white !important;
      display: flex !important;

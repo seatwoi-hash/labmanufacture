@@ -38,7 +38,7 @@
 
         .progress {
             height: 10px;
-            border-radius: 5px;
+            border-radius: 8px;
         }
 
         .upload-progress {
@@ -50,76 +50,21 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-
-
-
-        .device-table {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .search-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .search-input {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        .search-input:focus {
-            border-color: #1d7acc;
-            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
-        }
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-        .table-header {
-            background: linear-gradient(135deg, #1d7acc, #1d7acc);
-            color: white;
-            padding: 1.5rem 2rem;
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-            border-top: none;
-            font-weight: 600;
-            color: #495057;
-            padding: 1rem;
-        }
-
-        .table td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
-
         .btn-passed {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: #28a745;
             border: none;
             color: white;
             padding: 0.5rem 1rem;
-            border-radius: 6px;
+            border-radius: 8px;
             transition: all 0.3s ease;
         }
 
         .btn-failed {
-            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            background: #dc3545;
             border: none;
             color: white;
             padding: 0.5rem 1rem;
-            border-radius: 6px;
+            border-radius: 8px;
             transition: all 0.3s ease;
         }
 
@@ -135,7 +80,7 @@
 
         .status-badge {
             padding: 0.5rem 1rem;
-            border-radius: 20px;
+            border-radius: 8px;
             font-size: 0.75rem;
             font-weight: 600;
         }
@@ -145,20 +90,8 @@
             color: #1976d2;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #6c757d;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #dee2e6;
-        }
-
         .confirm-modal .modal-header {
-            background: linear-gradient(135deg, #1d7acc, #1d7acc);
+            background: #1d7acc;
             color: white;
         }
 
@@ -168,18 +101,12 @@
             color: #2c3e50;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-        }
-
         .modal-passed .modal-header {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: #28a745;
         }
 
         .modal-failed .modal-header {
-            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            background: #dc3545;
         }
     </style>
 </head>

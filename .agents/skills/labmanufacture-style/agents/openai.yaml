@@ -1,0 +1,4 @@
+interface:
+  display_name: "LabManufacture UI Style"
+  short_description: "Keep the project UI visually consistent"
+  default_prompt: "Use $labmanufacture-style to review and align this UI change with the project's design rules."

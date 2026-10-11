@@ -6,6 +6,7 @@
     <title>Тип передней части моноблока</title>
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
     <style>
         .home-button {
             position: fixed !important;
@@ -56,15 +57,9 @@
 
         .accounts-table {
             overflow: hidden;
-            border-radius: 12px;
+            border-radius: 8px;
             background: white;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .table-header {
-            padding: 1.5rem 2rem;
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
-            color: white;
         }
 
         .form-body {
@@ -86,11 +81,6 @@
         .form-select:focus {
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
-
-        .action-buttons .btn {
-            padding: 0.25rem 0.5rem;
-            margin: 0 0.1rem;
         }
 
         @media (max-width: 768px) {
