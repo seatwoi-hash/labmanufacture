@@ -9,33 +9,9 @@
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/styles.css}">
     <style>
-        .device-table {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .table-header {
-            background: linear-gradient(135deg, #1d7acc, #1d7acc);
-            color: white;
-            padding: 1.5rem 2rem;
-        }
-        .table th {
-            background-color: #f8f9fa;
-            border-top: none;
-            font-weight: 600;
-            color: #495057;
-            padding: 1rem;
-        }
-        .table td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
         .status-badge {
             padding: 0.5rem 1rem;
-            border-radius: 20px;
+            border-radius: 8px;
             font-size: 0.75rem;
             font-weight: 600;
         }
@@ -48,41 +24,6 @@
             font-weight: 600;
             color: #2c3e50;
         }
-        .search-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .search-input {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        .search-input:focus {
-            border-color: #1d7acc;
-            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
-        }
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #6c757d;
-        }
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #dee2e6;
-        }
         .no-results {
             text-align: center;
             padding: 2rem;
@@ -92,7 +33,7 @@
         .action-btn {
             padding: 0.4rem 0.8rem;
             font-size: 0.875rem;
-            border-radius: 6px;
+            border-radius: 8px;
         }
         .table-row {
             transition: all 0.3s ease;
@@ -144,7 +85,6 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="mb-1">Список готовых плат</h4>
-                                <p class="mb-0">Все платы со статусом "Готов"</p>
                             </div>
                             <div class="text-end">
                             <span class="badge bg-light text-dark fs-6">

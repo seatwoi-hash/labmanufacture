@@ -65,13 +65,13 @@
 
         .edit-form-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             overflow: hidden;
         }
 
         .form-header {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            background: #0d6efd;
             color: white;
             padding: 1.5rem 2rem;
         }
@@ -102,12 +102,12 @@
         }
 
         .btn-save {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            background: #0d6efd;
             color: white;
             border: none;
             padding: 0.75rem 2rem;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 8px;
         }
 
         .btn-cancel {
@@ -116,7 +116,7 @@
             border: none;
             padding: 0.75rem 2rem;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 8px;
         }
 
         .option-item {
@@ -125,7 +125,7 @@
             gap: 0.5rem;
             padding: 0.5rem;
             border: 1px solid #dee2e6;
-            border-radius: 6px;
+            border-radius: 8px;
             background: #f8f9fa;
         }
 
@@ -199,7 +199,7 @@
                                id="typeName"
                                th:field="*{name}"
                                placeholder="Введите тип платы"
-                               style="border: 1px solid #dee2e6; border-radius: 6px;"
+                               style="border: 1px solid #dee2e6; border-radius: 8px;"
                                required>
                         <div class="form-text" style="color: #6b7280;">
                             Уникальное название типа платы
@@ -215,7 +215,7 @@
                                   id="typeDescription"
                                   th:field="*{description}"
                                   placeholder="Введите описание типа платы"
-                                  style="border: 1px solid #dee2e6; border-radius: 6px; min-height: 100px; resize: vertical;"
+                                  style="border: 1px solid #dee2e6; border-radius: 8px; min-height: 100px; resize: vertical;"
                                   required></textarea>
                         <div class="form-text" style="color: #6b7280;">
                             Подробное описание характеристик и особенностей типа
@@ -283,7 +283,7 @@
                                    max="99"
                                    step="1"
                                    placeholder="Введите номер типа"
-                                   style="border: 1px solid #dee2e6; border-radius: 6px; width: 300px"
+                                   style="border: 1px solid #dee2e6; border-radius: 8px; width: 300px"
                                    required>
                             <div class="form-text" style="color: #6b7280;">
                                 Введите номер типа платы  XX XX [Номер типа: XX] X XXX
@@ -304,7 +304,7 @@
                                    max="9"
                                    step="1"
                                    placeholder="Введите версию типа"
-                                   style="border: 1px solid #dee2e6; border-radius: 6px; width: 300px"
+                                   style="border: 1px solid #dee2e6; border-radius: 8px; width: 300px"
                                    required>
                             <div class="form-text" style="color: #6b7280;">
                                 Введите версию типа платы  XX XX XX [Версия: X] XXX

@@ -11,44 +11,6 @@
     <link rel="stylesheet" th:href="@{/styles.css}">
     <title>Главная страница</title>
     <style>
-        .device-table {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .table-header {
-            background: linear-gradient(135deg, #1d7acc, #1d7acc);
-            color: white;
-            padding: 1.5rem 2rem;
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-            border-top: none;
-            font-weight: 600;
-            color: #495057;
-            padding: 1rem;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #6c757d;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #dee2e6;
-        }
-
-
-        .table td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
 
         body {
             background-color: #f5f7fa;
@@ -67,7 +29,7 @@
         .stat-card {
             transition: all 0.3s ease;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
             border: none;
             margin-bottom: 1rem;
@@ -83,7 +45,7 @@
         .stat-icon {
             width: 60px;
             height: 60px;
-            border-radius: 12px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -101,7 +63,7 @@
 
         .action-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 1.5rem;
             text-align: center;
             transition: all 0.3s ease;
@@ -119,7 +81,7 @@
 
         .progress-container {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 1.5rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             margin-bottom: 2rem;
@@ -127,34 +89,9 @@
 
         .progress-bar-custom {
             height: 10px;
-            border-radius: 5px;
+            border-radius: 8px;
             background-color: #e9ecef;
             overflow: hidden;
-        }
-        .search-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .search-input {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        .search-input:focus {
-            border-color: #1d7acc;
-            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
-        }
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
         }
 
 
@@ -162,7 +99,7 @@
             display: inline-flex;
             align-items: center;
             padding: 0.3rem 0.8rem;
-            border-radius: 20px;
+            border-radius: 8px;
             font-size: 0.85rem;
             font-weight: 500;
         }

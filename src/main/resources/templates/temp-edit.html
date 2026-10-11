@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактировать пользователя</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <style>
@@ -68,7 +68,7 @@
 
         .user-form-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             padding: 2rem;
             margin-top: 1rem;
@@ -124,7 +124,7 @@
         .password-strength {
             height: 4px;
             background: #e9ecef;
-            border-radius: 2px;
+            border-radius: 8px;
             margin-top: 0.5rem;
             overflow: hidden;
         }
@@ -133,7 +133,7 @@
             height: 100%;
             width: 0%;
             transition: all 0.3s ease;
-            border-radius: 2px;
+            border-radius: 8px;
         }
 
         .strength-weak { background: #dc3545; width: 25%; }
@@ -148,7 +148,7 @@
         }
 
         .btn-save {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            background: #0d6efd;
             border: none;
             padding: 0.75rem 2rem;
             font-weight: 600;
@@ -156,7 +156,7 @@
         }
 
         .btn-cancel {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
+            background: #6c757d;
             border: none;
             padding: 0.75rem 2rem;
             font-weight: 600;

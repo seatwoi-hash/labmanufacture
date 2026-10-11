@@ -6,6 +6,7 @@
     <title>Редактирование типа передней части моноблока</title>
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
     <style>
         .home-button {
             position: fixed !important;
@@ -56,13 +57,13 @@
 
         .edit-form-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         .form-header {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            background: #0d6efd;
             color: white;
             padding: 1.5rem 2rem;
         }
@@ -80,12 +81,12 @@
         }
 
         .btn-save {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            background: #0d6efd;
             color: white;
             border: none;
             padding: 0.75rem 2rem;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 8px;
         }
 
         .btn-cancel {
@@ -94,7 +95,7 @@
             border: none;
             padding: 0.75rem 2rem;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 8px;
         }
 
         @media (max-width: 768px) {

@@ -28,7 +28,7 @@
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-user" aria-labelledby="userDropdownButton">
             <li>
                 <div class="user-dropdown-header">
-                    <div class="avatar-circle" style="background-color: #3e68ea; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 12px;">
+                    <div class="avatar-circle">
                         <span th:text="${currentUser.firstName != null ? currentUser.firstName.substring(0,1) : 'U'}"></span>
                         <span th:text="${currentUser.lastName != null ? currentUser.lastName.substring(0,1) : 'S'}"></span>
                     </div>
@@ -45,12 +45,7 @@
                 </a>
             </li>
             <li sec:authorize="hasAuthority('ROLE_ADMIN')">
-                <a class="dropdown-item-user" href="/employee"><i class="fas fa-circle-user"></i> Редактирование сотрудников</a>
-            </li>
-            <li sec:authorize="hasAuthority('ROLE_ADMIN')">
-                <a class="dropdown-item-user" href="/admin/operations/rollback">
-                    <i class="fas fa-rotate-left"></i> Возврат операции
-                </a>
+                <a class="dropdown-item-user" href="/employee"><i class="fas fa-circle-user"></i> Сотрудники</a>
             </li>
             <li sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_DEVELOPER')">
                 <hr class="dropdown-divider">
@@ -62,6 +57,11 @@
                 <a class="dropdown-item-user" href="/devicetype/add"><i class="fa-solid fa-bacon"></i> Тип платы</a>
             </li>
             <li sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <a class="dropdown-item-user" href="/admin/operations/rollback">
+                    <i class="fas fa-rotate-left"></i> Возврат операции
+                </a>
+            </li>
+            <li sec:authorize="hasAuthority('ROLE_ADMIN')">
                 <hr class="dropdown-divider">
             </li>
             <li sec:authorize="hasAuthority('ROLE_ADMIN')">
@@ -69,7 +69,7 @@
             </li>
             <li sec:authorize="hasAuthority('ROLE_ADMIN')">
                 <a class="dropdown-item-user" href="/device/front-assembly/type">
-                    <i class="fas fa-cube"></i> Тип передней части моноблока
+                    <i class="fas fa-cube"></i> Тип передней части
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
