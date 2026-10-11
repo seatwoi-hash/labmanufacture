@@ -5,6 +5,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.ui.ExtendedModelMap;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -17,6 +18,7 @@ import ru.polymetal.labManufacture.data.models.OperationStatus;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.FrontAssemblyFlowService;
 import ru.polymetal.labManufacture.service.device.DeviceService;
 import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationRollbackService;
@@ -41,6 +43,7 @@ import static org.mockito.Mockito.when;
 public class DiffControllerUnitTest {
 
     private MockMvc mockMvc;
+    private DiffController controller;
 
     private AutoCloseable mocks;
 
@@ -64,20 +67,23 @@ public class DiffControllerUnitTest {
 
     @Mock
     private OperationRollbackService operationRollbackService;
+    @Mock
+    private FrontAssemblyFlowService frontAssemblyFlowService;
 
 
     @BeforeMethod
     public void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
 
-        DiffController controller = new DiffController(
+        controller = new DiffController(
                 accountRepository,
                 operationService,
                 deviceStatusService,
                 deviceSubTypeService,
                 deviceService,
                 operationQueryService,
-                operationRollbackService
+                operationRollbackService,
+                frontAssemblyFlowService
         );
 
         mockMvc = MockMvcBuilders
@@ -124,6 +130,70 @@ public class DiffControllerUnitTest {
 
         verify(accountRepository)
                 .findByUsername("operatorTestMVC");
+    }
+
+    @Test
+    public void readyBoardHidesBoardsUsedByActiveFrontAssembly() throws Exception {
+        UUID usedDeviceId = UUID.randomUUID();
+        UUID freeDeviceId = UUID.randomUUID();
+        Device usedDevice = Device.builder().id(usedDeviceId).build();
+        Device freeDevice = Device.builder().id(freeDeviceId).build();
+        Operation usedOperation = new Operation();
+        usedOperation.setDevice(usedDevice);
+        usedOperation.setCreatedTime(LocalDateTime.now());
+        Operation freeOperation = new Operation();
+        freeOperation.setDevice(freeDevice);
+        freeOperation.setCreatedTime(LocalDateTime.now().minusMinutes(1));
+        Account account = Account.builder().username("admin").build();
+
+        when(operationQueryService.findOperationsByStatusNames(Set.of(DeviceStatusCodes.READY.getCode())))
+                .thenReturn(List.of(usedOperation, freeOperation));
+        when(frontAssemblyFlowService.findUsedBoardIds()).thenReturn(Set.of(usedDeviceId));
+        when(accountRepository.findByUsername("admin")).thenReturn(Optional.of(account));
+
+        mockMvc.perform(get("/device/ready-board")
+                        .principal(new UsernamePasswordAuthenticationToken("admin", null)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("board/ready-board"))
+                .andExpect(model().attribute("devices", List.of(freeOperation)));
+    }
+
+    @Test
+    public void readyBoardTempCountsOnlyAvailableBoardsWithoutPagination() throws Exception {
+        UUID usedDeviceId = UUID.randomUUID();
+        UUID freeDeviceId = UUID.randomUUID();
+        Device usedDevice = Device.builder()
+                .id(usedDeviceId)
+                .serialNumber("BOARD-USED")
+                .build();
+        Device freeDevice = Device.builder()
+                .id(freeDeviceId)
+                .serialNumber("BOARD-FREE")
+                .build();
+        Operation usedOperation = Operation.builder()
+                .device(usedDevice)
+                .createdTime(LocalDateTime.now())
+                .build();
+        Operation freeOperation = Operation.builder()
+                .device(freeDevice)
+                .createdTime(LocalDateTime.now().minusMinutes(1))
+                .build();
+        Account account = Account.builder().username("admin").build();
+
+        when(operationQueryService.findOperationsByStatusNames(Set.of(DeviceStatusCodes.READY.getCode())))
+                .thenReturn(List.of(usedOperation, freeOperation));
+        when(frontAssemblyFlowService.findUsedBoardIds()).thenReturn(Set.of(usedDeviceId));
+        when(accountRepository.findByUsername("admin")).thenReturn(Optional.of(account));
+
+        ExtendedModelMap model = new ExtendedModelMap();
+        String viewName = controller.showReadyBoardTemp(
+                null,
+                model,
+                new UsernamePasswordAuthenticationToken("admin", null));
+
+        org.testng.Assert.assertEquals(viewName, "ready-board-temp");
+        org.testng.Assert.assertEquals(model.get("devices"), List.of(freeOperation));
+        org.testng.Assert.assertEquals(model.get("totalElements"), 1);
     }
 
     @Test

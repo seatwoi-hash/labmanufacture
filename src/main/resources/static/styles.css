@@ -135,6 +135,83 @@ body {
     transition: margin-left 0.3s ease;
 }
 
+/* Единая ширина списков производственных операций и поиска */
+.main-content > .page-header,
+.main-content > .page-content {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
+
+.page-content .container-fluid > .search-container,
+.page-content .container-fluid > .device-table,
+.page-content .container-fluid > [id$="TableContainer"],
+.page-content .container-fluid > [id$="TableContainer"] > .device-table {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
+
+.device-table .table {
+    width: 100%;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+/* Кнопки производственных операций всегда стоят по центру своей колонки */
+.device-table .action-buttons {
+    justify-content: center;
+    text-align: center;
+}
+
+.device-table td:has(button),
+.device-table td:has(> .action-buttons) {
+    text-align: center;
+}
+
+/* Единая подсветка отрицательных операций плат и сборок */
+.table-fail,
+.table-fail > * {
+    background-color: #f6e5e8 !important;
+}
+
+.table-fail:hover,
+.table-fail:hover > * {
+    background-color: #f6e0e2 !important;
+}
+
+/* Название сортируемой колонки и значок сортировки всегда находятся в одной строке */
+th[onclick*="sortTable"],
+th:has(> .sort-link) {
+    min-width: 170px;
+    white-space: nowrap;
+}
+
+th[onclick*="sortTable"] [class*="fa-sort"] {
+    float: none !important;
+    margin-top: 0 !important;
+    margin-right: 0 !important;
+    margin-left: 0.5rem !important;
+}
+
+.sort-label {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.sort-label [class*="fa-sort"] {
+    flex: 0 0 auto;
+}
+
+.sort-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
 .welcome-section {
     max-width: 600px;
     margin-bottom: 3rem;

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Все операции сборки</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <link rel="stylesheet" th:href="@{/front-assembly.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: home-button}"></div>
+<div th:replace="~{fragments :: sidebar}"></div>
+<div th:replace="~{fragments :: user-menu}"></div>
+
+<div class="main-content">
+    <header class="page-header">
+        <div class="header-content">
+            <div>
+                <h1><i class="fas fa-list me-2"></i>Все операции сборки</h1>
+                <p th:if="${assembly != null}" class="mb-0">
+                    Корпус: <strong th:text="${assembly.caseId}"></strong>
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="container-fluid">
+            <div class="search-container">
+                <div class="position-relative">
+                    <input id="searchInput" class="form-control search-input" type="text"
+                           placeholder="Поиск по операции, исполнителю или комментарию...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+
+            <div class="device-table" th:if="${not operations.empty}">
+                <div class="table-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">История операций</h4>
+                        <span class="badge bg-light text-dark" th:text="${operations.size()}"></span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="operationsTable" class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>ID корпуса</th>
+                            <th>Материнская плата</th>
+                            <th>Плата клавиатуры</th>
+                            <th>Операция</th>
+                            <th>Комментарий</th>
+                            <th>Исполнитель</th>
+                            <th>Дата операции</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="operation : ${operations}"
+                            th:classappend="${operation.transitionAction == 'failed'} ? 'table-fail' : ''"
+                            th:with="item=${operation.frontAssembly}">
+                            <td><strong th:text="${item.caseId}"></strong></td>
+                            <td><span class="device-sn" th:text="${item.motherboardSerialNumber}"></span></td>
+                            <td><span class="device-sn" th:text="${item.keyboardBoardSerialNumber}"></span></td>
+                            <td th:text="${operation.status.description}"></td>
+                            <td>
+                                <span th:if="${operation.description != null && !operation.description.isBlank()}"
+                                      th:text="${operation.description}"></span>
+                                <span th:unless="${operation.description != null && !operation.description.isBlank()}"
+                                      class="text-muted">—</span>
+                            </td>
+                            <td th:text="${operation.account.lastName != null ? operation.account.lastName : operation.account.username}"></td>
+                            <td th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${operations.empty}">
+                <i class="fas fa-inbox"></i>
+                <h4>Операций пока нет</h4>
+                <p>Для этой сборки ещё не зарегистрировано ни одной операции</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments :: scripts}"></div>
+<script>
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+        document.querySelectorAll('#operationsTable tbody tr').forEach(row => {
+            row.hidden = !row.textContent.toLowerCase().includes(query);
+        });
+    });
+</script>
+</body>
+</html>

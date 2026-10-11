@@ -33,6 +33,9 @@ public class FrontAssemblyOperation {
 
     private String description;
 
+    @Column(name = "transition_action", length = 32)
+    private String transitionAction;
+
     @CreationTimestamp
     @Column(name = "created_time", nullable = false, updatable = false)
     private LocalDateTime createdTime;

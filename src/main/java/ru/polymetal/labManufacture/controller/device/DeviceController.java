@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -92,12 +93,14 @@ public class DeviceController {
     public String showCreateFrontAssemblyForm(Model model, Authentication authentication) {
         Account account = accountRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+        Set<UUID> usedBoardIds = frontAssemblyFlowService.findUsedBoardIds();
 
         model.addAttribute("currentUser", account);
         model.addAttribute("boards", operationQueryService
                 .findOperationsByStatusNames(Set.of(READY.getCode())).stream()
                 .map(operation -> operation.getDevice())
                 .filter(device -> device != null && !Boolean.TRUE.equals(device.getIsDeleted()))
+                .filter(device -> !usedBoardIds.contains(device.getId()))
                 .distinct()
                 .toList());
         model.addAttribute("frontAssemblyTypes", frontAssemblyTypeService.findAll());
@@ -156,6 +159,56 @@ public class DeviceController {
             model.addAttribute("error", e.getMessage());
             return "device/front-assembly-type";
         }
+    }
+
+    @GetMapping("/front-assembly/type/edit/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showEditFrontAssemblyTypeForm(@PathVariable UUID id,
+                                                Model model,
+                                                Authentication authentication) {
+        var type = frontAssemblyTypeService.findById(id);
+        populateFrontAssemblyTypeModel(model, authentication);
+        model.addAttribute("frontAssemblyType", new FrontAssemblyTypeDto(
+                type.getName(),
+                type.getDescription(),
+                type.getMotherboardSubtype().getId(),
+                type.getKeyboardBoardSubtype().getId()));
+        model.addAttribute("editingType", type);
+        return "device/front-assembly-type-edit";
+    }
+
+    @PatchMapping("/front-assembly/type/edit/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String editFrontAssemblyType(
+            @PathVariable UUID id,
+            @Valid @ModelAttribute("frontAssemblyType") FrontAssemblyTypeDto form,
+            BindingResult bindingResult,
+            @RequestParam(value = "assemblyInstruction", required = false) MultipartFile assemblyInstruction,
+            @RequestParam(value = "assemblyDiagram", required = false) MultipartFile assemblyDiagram,
+            Model model,
+            Authentication authentication) {
+        if (bindingResult.hasErrors()) {
+            populateFrontAssemblyTypeModel(model, authentication);
+            model.addAttribute("editingType", frontAssemblyTypeService.findById(id));
+            return "device/front-assembly-type-edit";
+        }
+
+        try {
+            frontAssemblyTypeService.edit(id, form, assemblyInstruction, assemblyDiagram);
+            return "redirect:/device/front-assembly/type?updated";
+        } catch (IOException | IllegalArgumentException e) {
+            populateFrontAssemblyTypeModel(model, authentication);
+            model.addAttribute("editingType", frontAssemblyTypeService.findById(id));
+            model.addAttribute("error", e.getMessage());
+            return "device/front-assembly-type-edit";
+        }
+    }
+
+    @DeleteMapping("/front-assembly/type/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteFrontAssemblyType(@PathVariable UUID id) {
+        frontAssemblyTypeService.delete(id);
+        return "redirect:/device/front-assembly/type?deleted";
     }
 
     private void populateFrontAssemblyTypeModel(Model model, Authentication authentication) {

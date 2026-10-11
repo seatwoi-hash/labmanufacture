@@ -59,6 +59,38 @@ public class FrontAssemblyOperationController {
                 "Готовые сборки передней части моноблока", "Готовые сборки", "Готовых сборок пока нет");
     }
 
+    @GetMapping("/in-progress")
+    public String showInProgress(Model model, Authentication authentication) {
+        model.addAttribute("currentUser", currentAccount(authentication));
+        model.addAttribute("operations", flowService.findInProgress());
+        return "device/front-assembly-in-progress";
+    }
+
+    @GetMapping("/{assemblyId}/operations")
+    public String showOperations(@PathVariable UUID assemblyId,
+                                 Model model,
+                                 Authentication authentication) {
+        var operations = flowService.findHistory(assemblyId);
+        model.addAttribute("currentUser", currentAccount(authentication));
+        model.addAttribute("operations", operations);
+        model.addAttribute("assembly", operations.isEmpty()
+                ? null : operations.get(0).getFrontAssembly());
+        return "device/front-assembly-operations";
+    }
+
+    @DeleteMapping("/{assemblyId}")
+    public String deleteInProgress(@PathVariable UUID assemblyId,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            flowService.deleteInProgress(assemblyId);
+            redirectAttributes.addFlashAttribute(
+                    "success", "Сборка удалена, платы возвращены в список готовых");
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/device/front-assembly/in-progress";
+    }
+
     @PostMapping("/{assemblyId}/transition")
     public String transition(@PathVariable UUID assemblyId, @RequestParam String action,
                              @RequestParam(required = false) String description,

@@ -171,6 +171,7 @@
         .action-buttons {
             display: flex;
             gap: 0.5rem;
+            justify-content: center;
         }
 
         .modal-passed .modal-header {
@@ -241,19 +242,25 @@
                             <thead>
                             <tr>
                                 <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
-                                    Серийный номер
-                                    <i class="fas fa-sort float-end mt-1"></i>
+                                    <span class="sort-label">
+                                        Серийный номер
+                                    <i class="fas fa-sort ms-2"></i>
+                                    </span>
                                 </th>
                                 <th style="width: 15%; cursor: pointer;" onclick="sortTable(1)">
-                                    Тип платы
-                                    <i class="fas fa-sort float-end mt-1"></i>
+                                    <span class="sort-label">
+                                        Тип платы
+                                    <i class="fas fa-sort ms-2"></i>
+                                    </span>
                                 </th>
                                 <th>Описание Ремонт №1</th>
                                 <th style="width: 15%; cursor: pointer;" onclick="sortTable(3)">
-                                    Дата создания
-                                    <i class="fas fa-sort float-end mt-1"></i>
+                                    <span class="sort-label">
+                                        Дата создания
+                                    <i class="fas fa-sort ms-2"></i>
+                                    </span>
                                 </th>
-                                <th>Действия</th>
+                                <th class="text-center">Действия</th>
                                 <th>Примечание</th>
                                 <th>Файл</th>
                             </tr>
@@ -276,7 +283,7 @@
                                         <span th:text="${#temporals.format(operation.createdTime, 'dd.MM.yyyy HH:mm')}">
                                         </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="action-buttons">
                                         <button class="btn btn-passed"
                                                 th:attr="data-device-id=${operation.id}"
@@ -1343,14 +1350,14 @@
                     icon.className =
                         sortDirection === 'asc'
 
-                            ? 'fas fa-sort-up float-end mt-1'
+                            ? 'fas fa-sort-up ms-2'
 
-                            : 'fas fa-sort-down float-end mt-1';
+                            : 'fas fa-sort-down ms-2';
 
                 } else {
 
                     icon.className =
-                        'fas fa-sort float-end mt-1';
+                        'fas fa-sort ms-2';
                 }
             }
         );

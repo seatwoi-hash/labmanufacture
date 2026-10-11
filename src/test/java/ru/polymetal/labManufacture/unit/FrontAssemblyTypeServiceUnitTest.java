@@ -23,6 +23,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.expectThrows;
 
 public class FrontAssemblyTypeServiceUnitTest {
@@ -54,10 +56,12 @@ public class FrontAssemblyTypeServiceUnitTest {
         DeviceSubType keyboardBoard = DeviceSubType.builder().id(keyboardBoardId).name("Клавиатура").build();
         FrontAssemblyTypeDto form = new FrontAssemblyTypeDto(
                 "  Тип А  ", "  Описание типа  ", motherboardId, keyboardBoardId);
+        byte[] instructionContent = "%PDF-1.4 instruction".getBytes();
+        byte[] diagramContent = "%PDF-1.4 diagram".getBytes();
         MockMultipartFile instruction = new MockMultipartFile(
-                "assemblyInstruction", "instruction.pdf", "application/pdf", new byte[]{1, 2});
+                "assemblyInstruction", "instruction.pdf", "application/pdf", instructionContent);
         MockMultipartFile diagram = new MockMultipartFile(
-                "assemblyDiagram", "diagram.pdf", "application/pdf", new byte[]{3, 4, 5});
+                "assemblyDiagram", "diagram.pdf", "application/pdf", diagramContent);
 
         when(frontAssemblyTypeRepository.findByNameIgnoreCaseAndIsDeletedFalse("Тип А"))
                 .thenReturn(Optional.empty());
@@ -73,10 +77,10 @@ public class FrontAssemblyTypeServiceUnitTest {
         assertEquals(saved.getDescription(), "Описание типа");
         assertEquals(saved.getMotherboardSubtype(), motherboard);
         assertEquals(saved.getKeyboardBoardSubtype(), keyboardBoard);
-        assertEquals(saved.getAssemblyInstruction(), new byte[]{1, 2});
+        assertEquals(saved.getAssemblyInstruction(), instructionContent);
         assertEquals(saved.getAssemblyInstructionFileName(), "instruction.pdf");
         assertEquals(saved.getAssemblyInstructionMimeType(), "application/pdf");
-        assertEquals(saved.getAssemblyDiagram(), new byte[]{3, 4, 5});
+        assertEquals(saved.getAssemblyDiagram(), diagramContent);
         assertEquals(saved.getAssemblyDiagramFileName(), "diagram.pdf");
         assertEquals(saved.getAssemblyDiagramMimeType(), "application/pdf");
     }
@@ -143,6 +147,27 @@ public class FrontAssemblyTypeServiceUnitTest {
     }
 
     @Test
+    public void saveRejectsPdfExtensionWithInvalidContent() {
+        UUID motherboardId = UUID.randomUUID();
+        UUID keyboardBoardId = UUID.randomUUID();
+        FrontAssemblyTypeDto form = new FrontAssemblyTypeDto(
+                "Тип А", "Описание", motherboardId, keyboardBoardId);
+        MockMultipartFile invalidInstruction = new MockMultipartFile(
+                "assemblyInstruction", "instruction.pdf", "application/pdf", "not a pdf".getBytes());
+
+        when(frontAssemblyTypeRepository.findByNameIgnoreCaseAndIsDeletedFalse("Тип А"))
+                .thenReturn(Optional.empty());
+
+        IllegalArgumentException error = expectThrows(
+                IllegalArgumentException.class,
+                () -> service.save(form, invalidInstruction, null));
+
+        assertEquals(error.getMessage(), "Инструкция сборки: содержимое файла не является PDF");
+        verify(frontAssemblyTypeRepository, never()).save(any());
+        verify(deviceSubTypeRepository, never()).findById(any());
+    }
+
+    @Test
     public void saveRejectsMissingBoardSubtype() {
         UUID motherboardId = UUID.randomUUID();
         UUID keyboardBoardId = UUID.randomUUID();
@@ -158,5 +183,71 @@ public class FrontAssemblyTypeServiceUnitTest {
 
         assertEquals(error.getMessage(), "Тип материнской платы не найден");
         verify(frontAssemblyTypeRepository, never()).save(any());
+    }
+
+    @Test
+    public void editUpdatesFieldsAndKeepsExistingDocumentsWhenNoFilesSelected() throws Exception {
+        UUID typeId = UUID.randomUUID();
+        UUID motherboardId = UUID.randomUUID();
+        UUID keyboardBoardId = UUID.randomUUID();
+        DeviceSubType motherboard = DeviceSubType.builder().id(motherboardId).build();
+        DeviceSubType keyboardBoard = DeviceSubType.builder().id(keyboardBoardId).build();
+        FrontAssemblyType type = new FrontAssemblyType();
+        type.setId(typeId);
+        type.setName("Старое имя");
+        type.setAssemblyInstruction(new byte[]{1});
+        type.setAssemblyDiagram(new byte[]{2});
+        FrontAssemblyTypeDto form = new FrontAssemblyTypeDto(
+                " Новое имя ", " Новое описание ", motherboardId, keyboardBoardId);
+
+        when(frontAssemblyTypeRepository.findByIdAndIsDeletedFalse(typeId)).thenReturn(Optional.of(type));
+        when(frontAssemblyTypeRepository.findByNameIgnoreCaseAndIsDeletedFalse("Новое имя"))
+                .thenReturn(Optional.empty());
+        when(deviceSubTypeRepository.findById(motherboardId)).thenReturn(Optional.of(motherboard));
+        when(deviceSubTypeRepository.findById(keyboardBoardId)).thenReturn(Optional.of(keyboardBoard));
+
+        service.edit(typeId, form, null, null);
+
+        assertEquals(type.getName(), "Новое имя");
+        assertEquals(type.getDescription(), "Новое описание");
+        assertSame(type.getMotherboardSubtype(), motherboard);
+        assertSame(type.getKeyboardBoardSubtype(), keyboardBoard);
+        assertEquals(type.getAssemblyInstruction(), new byte[]{1});
+        assertEquals(type.getAssemblyDiagram(), new byte[]{2});
+        verify(frontAssemblyTypeRepository).save(type);
+    }
+
+    @Test
+    public void editRejectsAnotherActiveTypeWithSameName() {
+        UUID typeId = UUID.randomUUID();
+        FrontAssemblyType type = new FrontAssemblyType();
+        type.setId(typeId);
+        FrontAssemblyType duplicate = new FrontAssemblyType();
+        duplicate.setId(UUID.randomUUID());
+        FrontAssemblyTypeDto form = new FrontAssemblyTypeDto(
+                "Повтор", "Описание", UUID.randomUUID(), UUID.randomUUID());
+
+        when(frontAssemblyTypeRepository.findByIdAndIsDeletedFalse(typeId)).thenReturn(Optional.of(type));
+        when(frontAssemblyTypeRepository.findByNameIgnoreCaseAndIsDeletedFalse("Повтор"))
+                .thenReturn(Optional.of(duplicate));
+
+        IllegalArgumentException error = expectThrows(
+                IllegalArgumentException.class, () -> service.edit(typeId, form, null, null));
+
+        assertEquals(error.getMessage(), "Тип передней части с таким именем уже существует");
+        verify(frontAssemblyTypeRepository, never()).save(any());
+    }
+
+    @Test
+    public void deleteMarksTypeAsDeleted() {
+        UUID typeId = UUID.randomUUID();
+        FrontAssemblyType type = new FrontAssemblyType();
+        type.setId(typeId);
+        when(frontAssemblyTypeRepository.findByIdAndIsDeletedFalse(typeId)).thenReturn(Optional.of(type));
+
+        service.delete(typeId);
+
+        assertTrue(type.getIsDeleted());
+        verify(frontAssemblyTypeRepository).save(type);
     }
 }

@@ -7,72 +7,51 @@
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/styles.css}">
+    <link rel="stylesheet" th:href="@{/front-assembly.css}">
     <style>
-        .device-table {
-            overflow: hidden;
-            margin-bottom: 2rem;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-container {
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .search-input {
-            padding: 0.75rem 1rem;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+        .btn-repair {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #8d4d4d, #cc8686);
+            color: white;
             transition: all 0.3s ease;
         }
 
-        .search-input:focus {
-            border-color: #1d7acc;
-            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
-        }
-
-        .search-icon {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            color: #6c757d;
-            transform: translateY(-50%);
-        }
-
-        .table-header {
-            padding: 1.5rem 2rem;
-            background: #1d7acc;
+        .btn-test {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #e72534, #da6f8a);
             color: white;
+            transition: all 0.3s ease;
         }
 
-        .table th,
-        .table td {
-            padding: 1rem;
-            vertical-align: middle;
+        .btn-repair:hover {
+            color: white;
+            box-shadow: 0 4px 8px rgb(201, 106, 106);
+            transform: translateY(-2px);
         }
 
-        .table th {
-            background: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
+        .btn-test:hover {
+            color: white;
+            box-shadow: 0 4px 8px rgba(243, 44, 62, 0.3);
+            transform: translateY(-2px);
         }
 
-        .empty-state {
-            padding: 3rem 2rem;
-            color: #6c757d;
-            text-align: center;
+        .confirm-modal.modal-passed .modal-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
         }
 
-        .empty-state i {
-            margin-bottom: 1rem;
-            color: #dee2e6;
-            font-size: 4rem;
+        .confirm-modal.modal-failed .modal-header,
+        .confirm-modal.modal-test .modal-header {
+            background: linear-gradient(135deg, #f32020, #f3a1a1);
         }
+
+        .confirm-modal.modal-repair .modal-header {
+            background: linear-gradient(135deg, #8d3f3f, #dc9a9a);
+        }
+
     </style>
 </head>
 <body>
@@ -125,29 +104,38 @@
                             <th>SN платы клавиатуры</th>
                             <th>Дата создания</th>
                             <th>Статус</th>
-                            <th th:if="${stage != 'ready'}">Действия</th>
+                            <th class="text-center" th:if="${stage != 'ready'}">Действия</th>
                             <th class="text-center">Файл</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="operation : ${operations}" th:with="assembly=${operation.frontAssembly}">
-                            <td th:text="${assembly.caseId}"></td>
+                            <td>
+                                <a th:if="${stage == 'ready'}"
+                                   th:href="@{/device/front-assembly/{id}/operations(id=${assembly.id})}"
+                                   style="text-decoration: none; color: inherit;"
+                                   title="Все операции сборки">
+                                    <span class="device-sn" th:text="${assembly.caseId}"></span>
+                                </a>
+                                <span th:unless="${stage == 'ready'}" class="device-sn"
+                                      th:text="${assembly.caseId}"></span>
+                            </td>
                             <td th:text="${assembly.motherboardSerialNumber}"></td>
                             <td th:text="${assembly.keyboardBoardSerialNumber}"></td>
                             <td th:text="${#temporals.format(assembly.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
                             <td th:text="${operation.status.description}"></td>
                             <td th:if="${stage != 'ready'}">
-                                <form th:if="${stage == 'repair'}" th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post">
-                                    <input type="hidden" name="action" value="complete"><input type="hidden" name="returnTo" value="repair">
-                                    <button class="btn btn-success" type="submit">Ремонт завершён</button>
-                                </form>
+                                <button th:if="${stage == 'repair'}" class="btn btn-success transition-btn" type="button"
+                                        th:data-assembly-id="${assembly.id}" data-action="complete" data-return-to="repair"
+                                        data-title="Подтверждение завершения ремонта"
+                                        data-message="Сборка будет передана на ОТК">Ремонт завершён</button>
                                 <div th:if="${stage == 'testing'}" class="d-flex gap-2">
-                                    <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post"><input type="hidden" name="action" value="passed"><input type="hidden" name="returnTo" value="testing"><button class="btn btn-success" type="submit">Пройдено</button></form>
-                                    <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post"><input type="hidden" name="action" value="failed"><input type="hidden" name="returnTo" value="testing"><button class="btn btn-danger" type="submit">Не пройдено</button></form>
+                                    <button class="btn btn-success transition-btn" type="button" th:data-assembly-id="${assembly.id}" data-action="passed" data-return-to="testing" data-title="Подтверждение результата тестирования" data-message="Сборка будет отмечена как прошедшая тестирование">Пройдено</button>
+                                    <button class="btn btn-danger transition-btn" type="button" th:data-assembly-id="${assembly.id}" data-action="failed" data-return-to="testing" data-title="Подтверждение результата тестирования" data-message="Сборка будет передана на диагностику">Не пройдено</button>
                                 </div>
                                 <div th:if="${stage == 'diagnostics'}" class="d-flex gap-2">
-                                    <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post"><input type="hidden" name="action" value="test"><input type="hidden" name="returnTo" value="diagnostics"><button class="btn btn-primary" type="submit">На тестирование №2</button></form>
-                                    <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post"><input type="hidden" name="action" value="repair"><input type="hidden" name="returnTo" value="diagnostics"><button class="btn btn-warning" type="submit">В ремонт №2</button></form>
+                                    <button class="btn btn-test transition-btn" type="button" th:data-assembly-id="${assembly.id}" data-action="test" data-return-to="diagnostics" data-title="Подтверждение отправки на тест" data-message="Сборка будет передана на тестирование №2">Тест</button>
+                                    <button class="btn btn-repair transition-btn" type="button" th:data-assembly-id="${assembly.id}" data-action="repair" data-return-to="diagnostics" data-title="Подтверждение отправки в ремонт" data-message="Сборка будет передана в ремонт №2">Ремонт</button>
                                 </div>
                             </td>
                             <td class="text-center">
@@ -176,12 +164,75 @@
     </main>
 </div>
 
+<div class="modal fade confirm-modal" id="transitionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="transitionForm" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transitionModalTitle"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="transitionModalMessage" class="mb-3"></p>
+                    <label for="transitionDescription" class="form-label">
+                        Комментарий<span id="transitionRequiredMark" class="text-danger"> *</span>:
+                    </label>
+                    <textarea id="transitionDescription" name="description" class="form-control" rows="3"
+                              placeholder="Добавьте комментарий при необходимости..."></textarea>
+                    <div class="invalid-feedback">Комментарий обязателен для этого действия.</div>
+                    <input id="transitionAction" type="hidden" name="action">
+                    <input id="transitionReturnTo" type="hidden" name="returnTo">
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Отмена
+                    </button>
+                    <button id="transitionConfirmButton" type="submit" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>Подтвердить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments :: scripts}"></div>
 <script>
     document.getElementById('searchInput').addEventListener('input', function () {
         const query = this.value.trim().toLowerCase();
         document.querySelectorAll('#assemblyTable tbody tr').forEach(row => {
             row.hidden = !row.textContent.toLowerCase().includes(query);
+        });
+    });
+
+    const transitionModal = new bootstrap.Modal(document.getElementById('transitionModal'));
+    document.querySelectorAll('.transition-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const modalElement = document.getElementById('transitionModal');
+            modalElement.classList.remove('modal-passed', 'modal-failed', 'modal-test', 'modal-repair');
+            const modalClass = button.dataset.action === 'repair' ? 'modal-repair'
+                : button.dataset.action === 'test' ? 'modal-test'
+                    : button.dataset.action === 'failed' ? 'modal-failed' : 'modal-passed';
+            modalElement.classList.add(modalClass);
+            const confirmButton = document.getElementById('transitionConfirmButton');
+            confirmButton.classList.remove('btn-primary', 'btn-success', 'btn-danger');
+            confirmButton.classList.add(modalClass === 'modal-passed' ? 'btn-success' : 'btn-danger');
+            document.getElementById('transitionForm').action =
+                '/device/front-assembly/' + button.dataset.assemblyId + '/transition';
+            document.getElementById('transitionAction').value = button.dataset.action;
+            document.getElementById('transitionReturnTo').value = button.dataset.returnTo;
+            document.getElementById('transitionModalTitle').textContent = button.dataset.title;
+            document.getElementById('transitionModalMessage').textContent = button.dataset.message;
+            document.getElementById('transitionDescription').value = '';
+            const description = document.getElementById('transitionDescription');
+            const commentRequired = button.dataset.action !== 'passed';
+            description.required = commentRequired;
+            description.placeholder = commentRequired
+                ? 'Укажите комментарий...'
+                : 'Добавьте комментарий при необходимости...';
+            document.getElementById('transitionRequiredMark').hidden = !commentRequired;
+            transitionModal.show();
         });
     });
 </script>

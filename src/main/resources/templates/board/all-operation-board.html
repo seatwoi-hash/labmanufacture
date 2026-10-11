@@ -10,14 +10,6 @@
     <link rel="stylesheet" th:href="@{/styles.css}">
     <style>
 
-        .table-fail {
-            background-color: #f6e5e8 !important;
-        }
-
-        .table-fail:hover {
-            background-color: #f6e0e2 !important;
-        }
-
         .table-rollback,
         .table-rollback > * {
             background-color: #dff3ff !important;
@@ -199,15 +191,19 @@
                                 </th>
                                 <th>Описание</th>
                                 <th style="width: 15%; cursor: pointer;" onclick="sortTable(0)">
-                                    Операции
-                                    <i class="fas fa-sort float-end mt-1"></i>
+                                    <span class="sort-label">
+                                        Операции
+                                    <i class="fas fa-sort ms-2"></i>
+                                    </span>
                                 </th>
                                 <th style="width: 15%; cursor: pointer;" onclick="sortTable(4)">
-                                    Дата операции
-                                    <i class="fas fa-sort float-end mt-1"></i>
+                                    <span class="sort-label">
+                                        Дата операции
+                                    <i class="fas fa-sort ms-2"></i>
+                                    </span>
                                 </th>
                                 <th>Фамилия</th>
-                                <th>Действие</th>
+                                <th class="text-center">Действие</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -500,7 +496,7 @@
     function updateSortIcons() {
         const table=document.querySelector('#operationsTable .table');
         if (!table) return;
-        table.querySelectorAll('thead th').forEach((h,i)=>{ const icon=h.querySelector('i'); if(!icon) return; icon.className = i===currentSortColumn ? (sortDirection==='asc'?'fas fa-sort-up float-end mt-1':'fas fa-sort-down float-end mt-1') : 'fas fa-sort float-end mt-1'; });
+        table.querySelectorAll('thead th').forEach((h,i)=>{ const icon=h.querySelector('i'); if(!icon) return; icon.className = i===currentSortColumn ? (sortDirection==='asc'?'fas fa-sort-up ms-2':'fas fa-sort-down ms-2') : 'fas fa-sort ms-2'; });
     }
 
     function startAutoRefresh() { setInterval(refreshTable, 5000); }

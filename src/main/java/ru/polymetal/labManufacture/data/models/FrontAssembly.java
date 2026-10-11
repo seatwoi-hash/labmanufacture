@@ -21,7 +21,7 @@ public class FrontAssembly {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "case_id", nullable = false, unique = true, length = 100)
+    @Column(name = "case_id", nullable = false, length = 100)
     private String caseId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
