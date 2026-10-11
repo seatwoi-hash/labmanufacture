@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.integration.controller.operation;
+package ru.polymetal.labManufacture.integration.controller.operation.board;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

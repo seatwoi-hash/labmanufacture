@@ -1,6 +1,7 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.controller.operation.board;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,11 +62,9 @@ import ru.polymetal.labManufacture.service.file.FileService;
 import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -95,35 +94,28 @@ public class OtkController {
 
     @GetMapping("/otk1-board")
     public String showOtkOneDeviceForm(Model model, Authentication authentication) {
-
-        List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(SIDE2.getCode(), REPAIR1.getCode(), TECHNICAL3.getCode()));
-
-        model.addAttribute("devices", devices);
-        model.addAttribute("nextStatus", operationService.getNextStatusMapping());
-
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-        model.addAttribute("currentUser", account);
-
-        return "operation/otk/otk1-board";
+        return showBoard(
+                model,
+                authentication,
+                Set.of(SIDE2.getCode(), REPAIR1.getCode(), TECHNICAL3.getCode()),
+                true,
+                "operation/otk/otk1-board");
     }
 
     @PostMapping("/otk1-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'QUALITY')")
     @ResponseBody
     public ResponseEntity<?> completeOtkOne(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
                                             Authentication authentication) throws IOException {
 
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+        if (!isAllowedAction(action, "passed", "failed")) {
+            return ResponseEntity.badRequest().build();
+        }
 
-
-        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
+        Account account = findAccount(authentication);
+        Operation operation = findOperation(deviceId);
 
         Boolean isInstallation = deviceSubTypeService.findIsInstallationOneById(operation);
         UUID operationIdTech = null;
@@ -159,37 +151,30 @@ public class OtkController {
 
     @GetMapping("/otk2-board")
     public String showOtkTwoDeviceForm(Model model, Authentication authentication) {
-
-        List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(INSTALLATION.getCode(), REPAIR2.getCode()));
-
-        model.addAttribute("devices", devices);
-        model.addAttribute("nextStatus", operationService.getNextStatusMapping());
-
-
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-
-        model.addAttribute("currentUser", account);
-
-        return "operation/otk/otk2-board";
+        return showBoard(
+                model,
+                authentication,
+                Set.of(INSTALLATION.getCode(), REPAIR2.getCode()),
+                true,
+                "operation/otk/otk2-board");
     }
 
     @PostMapping("/otk2-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'QUALITY')")
     @ResponseBody
     public ResponseEntity<?> completeOtkTwo(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
                                             Authentication authentication) throws IOException {
 
+        if (!isAllowedAction(action, "passed", "failed")) {
+            return ResponseEntity.badRequest().build();
+        }
+
         UUID operationIdTech = null;
 
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
+        Account account = findAccount(authentication);
+        Operation operation = findOperation(deviceId);
 
         if ("passed".equals(action)) {
             if (operation.getStatus().getName().equals(INSTALLATION.getCode())) {
@@ -212,8 +197,7 @@ public class OtkController {
             }
         }
 
-        Operation operationNew =
-                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        ensureOperationExists(operationIdTech);
 
 
         return ResponseEntity.ok().build();
@@ -222,33 +206,29 @@ public class OtkController {
 
     @GetMapping("/otk3-board")
     public String showOtkThreeDeviceForm(Model model, Authentication authentication) {
-
-        List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(REPAIR3.getCode()));
-
-        model.addAttribute("devices", devices);
-
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-
-        model.addAttribute("currentUser", account);
-
-        return "operation/otk/otk3-board";
+        return showBoard(
+                model,
+                authentication,
+                Set.of(REPAIR3.getCode()),
+                false,
+                "operation/otk/otk3-board");
     }
 
     @PostMapping("/otk3-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'QUALITY')")
     @ResponseBody
     public ResponseEntity<?> completeOtkThree(@RequestParam UUID deviceId,
                                               @RequestParam String action,
                                               @ModelAttribute("device") Operation device,
                                               Authentication authentication) throws IOException {
+
+        if (!isAllowedAction(action, "passed", "failed")) {
+            return ResponseEntity.badRequest().build();
+        }
+
         UUID operationIdTech = null;
 
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+        Account account = findAccount(authentication);
 
 
         if ("passed".equals(action)) {
@@ -259,8 +239,7 @@ public class OtkController {
                     device.getDescription());
         }
 
-        Operation operationNew =
-                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        ensureOperationExists(operationIdTech);
 
 
         return ResponseEntity.ok().build();
@@ -269,36 +248,30 @@ public class OtkController {
 
     @GetMapping("/otk4-board")
     public String showOtkFourDeviceForm(Model model, Authentication authentication) {
-
-        List<Operation> devices =
-                operationQueryService.findOperationsByStatusNames(Set.of(INSTALLATION2.getCode(), REPAIR4.getCode(), REPAIR5.getCode()));
-
-        model.addAttribute("devices", devices);
-        model.addAttribute("nextStatus", operationService.getNextStatusMapping());
-
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-
-        model.addAttribute("currentUser", account);
-
-        return "operation/otk/otk4-board";
+        return showBoard(
+                model,
+                authentication,
+                Set.of(INSTALLATION2.getCode(), REPAIR4.getCode(), REPAIR5.getCode()),
+                true,
+                "operation/otk/otk4-board");
     }
 
     @PostMapping("/otk4-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'QUALITY')")
     @ResponseBody
     public ResponseEntity<?> completeOtkFour(@RequestParam UUID deviceId,
                                              @RequestParam String action,
                                              @ModelAttribute("device") Operation device,
                                              Authentication authentication) throws IOException {
+
+        if (!isAllowedAction(action, "passed", "failed")) {
+            return ResponseEntity.badRequest().build();
+        }
+
         UUID operationIdTech = null;
 
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
+        Account account = findAccount(authentication);
+        Operation operation = findOperation(deviceId);
 
         if ("passed".equals(action)) {
             if (operation.getStatus().getName().equals(INSTALLATION2.getCode())) {
@@ -329,46 +302,37 @@ public class OtkController {
             }
         }
 
-        Operation operationNew =
-                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        ensureOperationExists(operationIdTech);
 
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/otk5-board")
     public String showOtkFiveDeviceForm(Model model, Authentication authentication) {
-
-        List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(WASHING1.getCode(), REPAIR6.getCode(), WASHING2.getCode()));
-
-
-        model.addAttribute("devices", devices);
-
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-        model.addAttribute("currentUser", account);
-        model.addAttribute("nextStatus", operationService.getNextStatusMapping());
-
-
-        return "operation/otk/otk5-board";
+        return showBoard(
+                model,
+                authentication,
+                Set.of(WASHING1.getCode(), REPAIR6.getCode(), WASHING2.getCode()),
+                true,
+                "operation/otk/otk5-board");
     }
 
     @PostMapping("/otk5-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'QUALITY')")
     @ResponseBody
     public ResponseEntity<?> completeOtkFive(@RequestParam UUID deviceId,
                                              @RequestParam String action,
                                              @ModelAttribute("device") Operation device,
                                              Authentication authentication) throws IOException {
+
+        if (!isAllowedAction(action, "passed", "failed_wash", "failed_repair")) {
+            return ResponseEntity.badRequest().build();
+        }
+
         UUID operationIdTech = null;
 
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-
-        Operation operation = operationService.findById(deviceId).orElseThrow(OperationNotFoundException::new);
+        Account account = findAccount(authentication);
+        Operation operation = findOperation(deviceId);
 
 
         if ("passed".equals(action)) {
@@ -406,40 +370,37 @@ public class OtkController {
             }
         }
 
-        Operation operationNew =
-                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        ensureOperationExists(operationIdTech);
 
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/otk6-board")
     public String showOtkSixDeviceForm(Model model, Authentication authentication) {
-
-        List<Operation> devices = operationQueryService
-                .findOperationsByStatusNames(Set.of(VARNISH.getCode()));
-        model.addAttribute("devices", devices);
-
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
-
-        model.addAttribute("currentUser", account);
-
-        return "operation/otk/otk6-board";
+        return showBoard(
+                model,
+                authentication,
+                Set.of(VARNISH.getCode()),
+                false,
+                "operation/otk/otk6-board");
     }
 
     @PostMapping("/otk6-board/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'QUALITY')")
     @ResponseBody
     public ResponseEntity<?> completeOtkSix(@RequestParam UUID deviceId,
                                             @RequestParam String action,
                                             @ModelAttribute("device") Operation device,
                                             Authentication authentication) throws IOException {
+
+        if (!isAllowedAction(action, "passed", "failed")) {
+            return ResponseEntity.badRequest().build();
+        }
+
         UUID operationIdTech = null;
 
 
-        Account account =
-                accountRepository.findByUsername(authentication.getName())
-                        .orElseThrow(() -> new UserNotFoundException(authentication.getName()));
+        Account account = findAccount(authentication);
 
 
         if ("passed".equals(action)) {
@@ -452,11 +413,40 @@ public class OtkController {
                     device.getDescription());
         }
 
-        Operation operationNew =
-                operationService.findById(operationIdTech).orElseThrow(OperationNotFoundException::new);
+        ensureOperationExists(operationIdTech);
 
 
         return ResponseEntity.ok().build();
+    }
+
+    private boolean isAllowedAction(String action, String... allowedActions) {
+        return Stream.of(allowedActions).anyMatch(allowedAction -> allowedAction.equals(action));
+    }
+
+    private String showBoard(Model model, Authentication authentication, Set<String> statusNames,
+                             boolean includeNextStatus, String viewName) {
+        List<Operation> devices = operationQueryService.findOperationsByStatusNames(statusNames);
+        model.addAttribute("devices", devices);
+        model.addAttribute("currentUser", findAccount(authentication));
+        if (includeNextStatus) {
+            model.addAttribute("nextStatus", operationService.getNextStatusMapping());
+        }
+        return viewName;
+    }
+
+    private Account findAccount(Authentication authentication) {
+        String username = authentication.getName();
+        return accountRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
+    }
+
+    private Operation findOperation(UUID operationId) {
+        return operationService.findById(operationId)
+                .orElseThrow(OperationNotFoundException::new);
+    }
+
+    private void ensureOperationExists(UUID operationId) {
+        findOperation(operationId);
     }
 
 }

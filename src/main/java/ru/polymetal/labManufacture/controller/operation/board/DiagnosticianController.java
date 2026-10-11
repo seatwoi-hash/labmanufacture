@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.controller.operation;
+package ru.polymetal.labManufacture.controller.operation.board;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

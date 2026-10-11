@@ -9,7 +9,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import ru.polymetal.labManufacture.controller.RollbackOtkController;
+import ru.polymetal.labManufacture.controller.operation.board.RollbackOtkController;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.repository.AccountRepository;
 import ru.polymetal.labManufacture.service.operation.OperationRollbackService;

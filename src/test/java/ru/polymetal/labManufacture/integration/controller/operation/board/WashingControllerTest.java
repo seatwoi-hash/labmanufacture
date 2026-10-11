@@ -1,4 +1,4 @@
-package ru.polymetal.labManufacture.integration.controller.operation;
+package ru.polymetal.labManufacture.integration.controller.operation.board;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,10 +16,12 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.FAIL_QUALITY_CHECK_1;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5;
-import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.REPAIR1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.QUALITY_CHECK_5_1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.TEST_2;
 import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.VARNISH;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING1;
+import static ru.polymetal.labManufacture.constant.DeviceStatusCodes.WASHING2;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;
@@ -33,7 +35,7 @@ import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class VarnishControllerTest extends BaseIntegrationTest {
+public class WashingControllerTest extends BaseIntegrationTest {
 
     @Autowired
     protected OperationStatusRepository operationStatusRepository;
@@ -42,17 +44,17 @@ public class VarnishControllerTest extends BaseIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
-    public void testShowVarnishDeviceForm() throws Exception {
+    public void testShowWashingOneDeviceForm() throws Exception {
 
-        mockMvc.perform(get("/device/varnish-board")
+        mockMvc.perform(get("/device/washing1-board")
                         .with(user("adminTestMVC").roles("ADMIN")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("operation/varnish/varnish-board"));
+                .andExpect(view().name("operation/washing/washing1-board"));
     }
 
     @Test
     @Transactional
-    public void testCompleteVarnish() throws Exception {
+    public void testCompleteWashingOne() throws Exception {
 
         Account account = accountRepository.findByUsername("adminTestMVC")
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
@@ -60,7 +62,7 @@ public class VarnishControllerTest extends BaseIntegrationTest {
         Device device = deviceRepository.findBySerialNumber("forTest")
                 .orElseThrow(() -> new RuntimeException("Device не найден"));
 
-        OperationStatus operationStatus = operationStatusRepository.findByName(QUALITY_CHECK_5.getCode())
+        OperationStatus operationStatus = operationStatusRepository.findByName(TEST_2.getCode())
                 .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
 
         Operation operation = new Operation();
@@ -70,7 +72,7 @@ public class VarnishControllerTest extends BaseIntegrationTest {
         operationRepository.saveAndFlush(operation);
 
 
-        mockMvc.perform(post("/device/varnish-board/complete")
+        mockMvc.perform(post("/device/washing1-board/complete")
                         .with(user("adminTestMVC").roles("ADMIN"))
                         .param("deviceId", operation.getId().toString()))
                 .andExpect(status().isOk());
@@ -81,8 +83,55 @@ public class VarnishControllerTest extends BaseIntegrationTest {
 
         assertTrue(
                 operations.stream()
-                        .anyMatch(o -> VARNISH.getCode().equals(o.getStatus().getName())),
-                "Не найдена операция со статусом VARNISH"
+                        .anyMatch(o -> WASHING1.getCode().equals(o.getStatus().getName())),
+                "Не найдена операция со статусом WASHING1"
+        );
+
+        operationRepository.delete(operation);
+    }
+
+    @Test
+    public void testShowWashingTwoDeviceForm() throws Exception {
+
+        mockMvc.perform(get("/device/washing2-board")
+                        .with(user("adminTestMVC").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("operation/washing/washing2-board"));
+    }
+
+    @Test
+    @Transactional
+    public void testCompleteWashingTwo() throws Exception {
+
+        Account account = accountRepository.findByUsername("adminTestMVC")
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        Device device = deviceRepository.findBySerialNumber("forTest")
+                .orElseThrow(() -> new RuntimeException("Device не найден"));
+
+        OperationStatus operationStatus = operationStatusRepository.findByName(QUALITY_CHECK_5_1.getCode())
+                .orElseThrow(() -> new RuntimeException("OperationStatus не найден"));
+
+        Operation operation = new Operation();
+        operation.setAccount(account);
+        operation.setDevice(device);
+        operation.setStatus(operationStatus);
+        operationRepository.saveAndFlush(operation);
+
+
+        mockMvc.perform(post("/device/washing2-board/complete")
+                        .with(user("adminTestMVC").roles("ADMIN"))
+                        .param("deviceId", operation.getId().toString()))
+                .andExpect(status().isOk());
+
+        List<Operation> operations =
+                operationRepository.findByAccountId(accountRepository.findByUsername("adminTestMVC")
+                        .orElseThrow(() -> new RuntimeException("Пользователь не найден")).getId());
+
+        assertTrue(
+                operations.stream()
+                        .anyMatch(o -> WASHING2.getCode().equals(o.getStatus().getName())),
+                "Не найдена операция со статусом WASHING2"
         );
 
         operationRepository.delete(operation);

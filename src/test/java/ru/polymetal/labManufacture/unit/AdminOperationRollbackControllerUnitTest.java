@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import ru.polymetal.labManufacture.controller.AdminOperationRollbackController;
+import ru.polymetal.labManufacture.controller.operation.board.AdminOperationRollbackController;
 import ru.polymetal.labManufacture.data.models.Account;
 import ru.polymetal.labManufacture.data.models.Device;
 import ru.polymetal.labManufacture.data.models.Operation;

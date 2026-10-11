@@ -1,8 +1,9 @@
-package ru.polymetal.labManufacture.controller;
+package ru.polymetal.labManufacture.controller.operation.board;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +40,7 @@ public class RollbackOtkController {
             "/otk5-board/rollback",
             "/otk6-board/rollback"
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'QUALITY')")
     @ResponseBody
     public ResponseEntity<Void> rollback(@RequestParam UUID deviceId,
                                          @ModelAttribute("device") Operation operation,
