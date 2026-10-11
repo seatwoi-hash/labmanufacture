@@ -11,6 +11,7 @@ import ru.polymetal.labManufacture.dto.FrontAssemblyTypeDto;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class FrontAssemblyTypeService {
@@ -27,6 +28,12 @@ public class FrontAssemblyTypeService {
     @Transactional(readOnly = true)
     public List<FrontAssemblyType> findAll() {
         return frontAssemblyTypeRepository.findAllByIsDeletedFalseOrderByNameAsc();
+    }
+
+    @Transactional(readOnly = true)
+    public FrontAssemblyType findById(UUID id) {
+        return frontAssemblyTypeRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new IllegalArgumentException("Тип передней части не найден"));
     }
 
     @Transactional
@@ -56,6 +63,43 @@ public class FrontAssemblyTypeService {
         frontAssemblyTypeRepository.save(type);
     }
 
+    @Transactional
+    public void edit(UUID id,
+                     FrontAssemblyTypeDto form,
+                     MultipartFile assemblyInstruction,
+                     MultipartFile assemblyDiagram) throws IOException {
+        FrontAssemblyType type = findById(id);
+        String name = form.name().trim();
+        frontAssemblyTypeRepository.findByNameIgnoreCaseAndIsDeletedFalse(name)
+                .filter(existing -> !existing.getId().equals(id))
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("Тип передней части с таким именем уже существует");
+                });
+
+        validatePdf(assemblyInstruction, "Инструкция сборки");
+        validatePdf(assemblyDiagram, "Сборочная схема");
+
+        type.setName(name);
+        type.setDescription(form.description().trim());
+        type.setMotherboardSubtype(findSubtype(form.motherboardTypeId(), "Тип материнской платы не найден"));
+        type.setKeyboardBoardSubtype(findSubtype(form.keyboardBoardTypeId(), "Тип платы клавиатуры не найден"));
+        setInstruction(type, assemblyInstruction);
+        setDiagram(type, assemblyDiagram);
+        frontAssemblyTypeRepository.save(type);
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        FrontAssemblyType type = findById(id);
+        type.setIsDeleted(true);
+        frontAssemblyTypeRepository.save(type);
+    }
+
+    private DeviceSubType findSubtype(UUID id, String errorMessage) {
+        return deviceSubTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(errorMessage));
+    }
+
     private void validatePdf(MultipartFile file, String fieldName) {
         if (file == null || file.isEmpty()) {
             return;
@@ -63,6 +107,19 @@ public class FrontAssemblyTypeService {
         String filename = file.getOriginalFilename();
         if (filename == null || !filename.toLowerCase().endsWith(".pdf")) {
             throw new IllegalArgumentException(fieldName + ": допустим только PDF-файл");
+        }
+        try {
+            byte[] content = file.getBytes();
+            if (content.length < 5
+                    || content[0] != '%'
+                    || content[1] != 'P'
+                    || content[2] != 'D'
+                    || content[3] != 'F'
+                    || content[4] != '-') {
+                throw new IllegalArgumentException(fieldName + ": содержимое файла не является PDF");
+            }
+        } catch (IOException exception) {
+            throw new IllegalArgumentException(fieldName + ": не удалось прочитать файл", exception);
         }
     }
 

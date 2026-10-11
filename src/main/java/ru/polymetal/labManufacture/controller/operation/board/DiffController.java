@@ -1,9 +1,5 @@
 package ru.polymetal.labManufacture.controller.operation.board;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +29,7 @@ import ru.polymetal.labManufacture.exception.UserNotFoundException;
 import ru.polymetal.labManufacture.service.device.DeviceService;
 import ru.polymetal.labManufacture.service.DeviceStatusService;
 import ru.polymetal.labManufacture.service.DeviceSubTypeService;
+import ru.polymetal.labManufacture.service.FrontAssemblyFlowService;
 import ru.polymetal.labManufacture.service.operation.OperationQueryService;
 import ru.polymetal.labManufacture.service.operation.OperationRollbackService;
 import ru.polymetal.labManufacture.service.operation.OperationService;
@@ -59,10 +56,15 @@ public class DiffController {
     private final DeviceService deviceService;
     private final OperationQueryService operationQueryService;
     private final OperationRollbackService operationRollbackService;
+    private final FrontAssemblyFlowService frontAssemblyFlowService;
 
 
 
-    public DiffController(AccountRepository accountRepository, OperationService operationService, DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService, DeviceService deviceService, OperationQueryService operationQueryService, OperationRollbackService operationRollbackService) {
+    public DiffController(AccountRepository accountRepository, OperationService operationService,
+                          DeviceStatusService deviceStatusService, DeviceSubTypeService deviceSubTypeService,
+                          DeviceService deviceService, OperationQueryService operationQueryService,
+                          OperationRollbackService operationRollbackService,
+                          FrontAssemblyFlowService frontAssemblyFlowService) {
         this.accountRepository = accountRepository;
         this.operationService = operationService;
         this.deviceStatusService = deviceStatusService;
@@ -70,6 +72,7 @@ public class DiffController {
         this.deviceService = deviceService;
         this.operationQueryService = operationQueryService;
         this.operationRollbackService = operationRollbackService;
+        this.frontAssemblyFlowService = frontAssemblyFlowService;
     }
 
     @GetMapping("/mone-board")
@@ -150,10 +153,14 @@ public class DiffController {
 
         List<Operation> devices = operationQueryService
                 .findOperationsByStatusNames(Set.of(READY.getCode()));
+        Set<UUID> usedBoardIds = frontAssemblyFlowService.findUsedBoardIds();
 
 
-        List<Operation> sortDevices =
-                devices.stream().sorted(Comparator.comparing(Operation::getCreatedTime).reversed()).collect(Collectors.toList());
+        List<Operation> sortDevices = devices.stream()
+                .filter(operation -> operation.getDevice() != null)
+                .filter(operation -> !usedBoardIds.contains(operation.getDevice().getId()))
+                .sorted(Comparator.comparing(Operation::getCreatedTime).reversed())
+                .collect(Collectors.toList());
 
         model.addAttribute("devices", sortDevices);
 
@@ -286,33 +293,24 @@ public class DiffController {
 
     @GetMapping("/ready-board-temp")
     public String showReadyBoardTemp(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "50") int size,
             @RequestParam(value = "search", required = false) String search,
             Model model,
             Authentication authentication) {
 
-        UUID readyStatusId = deviceStatusService.findByName(READY.getCode()).getId();
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdTime").descending());
-
-        Page<Operation> devicePage;
-
-
-        if (search != null && !search.trim().isEmpty()) {
-            devicePage = operationService.findByStatusIdAndSerialNumberContainingIgnoreCase(
-                    readyStatusId, search.trim(), pageable);
-        } else {
-            devicePage = operationService.findByStatusId(readyStatusId, pageable);
-        }
-
-        List<Operation> sortDevices = devicePage.getContent();
+        String normalizedSearch = search == null ? "" : search.trim();
+        Set<UUID> usedBoardIds = frontAssemblyFlowService.findUsedBoardIds();
+        List<Operation> sortDevices = operationQueryService
+                .findOperationsByStatusNames(Set.of(READY.getCode())).stream()
+                .filter(operation -> operation.getDevice() != null)
+                .filter(operation -> !usedBoardIds.contains(operation.getDevice().getId()))
+                .filter(operation -> normalizedSearch.isEmpty()
+                        || operation.getDevice().getSerialNumber().toLowerCase()
+                        .contains(normalizedSearch.toLowerCase()))
+                .sorted(Comparator.comparing(Operation::getCreatedTime).reversed())
+                .toList();
 
         model.addAttribute("devices", sortDevices);
-        model.addAttribute("devicePage", devicePage);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", devicePage.getTotalPages());
-        model.addAttribute("totalElements", devicePage.getTotalElements());
-        model.addAttribute("pageSize", size);
+        model.addAttribute("totalElements", sortDevices.size());
         model.addAttribute("searchTerm", search);
 
         Account account =

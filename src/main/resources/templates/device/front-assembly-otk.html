@@ -7,63 +7,8 @@
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/styles.css}">
+    <link rel="stylesheet" th:href="@{/front-assembly.css}">
     <style>
-        .device-table {
-            overflow: hidden;
-            margin-bottom: 2rem;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-container {
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .search-input {
-            padding: 0.75rem 1rem;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            border-color: #1d7acc;
-            box-shadow: 0 0 0 0.2rem rgba(29, 122, 204, 0.25);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        .table-header {
-            background: linear-gradient(135deg, #1d7acc, #1d7acc);
-            color: white;
-            padding: 1.5rem 2rem;
-        }
-
-        .table th {
-            border-top: none;
-            background-color: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-            padding: 1rem;
-        }
-
-        .table td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
-
         .action-buttons {
             display: flex;
             gap: 0.5rem;
@@ -97,16 +42,12 @@
             transform: translateY(-2px);
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #6c757d;
+        .confirm-modal.modal-passed .modal-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
         }
 
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #dee2e6;
+        .confirm-modal.modal-failed .modal-header {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
         }
     </style>
 </head>
@@ -168,26 +109,29 @@
                                 <th>SN материнской платы</th>
                                 <th>SN платы клавиатуры</th>
                                 <th>Дата создания</th>
-                                <th>Действия</th>
+                                <th class="text-center">Действия</th>
                                 <th class="text-center">Файл</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="operation : ${operations}" th:with="assembly=${operation.frontAssembly}">
-                                <td><strong th:text="${assembly.caseId}"></strong><br><small class="text-muted" th:text="${operation.status.description}"></small></td>
+                                <td>
+                                    <span class="device-sn" th:text="${assembly.caseId}"></span>
+                                    <br><small class="text-muted" th:text="${operation.status.description}"></small>
+                                </td>
                                 <td th:text="${assembly.motherboardSerialNumber}"></td>
                                 <td th:text="${assembly.keyboardBoardSerialNumber}"></td>
                                 <td th:text="${#temporals.format(assembly.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post">
-                                            <input type="hidden" name="action" value="passed"><input type="hidden" name="returnTo" value="otk">
-                                            <button type="submit" class="btn btn-passed">Пройдено</button>
-                                        </form>
-                                        <form th:action="@{/device/front-assembly/{id}/transition(id=${assembly.id})}" method="post">
-                                            <input type="hidden" name="action" value="failed"><input type="hidden" name="returnTo" value="otk">
-                                            <button type="submit" class="btn btn-failed">Не пройдено</button>
-                                        </form>
+                                        <button type="button" class="btn btn-passed otk-transition-btn"
+                                                th:data-assembly-id="${assembly.id}" data-action="passed"
+                                                data-title="Подтверждение прохождения ОТК"
+                                                data-message="Сборка будет передана на следующий этап">Пройдено</button>
+                                        <button type="button" class="btn btn-failed otk-transition-btn"
+                                                th:data-assembly-id="${assembly.id}" data-action="failed"
+                                                data-title="Подтверждение отклонения ОТК"
+                                                data-message="Сборка будет передана в ремонт">Не пройдено</button>
                                     </div>
                                 </td>
                                 <td class="text-center">
@@ -218,12 +162,67 @@
     </main>
 </div>
 
+<div class="modal fade confirm-modal" id="otkTransitionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="otkTransitionForm" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="otkTransitionTitle"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="otkTransitionMessage" class="mb-3"></p>
+                    <label for="otkTransitionDescription" class="form-label">
+                        Комментарий<span id="otkRequiredMark" class="text-danger"> *</span>:
+                    </label>
+                    <textarea id="otkTransitionDescription" name="description" class="form-control" rows="3"
+                              placeholder="Добавьте комментарий при необходимости..."></textarea>
+                    <div class="invalid-feedback">Комментарий обязателен для этого действия.</div>
+                    <input id="otkTransitionAction" type="hidden" name="action">
+                    <input type="hidden" name="returnTo" value="otk">
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Отмена</button>
+                    <button id="otkTransitionConfirmButton" type="submit" class="btn btn-primary"><i class="fas fa-check me-2"></i>Подтвердить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments :: scripts}"></div>
 <script>
     document.getElementById('searchInput').addEventListener('input', function () {
         const query = this.value.trim().toLowerCase();
         document.querySelectorAll('#assemblyTable tbody tr').forEach(row => {
             row.hidden = !row.textContent.toLowerCase().includes(query);
+        });
+    });
+
+    const otkTransitionModal = new bootstrap.Modal(document.getElementById('otkTransitionModal'));
+    document.querySelectorAll('.otk-transition-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const modalElement = document.getElementById('otkTransitionModal');
+            const passed = button.dataset.action === 'passed';
+            modalElement.classList.toggle('modal-passed', passed);
+            modalElement.classList.toggle('modal-failed', !passed);
+            const confirmButton = document.getElementById('otkTransitionConfirmButton');
+            confirmButton.classList.remove('btn-primary', 'btn-success', 'btn-danger');
+            confirmButton.classList.add(passed ? 'btn-success' : 'btn-danger');
+            document.getElementById('otkTransitionForm').action =
+                '/device/front-assembly/' + button.dataset.assemblyId + '/transition';
+            document.getElementById('otkTransitionAction').value = button.dataset.action;
+            document.getElementById('otkTransitionTitle').textContent = button.dataset.title;
+            document.getElementById('otkTransitionMessage').textContent = button.dataset.message;
+            document.getElementById('otkTransitionDescription').value = '';
+            const description = document.getElementById('otkTransitionDescription');
+            description.required = !passed;
+            description.placeholder = passed
+                ? 'Добавьте комментарий при необходимости...'
+                : 'Укажите комментарий...';
+            document.getElementById('otkRequiredMark').hidden = passed;
+            otkTransitionModal.show();
         });
     });
 </script>

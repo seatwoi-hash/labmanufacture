@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public interface FrontAssemblyOperationRepository extends JpaRepository<FrontAssemblyOperation, UUID> {
     @Query("select o from FrontAssemblyOperation o join fetch o.frontAssembly a " +
-            "join fetch a.motherboard join fetch a.keyboardBoard join fetch o.status " +
+            "join fetch a.type join fetch a.motherboard join fetch a.keyboardBoard join fetch o.status " +
             "where o.isDeleted = false and a.isDeleted = false and o.status.name in :statuses " +
             "order by o.createdTime asc")
     List<FrontAssemblyOperation> findActiveByStatusNames(@Param("statuses") Collection<String> statuses);
@@ -23,4 +23,10 @@ public interface FrontAssemblyOperationRepository extends JpaRepository<FrontAss
     @Query("select o from FrontAssemblyOperation o join fetch o.status " +
             "where o.frontAssembly.id = :assemblyId and o.isDeleted = false")
     Optional<FrontAssemblyOperation> findActiveForUpdate(@Param("assemblyId") UUID assemblyId);
+
+    @Query("select o from FrontAssemblyOperation o join fetch o.frontAssembly a " +
+            "join fetch a.type join fetch a.motherboard join fetch a.keyboardBoard " +
+            "join fetch o.status join fetch o.account " +
+            "where a.id = :assemblyId order by o.createdTime desc")
+    List<FrontAssemblyOperation> findHistoryByAssemblyId(@Param("assemblyId") UUID assemblyId);
 }

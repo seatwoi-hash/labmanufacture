@@ -101,7 +101,7 @@
                                 </a>
                             </th>
                             <th>Этап возврата</th>
-                            <th>Действие</th>
+                            <th class="text-center">Действие</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -120,7 +120,7 @@
                                     </option>
                                 </select>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <button class="btn btn-primary text-nowrap rollback-button" type="button"
                                         data-bs-toggle="modal" data-bs-target="#rollbackModal"
                                         th:attr="data-operation-id=${operation.id},data-serial-number=${operation.device.serialNumber}"
@@ -285,4 +285,3 @@
 </script>
 </body>
 </html>
-
