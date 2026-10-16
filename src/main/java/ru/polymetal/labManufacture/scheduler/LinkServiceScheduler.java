@@ -1,5 +1,7 @@
 package ru.polymetal.labManufacture.scheduler;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,14 @@ public class LinkServiceScheduler {
     private final NextcloudService nextcloudService;
     private final LinkService linkService;
 
+
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void runOnceAfterStartup() throws IOException {
+        taskWithCron();
+        taskWithCronTwo();
+    }
+    
     @Scheduled(cron = "0 0 1,6 * * *")
     public void taskWithCron() throws IOException {
         List<Device> devices = deviceRepository.findAll();
