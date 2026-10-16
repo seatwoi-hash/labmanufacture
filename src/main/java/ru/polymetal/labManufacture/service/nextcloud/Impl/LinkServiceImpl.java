@@ -181,7 +181,7 @@ public class LinkServiceImpl implements LinkService {
                 "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json";
 
         String shareName = "ссылка";
-        String shareName2 = "ссылкаДляРедактирования";
+        String shareName2 = "ссылкаДляЧтения";
         String filePathPdf = "/" + newFileNamePdf;
         String filePathTxt = "/" + newFileNameTxt;
         byte[] content = nextcloudService.downloadFile(device.getSubtype().getFileName());
