@@ -181,6 +181,7 @@ public class LinkServiceImpl implements LinkService {
                 "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json";
 
         String shareName = "ссылка";
+        String shareName2 = "ссылкаДляРедактирования";
         String filePathPdf = "/" + newFileNamePdf;
         String filePathTxt = "/" + newFileNameTxt;
         byte[] content = nextcloudService.downloadFile(device.getSubtype().getFileName());
@@ -200,7 +201,7 @@ public class LinkServiceImpl implements LinkService {
                 log.warn("Sleep interrupted", e);
             }
 
-            this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device, 1);
+            this.createPublicShare(sn, filePathPdf, shareName2, apiUrl, device, 1);
 
             log.info("PDF file created: {}", newFileNamePdf);
         } else {
@@ -217,7 +218,7 @@ public class LinkServiceImpl implements LinkService {
                     Thread.currentThread().interrupt();
                     log.warn("Sleep interrupted", e);
                 }
-                this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device, 1);
+                this.createPublicShare(sn, filePathPdf, shareName2, apiUrl, device, 1);
 
             }
         }
@@ -240,7 +241,7 @@ public class LinkServiceImpl implements LinkService {
                 log.warn("Sleep interrupted", e);
             }
 
-            this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device, 1);
+            this.createPublicShare(sn, filePathTxt, shareName2, apiUrl, device, 1);
 
             log.info("TXT file created: {}", newFileNameTxt);
         } else {
@@ -256,7 +257,7 @@ public class LinkServiceImpl implements LinkService {
                     log.warn("Sleep interrupted", e);
                 }
 
-                this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device, 1);
+                this.createPublicShare(sn, filePathTxt, shareName2, apiUrl, device, 1);
 
             }
         }
