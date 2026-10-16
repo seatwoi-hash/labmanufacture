@@ -207,8 +207,7 @@ public class LinkServiceImpl implements LinkService {
         } else {
             log.info("PDF file already exists: {}, skipping upload", newFileNamePdf);
             // Если файл есть, но ссылки нет в БД - создаем только ссылку
-            if (device.getUrlPDF() == null || device.getUrlPDF().isEmpty() ||
-                    device.getUrlPDFRead() == null || device.getUrlPDFRead().isEmpty()) {
+            if (device.getUrlPDF() == null || device.getUrlPDF().isEmpty()) {
 
                 this.createPublicShare(sn, filePathPdf, shareName, apiUrl, device, 31);
 
@@ -218,6 +217,8 @@ public class LinkServiceImpl implements LinkService {
                     Thread.currentThread().interrupt();
                     log.warn("Sleep interrupted", e);
                 }
+            }
+            if (device.getUrlPDFRead() == null || device.getUrlPDFRead().isEmpty()) {
                 this.createPublicShare(sn, filePathPdf, shareName2, apiUrl, device, 1);
 
             }
@@ -246,8 +247,7 @@ public class LinkServiceImpl implements LinkService {
             log.info("TXT file created: {}", newFileNameTxt);
         } else {
             log.info("TXT file already exists: {}, skipping upload", newFileNameTxt);
-            if (device.getUrlTXT() == null || device.getUrlTXT().isEmpty() ||
-                    device.getUrlTXTRead() == null || device.getUrlTXTRead().isEmpty()) {
+            if (device.getUrlTXT() == null || device.getUrlTXT().isEmpty()) {
                 this.createPublicShare(sn, filePathTxt, shareName, apiUrl, device, 31);
 
                 try {
@@ -256,7 +256,8 @@ public class LinkServiceImpl implements LinkService {
                     Thread.currentThread().interrupt();
                     log.warn("Sleep interrupted", e);
                 }
-
+            }
+            if (device.getUrlTXTRead() == null || device.getUrlTXTRead().isEmpty()) {
                 this.createPublicShare(sn, filePathTxt, shareName2, apiUrl, device, 1);
 
             }
